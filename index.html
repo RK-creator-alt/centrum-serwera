@@ -1,1807 +1,3818 @@
+```html
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centrum Serwera</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centrum Serwera</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #07111f;
+    color: #eef5ff;
+}
 
-    header {
-      background: #111827;
-      border-bottom: 1px solid #263244;
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-    }
+button {
+    cursor: pointer;
+}
 
-    .status {
-      font-size: 14px;
-      color: #22c55e;
-    }
+.topbar {
+    background: #0b1728;
+    border-bottom: 1px solid #20334c;
+    padding: 16px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 
-    .container {
-      max-width: 1150px;
-      margin: auto;
-      padding: 30px 20px;
-    }
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
 
-    .hidden {
-      display: none !important;
-    }
+.user-info {
+    color: #9db0c9;
+    font-size: 14px;
+}
 
-    .login-box {
-      max-width: 420px;
-      margin: 80px auto;
-      background: #111827;
-      padding: 30px;
-      border-radius: 14px;
-      border: 1px solid #263244;
-    }
+.container {
+    width: min(1200px, 94%);
+    margin: 25px auto 50px;
+}
 
-    input,
-    textarea,
-    select {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      background: #1f2937;
-      color: white;
-      font-family: inherit;
-    }
+.card {
+    background: #0c192b;
+    border: 1px solid #213650;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
 
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
+h1,
+h2,
+h3 {
+    margin-top: 0;
+}
 
-    button {
-      padding: 11px 16px;
-      border: 0;
-      border-radius: 8px;
-      background: #2563eb;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+h1 {
+    font-size: 30px;
+}
 
-    button:hover {
-      background: #1d4ed8;
-    }
+h2 {
+    font-size: 23px;
+}
 
-    .danger {
-      background: #dc2626;
-    }
+h3 {
+    font-size: 18px;
+}
 
-    .danger:hover {
-      background: #b91c1c;
-    }
+.muted {
+    color: #91a4bd;
+}
 
-    .secondary {
-      background: #374151;
-    }
+.hidden {
+    display: none !important;
+}
 
-    .secondary:hover {
-      background: #4b5563;
-    }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 15px;
+}
 
-    .success {
-      background: #15803d;
-    }
+.module {
+    background: #0b1728;
+    border: 1px solid #233953;
+    border-radius: 14px;
+    padding: 22px;
+    min-height: 145px;
+    transition: .15s;
+}
 
-    .welcome {
-      background: #111827;
-      padding: 25px;
-      border-radius: 14px;
-      border: 1px solid #263244;
-      margin-bottom: 20px;
-    }
+.module:hover {
+    border-color: #42688f;
+    transform: translateY(-2px);
+}
 
-    .logout {
-      margin-top: 15px;
-    }
+.module-icon {
+    font-size: 34px;
+    margin-bottom: 12px;
+}
 
-    .modules {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-    }
+.module-title {
+    font-size: 18px;
+    font-weight: bold;
+}
 
-    .module {
-      background: #111827;
-      border: 1px solid #263244;
-      border-radius: 14px;
-      padding: 22px;
-      min-height: 140px;
-      cursor: pointer;
-      transition: .2s;
-    }
+.module-desc {
+    color: #8fa3bc;
+    margin-top: 7px;
+    font-size: 14px;
+}
 
-    .module:hover {
-      transform: translateY(-3px);
-      border-color: #3b82f6;
-      background: #162033;
-    }
+button {
+    border: 1px solid #29415f;
+    background: #12243a;
+    color: #eef5ff;
+    border-radius: 9px;
+    padding: 10px 14px;
+}
 
-    .page {
-      background: #111827;
-      border: 1px solid #263244;
-      border-radius: 14px;
-      padding: 25px;
-    }
+button:hover {
+    background: #18314e;
+}
 
-    .back {
-      background: #374151;
-      margin-bottom: 20px;
-    }
+.primary {
+    background: #16446e;
+    border-color: #286a9f;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
+.danger {
+    background: #491c25;
+    border-color: #78303d;
+}
 
-    .card {
-      background: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 10px;
-      padding: 18px;
-    }
+.success {
+    background: #163c30;
+    border-color: #28634d;
+}
 
-    .card h3 {
-      margin-top: 0;
-    }
+.back {
+    margin-bottom: 18px;
+}
 
-    .admin-box {
-      margin-top: 30px;
-      padding: 20px;
-      background: #0f172a;
-      border: 1px solid #374151;
-      border-radius: 12px;
-    }
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
 
-    .admin-box h2 {
-      margin-top: 0;
-    }
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-    .admin-section {
-      background: #111827;
-      border: 1px solid #263244;
-      border-radius: 10px;
-      padding: 18px;
-      margin-top: 15px;
-    }
+.field label {
+    color: #9eb0c7;
+    font-size: 13px;
+}
 
-    .admin-section h3 {
-      margin-top: 0;
-    }
+input,
+select,
+textarea {
+    width: 100%;
+    background: #07111f;
+    color: #eef5ff;
+    border: 1px solid #29415f;
+    border-radius: 8px;
+    padding: 11px;
+    outline: none;
+}
 
-    .item {
-      background: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 9px;
-      padding: 14px;
-      margin: 10px 0;
-    }
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
 
-    .item-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-    }
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #4d83b5;
+}
 
-    .item-actions {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
 
-    .item-actions button {
-      padding: 8px 11px;
-    }
+.table-wrap {
+    overflow-x: auto;
+}
 
-    .empty {
-      color: #9ca3af;
-      padding: 10px 0;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    .error {
-      color: #f87171;
-      margin-top: 10px;
-    }
+th,
+td {
+    border-bottom: 1px solid #213650;
+    padding: 11px 9px;
+    text-align: left;
+    vertical-align: top;
+}
 
-    .message {
-      margin: 12px 0;
-      padding: 12px;
-      border-radius: 8px;
-      background: #172554;
-      border: 1px solid #1d4ed8;
-    }
+th {
+    color: #9eb2ca;
+    font-size: 13px;
+}
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+td {
+    font-size: 14px;
+}
 
-    @media (max-width: 650px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #162b43;
+    border: 1px solid #294763;
+    font-size: 12px;
+}
 
-      .item-top {
-        flex-direction: column;
-      }
+.badge-paid {
+    background: #15392d;
+}
 
-      header {
-        padding: 15px;
-      }
-    }
-  </style>
+.badge-unpaid {
+    background: #402b16;
+}
+
+.badge-cancelled {
+    background: #3d1d25;
+}
+
+.auth-box {
+    width: min(460px, 94%);
+    margin: 70px auto;
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.auth-logo .big {
+    font-size: 48px;
+}
+
+.auth-logo h1 {
+    margin: 8px 0;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.auth-tabs button {
+    flex: 1;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 9px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.message.show {
+    display: block;
+}
+
+.message.error {
+    background: #431d26;
+    border: 1px solid #74313f;
+}
+
+.message.ok {
+    background: #163b2f;
+    border: 1px solid #28644f;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.stat {
+    background: #091626;
+    border: 1px solid #213650;
+    border-radius: 12px;
+    padding: 17px;
+}
+
+.stat-number {
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.small {
+    font-size: 12px;
+    color: #8195ad;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.player-select {
+    min-width: 280px;
+}
+
+.login-footer {
+    text-align: center;
+    color: #71869f;
+    font-size: 12px;
+    margin-top: 20px;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div class="logo">🏢 Centrum Serwera</div>
-  <div class="status" id="connectionStatus">Łączenie...</div>
-</header>
+<!-- =========================================
+     AUTH
+========================================= -->
 
-<div class="container">
+<div id="authScreen">
 
-  <!-- LOGOWANIE -->
-  <div id="loginScreen" class="login-box">
-    <h1>Logowanie</h1>
-    <p>Zaloguj się do Centrum Serwera.</p>
+    <div class="auth-box">
 
-    <input id="email" type="email" placeholder="E-mail">
-    <input id="password" type="password" placeholder="Hasło">
-
-    <button onclick="login()">Zaloguj się</button>
-
-    <div id="loginError" class="error"></div>
-  </div>
-
-
-  <!-- APLIKACJA -->
-  <div id="appScreen" class="hidden">
-
-    <div class="welcome">
-      <h1>Witaj, <span id="displayName"></span>!</h1>
-      <p id="roleText"></p>
-
-      <button class="secondary logout" onclick="logout()">
-        Wyloguj
-      </button>
-    </div>
-
-
-    <!-- STRONA GŁÓWNA -->
-    <div id="homePage">
-
-      <div class="modules">
-
-        <div class="module" onclick="openTax()">
-          <h3>🏢 Urząd Skarbowy</h3>
-          <p>Podatki, opłaty, licencje, działki i nieruchomości.</p>
-        </div>
-
-        <div class="module" onclick="openOther('⚖️ Sąd','Sprawy, wyroki, orzeczenia i archiwum sądowe.')">
-          <h3>⚖️ Sąd</h3>
-          <p>Sprawy, wyroki, orzeczenia i archiwum.</p>
-        </div>
-
-        <div class="module" onclick="openOther('🚒 Bezpieczeństwo','Straż, wojsko, SWAT, ratownictwo, alarmy i schrony.')">
-          <h3>🚒 Bezpieczeństwo</h3>
-          <p>Służby, alarmy i ratownictwo.</p>
-        </div>
-
-        <div class="module" onclick="openOther('🏦 Bank','Kursy DX, kredyty, opłaty i informacje bankowe.')">
-          <h3>🏦 Bank</h3>
-          <p>Bank, kursy, kredyty i opłaty.</p>
-        </div>
-
-        <div class="module" onclick="openOther('👑 Władze','Burmistrz, rząd, Sejm, urzędy i wybory.')">
-          <h3>👑 Władze</h3>
-          <p>Władze i historia wyborów.</p>
-        </div>
-
-        <div class="module" onclick="openOther('⛪ Parafia','Kościoły, msze, wydarzenia i kronika parafialna.')">
-          <h3>⛪ Parafia</h3>
-          <p>Msze, wydarzenia i kronika.</p>
-        </div>
-
-        <div class="module" onclick="openOther('📰 TVW / Redakcja','Aktualności, artykuły, wywiady i śledztwa.')">
-          <h3>📰 TVW / Redakcja</h3>
-          <p>Aktualności i dziennikarstwo.</p>
-        </div>
-
-        <div class="module" onclick="openOther('📚 Archiwum','Dawne prawa, konstytucje, burmistrzowie, mapy i wydarzenia.')">
-          <h3>📚 Archiwum</h3>
-          <p>Historia miasta i dokumenty.</p>
-        </div>
-
-        <div class="module" onclick="openOther('📋 Rejestry','Działki, budynki, licencje, prawa, wyroki i instytucje.')">
-          <h3>📋 Rejestry</h3>
-          <p>Publiczne rejestry serwera.</p>
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- URZĄD SKARBOWY -->
-    <div id="taxPage" class="page hidden">
-
-      <button class="back" onclick="goHome()">← Wróć do Centrum</button>
-
-      <h1>🏢 Urząd Skarbowy</h1>
-
-      <p>
-        Aktualne podatki, opłaty, licencje, nieruchomości
-        i wynagrodzenia.
-      </p>
-
-      <div id="taxMessage"></div>
-
-      <div class="cards">
-
-        <div class="card">
-          <h3>💰 Podatki</h3>
-          <p>Aktywne podatki:</p>
-          <strong id="taxCount">0</strong>
+        <div class="auth-logo">
+            <div class="big">🏛️</div>
+            <h1>Centrum Serwera</h1>
+            <div class="muted">System administracyjny serwera</div>
         </div>
 
         <div class="card">
-          <h3>💳 Opłaty</h3>
-          <p>Aktywne opłaty:</p>
-          <strong id="feeCount">0</strong>
-        </div>
 
-        <div class="card">
-          <h3>📜 Licencje</h3>
-          <p>Aktywne licencje:</p>
-          <strong id="licenseCount">0</strong>
-        </div>
+            <div class="auth-tabs">
+                <button id="loginTab" class="primary" onclick="showLogin()">Logowanie</button>
+                <button id="registerTab" onclick="showRegister()">Rejestracja</button>
+            </div>
 
-        <div class="card">
-          <h3>🏠 Nieruchomości</h3>
-          <p>Zarejestrowane:</p>
-          <strong id="propertyCount">0</strong>
-        </div>
+            <div id="authMessage" class="message"></div>
 
-      </div>
+            <!-- LOGIN -->
+            <div id="loginForm">
 
+                <div class="field">
+                    <label>E-mail</label>
+                    <input id="loginEmail" type="email" placeholder="twoj@email.com">
+                </div>
 
-      <!-- PODATKI -->
-      <div class="section">
-        <h2>💰 Podatki</h2>
-        <div id="taxList"></div>
-      </div>
+                <br>
 
+                <div class="field">
+                    <label>Hasło</label>
+                    <input id="loginPassword" type="password" placeholder="Hasło">
+                </div>
 
-      <!-- OPŁATY -->
-      <div class="section">
-        <h2>💳 Opłaty</h2>
-        <div id="feeList"></div>
-      </div>
+                <div class="form-actions">
+                    <button class="primary" onclick="login()">
+                        🔐 Zaloguj się
+                    </button>
+                </div>
 
+            </div>
 
-      <!-- LICENCJE -->
-      <div class="section">
-        <h2>📜 Licencje</h2>
-        <div id="licenseList"></div>
-      </div>
+            <!-- REGISTER -->
+            <div id="registerForm" class="hidden">
 
+                <div class="field">
+                    <label>Nick Minecraft</label>
+                    <input id="registerNick" type="text" placeholder="np. Kacper123">
+                </div>
 
-      <!-- NIERUCHOMOŚCI -->
-      <div class="section">
-        <h2>🏠 Nieruchomości</h2>
-        <div id="propertyList"></div>
-      </div>
+                <br>
 
+                <div class="field">
+                    <label>E-mail</label>
+                    <input id="registerEmail" type="email" placeholder="twoj@email.com">
+                </div>
 
-      <!-- WYNAGRODZENIA -->
-      <div class="section">
-        <h2>💼 Wynagrodzenia</h2>
-        <div id="salaryList"></div>
-      </div>
+                <br>
 
+                <div class="field">
+                    <label>Hasło</label>
+                    <input id="registerPassword" type="password" placeholder="Minimum 6 znaków">
+                </div>
 
-      <!-- PANEL ADMINA -->
-      <div id="adminPanel" class="admin-box hidden">
+                <br>
 
-        <h2>⚙️ Panel administratora</h2>
+                <div class="field">
+                    <label>Powtórz hasło</label>
+                    <input id="registerPassword2" type="password">
+                </div>
 
-        <p>
-          Administrator może dodawać, edytować i usuwać
-          dane Urzędu Skarbowego.
-        </p>
+                <div class="form-actions">
+                    <button class="primary" onclick="registerPlayer()">
+                        📝 Utwórz konto
+                    </button>
+                </div>
 
-
-        <!-- PODATEK -->
-        <div class="admin-section">
-
-          <h3>💰 Zarządzanie podatkami</h3>
-
-          <input type="hidden" id="taxEditId">
-
-          <input id="taxName" placeholder="Nazwa podatku">
-          <textarea id="taxDescription" placeholder="Opis"></textarea>
-
-          <div class="form-grid">
-            <input id="taxRate" type="number" step="0.01" placeholder="Kwota">
-            <input id="taxUnit" placeholder="Jednostka, np. DX" value="DX">
-          </div>
-
-          <button onclick="saveTax()">💾 Zapisz podatek</button>
-          <button class="secondary" onclick="clearTaxForm()">Wyczyść</button>
+            </div>
 
         </div>
 
-
-        <!-- OPŁATA -->
-        <div class="admin-section">
-
-          <h3>💳 Zarządzanie opłatami</h3>
-
-          <input type="hidden" id="feeEditId">
-
-          <input id="feeName" placeholder="Nazwa opłaty">
-          <textarea id="feeDescription" placeholder="Opis"></textarea>
-
-          <div class="form-grid">
-            <input id="feeAmount" type="number" step="0.01" placeholder="Kwota">
-            <input id="feeUnit" placeholder="Jednostka, np. DX" value="DX">
-          </div>
-
-          <button onclick="saveFee()">💾 Zapisz opłatę</button>
-          <button class="secondary" onclick="clearFeeForm()">Wyczyść</button>
-
+        <div class="login-footer">
+            Centrum Serwera
         </div>
-
-
-        <!-- LICENCJA -->
-        <div class="admin-section">
-
-          <h3>📜 Zarządzanie licencjami</h3>
-
-          <input type="hidden" id="licenseEditId">
-
-          <input id="licenseName" placeholder="Nazwa licencji">
-          <textarea id="licenseDescription" placeholder="Opis"></textarea>
-
-          <div class="form-grid">
-            <input id="licensePrice" type="number" step="0.01" placeholder="Cena">
-            <input id="licenseDays" type="number" placeholder="Ważność w dniach">
-          </div>
-
-          <button onclick="saveLicense()">💾 Zapisz licencję</button>
-          <button class="secondary" onclick="clearLicenseForm()">Wyczyść</button>
-
-        </div>
-
-
-        <!-- NIERUCHOMOŚĆ -->
-        <div class="admin-section">
-
-          <h3>🏠 Zarządzanie nieruchomościami</h3>
-
-          <input type="hidden" id="propertyEditId">
-
-          <input id="propertyPlot" placeholder="Numer działki">
-          <input id="propertyAddress" placeholder="Adres">
-
-          <div class="form-grid">
-            <input id="propertyOwner" placeholder="Właściciel">
-            <input id="propertyType" placeholder="Typ nieruchomości">
-          </div>
-
-          <input id="propertyValue" type="number" step="0.01" placeholder="Wartość">
-
-          <button onclick="saveProperty()">💾 Zapisz nieruchomość</button>
-          <button class="secondary" onclick="clearPropertyForm()">Wyczyść</button>
-
-        </div>
-
-
-        <!-- WYNAGRODZENIE -->
-        <div class="admin-section">
-
-          <h3>💼 Zarządzanie wynagrodzeniami</h3>
-
-          <input type="hidden" id="salaryEditId">
-
-          <input id="salaryPosition" placeholder="Stanowisko">
-          <textarea id="salaryDescription" placeholder="Opis"></textarea>
-
-          <div class="form-grid">
-            <input id="salaryAmount" type="number" step="0.01" placeholder="Kwota">
-            <input id="salaryUnit" placeholder="Jednostka, np. DX" value="DX">
-          </div>
-
-          <button onclick="saveSalary()">💾 Zapisz wynagrodzenie</button>
-          <button class="secondary" onclick="clearSalaryForm()">Wyczyść</button>
-
-        </div>
-
-      </div>
 
     </div>
 
+</div>
 
-    <!-- INNE -->
-    <div id="otherPage" class="page hidden">
 
-      <button class="back" onclick="goHome()">← Wróć do Centrum</button>
+<!-- =========================================
+     APP
+========================================= -->
 
-      <h1 id="otherTitle"></h1>
-      <p id="otherText"></p>
+<div id="app" class="hidden">
 
-      <div class="card">
-        <h3>🚧 Moduł w budowie</h3>
-        <p>
-          Ten moduł jest przygotowany.
-          Będziemy go teraz wypełniać prawdziwymi funkcjami
-          i danymi z Supabase.
-        </p>
-      </div>
+    <div class="topbar">
+
+        <div class="logo">
+            🏛️ Centrum Serwera
+        </div>
+
+        <div class="user-info">
+            <span id="topUser"></span>
+            &nbsp;
+            <button onclick="logout()">Wyloguj</button>
+        </div>
 
     </div>
 
-  </div>
+    <div class="container">
+
+        <!-- HOME -->
+        <div id="homePage">
+
+            <div class="card">
+                <h1>Centrum Serwera</h1>
+                <p class="muted">
+                    Witaj w panelu serwera. Twoje dane prywatne są oddzielone od danych innych graczy.
+                </p>
+            </div>
+
+            <div id="adminNotice" class="card hidden">
+                <h2>👑 Panel administratora</h2>
+                <p class="muted">
+                    Masz uprawnienia administratora. Możesz zarządzać danymi wszystkich graczy.
+                </p>
+
+                <button class="primary" onclick="openAdmin()">
+                    👑 Otwórz panel administratora
+                </button>
+            </div>
+
+            <div class="grid">
+
+                <div class="module" onclick="openMyTaxes()">
+                    <div class="module-icon">🧾</div>
+                    <div class="module-title">Moje podatki</div>
+                    <div class="module-desc">
+                        Podatki przypisane do Twojego konta.
+                    </div>
+                </div>
+
+                <div class="module" onclick="openMyLicenses()">
+                    <div class="module-icon">📜</div>
+                    <div class="module-title">Moje licencje</div>
+                    <div class="module-desc">
+                        Twoje indywidualne licencje.
+                    </div>
+                </div>
+
+                <div class="module" onclick="openMyFees()">
+                    <div class="module-icon">💰</div>
+                    <div class="module-title">Moje opłaty</div>
+                    <div class="module-desc">
+                        Opłaty przypisane do Ciebie.
+                    </div>
+                </div>
+
+                <div class="module" onclick="openMyProperties()">
+                    <div class="module-icon">🏠</div>
+                    <div class="module-title">Moje nieruchomości</div>
+                    <div class="module-desc">
+                        Nieruchomości należące do Twojego konta.
+                    </div>
+                </div>
+
+                <div class="module" onclick="openTaxRules()">
+                    <div class="module-icon">📊</div>
+                    <div class="module-title">Stawki podatkowe</div>
+                    <div class="module-desc">
+                        Publiczne zasady i stawki podatków.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">⚖️</div>
+                    <div class="module-title">Sąd</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">🛡️</div>
+                    <div class="module-title">Bezpieczeństwo</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">🏦</div>
+                    <div class="module-title">Bank</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">🏛️</div>
+                    <div class="module-title">Władze</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">⛪</div>
+                    <div class="module-title">Parafia</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">📺</div>
+                    <div class="module-title">TVW / Redakcja</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-icon">📚</div>
+                    <div class="module-title">Archiwum</div>
+                    <div class="module-desc">
+                        Moduł przygotowany pod dalszą rozbudowę.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             MY TAXES
+        ====================================== -->
+
+        <div id="myTaxesPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h2>🧾 Moje podatki</h2>
+                <p class="muted">
+                    Tylko podatki przypisane do Twojego konta.
+                </p>
+            </div>
+
+            <div id="myTaxesContent"></div>
+
+        </div>
+
+
+        <!-- =====================================
+             MY LICENSES
+        ====================================== -->
+
+        <div id="myLicensesPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h2>📜 Moje licencje</h2>
+                <p class="muted">
+                    Licencje przypisane do Twojego konta.
+                </p>
+            </div>
+
+            <div id="myLicensesContent"></div>
+
+        </div>
+
+
+        <!-- =====================================
+             MY FEES
+        ====================================== -->
+
+        <div id="myFeesPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h2>💰 Moje opłaty</h2>
+                <p class="muted">
+                    Opłaty przypisane do Twojego konta.
+                </p>
+            </div>
+
+            <div id="myFeesContent"></div>
+
+        </div>
+
+
+        <!-- =====================================
+             MY PROPERTIES
+        ====================================== -->
+
+        <div id="myPropertiesPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h2>🏠 Moje nieruchomości</h2>
+                <p class="muted">
+                    Nieruchomości przypisane do Twojego konta.
+                </p>
+            </div>
+
+            <div id="myPropertiesContent"></div>
+
+        </div>
+
+
+        <!-- =====================================
+             TAX RULES
+        ====================================== -->
+
+        <div id="taxRulesPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+
+                <div class="section-title">
+                    <div>
+                        <h2>📊 Stawki podatkowe</h2>
+                        <p class="muted">
+                            Publiczne definicje podatków obowiązujące na serwerze.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="taxRulesContent"></div>
+
+        </div>
+
+
+        <!-- =====================================
+             ADMIN
+        ====================================== -->
+
+        <div id="adminPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+
+                <h1>👑 Panel administratora</h1>
+
+                <p class="muted">
+                    Tutaj zarządzasz indywidualnymi danymi graczy.
+                </p>
+
+                <div class="stat-grid">
+
+                    <div class="stat">
+                        <div class="muted">Gracze</div>
+                        <div id="statPlayers" class="stat-number">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="muted">Podatki</div>
+                        <div id="statTaxes" class="stat-number">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="muted">Licencje</div>
+                        <div id="statLicenses" class="stat-number">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="muted">Opłaty</div>
+                        <div id="statFees" class="stat-number">0</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PLAYER SELECT -->
+
+            <div class="card">
+
+                <h2>👥 Wybierz gracza</h2>
+
+                <select id="adminPlayerSelect"
+                        class="player-select"
+                        onchange="loadSelectedPlayer()">
+
+                    <option value="">-- wybierz gracza --</option>
+
+                </select>
+
+                <div id="selectedPlayerInfo" class="muted" style="margin-top:12px;"></div>
+
+            </div>
+
+
+            <!-- PLAYER TAXES -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>🧾 Podatki gracza</h2>
+                    <button class="primary" onclick="showTaxAddForm()">
+                        ➕ Dodaj podatek
+                    </button>
+                </div>
+
+                <div id="adminTaxForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <h3>Dodaj / edytuj podatek</h3>
+
+                    <input type="hidden" id="editTaxId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Nazwa podatku</label>
+                            <input id="taxTitle" placeholder="np. Podatek od nieruchomości">
+                        </div>
+
+                        <div class="field">
+                            <label>Kwota</label>
+                            <input id="taxAmount" type="number" step="0.01">
+                        </div>
+
+                        <div class="field">
+                            <label>Termin płatności</label>
+                            <input id="taxDueDate" type="date">
+                        </div>
+
+                        <div class="field">
+                            <label>Rodzaj podatku</label>
+                            <select id="taxDefinitionSelect">
+                                <option value="">-- opcjonalnie --</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label>Nieruchomość</label>
+                            <select id="taxPropertySelect">
+                                <option value="">-- brak --</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label>Status</label>
+                            <select id="taxStatus">
+                                <option value="unpaid">Nieopłacony</option>
+                                <option value="paid">Opłacony</option>
+                                <option value="cancelled">Anulowany</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Notatka</label>
+                        <textarea id="taxNote"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveAdminTax()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelTaxForm()">
+                            Anuluj
+                        </button>
+                    </div>
+
+                </div>
+
+                <div id="adminTaxesContent"></div>
+
+            </div>
+
+
+            <!-- PLAYER LICENSES -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>📜 Licencje gracza</h2>
+                    <button class="primary" onclick="showLicenseAddForm()">
+                        ➕ Dodaj licencję
+                    </button>
+                </div>
+
+                <div id="adminLicenseForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <input type="hidden" id="editLicenseId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Nazwa licencji</label>
+                            <input id="playerLicenseName">
+                        </div>
+
+                        <div class="field">
+                            <label>Cena</label>
+                            <input id="playerLicensePrice" type="number" step="0.01">
+                        </div>
+
+                        <div class="field">
+                            <label>Od</label>
+                            <input id="licenseFrom" type="date">
+                        </div>
+
+                        <div class="field">
+                            <label>Do</label>
+                            <input id="licenseUntil" type="date">
+                        </div>
+
+                        <div class="field">
+                            <label>Status</label>
+                            <select id="licenseStatus">
+                                <option value="active">Aktywna</option>
+                                <option value="expired">Wygasła</option>
+                                <option value="cancelled">Anulowana</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Rodzaj licencji z cennika</label>
+                        <select id="licenseDefinitionSelect">
+                            <option value="">-- opcjonalnie --</option>
+                        </select>
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Notatka</label>
+                        <textarea id="licenseNote"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveAdminLicense()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelLicenseForm()">
+                            Anuluj
+                        </button>
+                    </div>
+
+                </div>
+
+                <div id="adminLicensesContent"></div>
+
+            </div>
+
+
+            <!-- PLAYER FEES -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>💰 Opłaty gracza</h2>
+                    <button class="primary" onclick="showFeeAddForm()">
+                        ➕ Dodaj opłatę
+                    </button>
+                </div>
+
+                <div id="adminFeeForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <input type="hidden" id="editFeeId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Nazwa opłaty</label>
+                            <input id="playerFeeName">
+                        </div>
+
+                        <div class="field">
+                            <label>Kwota</label>
+                            <input id="playerFeeAmount" type="number" step="0.01">
+                        </div>
+
+                        <div class="field">
+                            <label>Termin płatności</label>
+                            <input id="feeDueDate" type="date">
+                        </div>
+
+                        <div class="field">
+                            <label>Status</label>
+                            <select id="feeStatus">
+                                <option value="unpaid">Nieopłacona</option>
+                                <option value="paid">Opłacona</option>
+                                <option value="cancelled">Anulowana</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Rodzaj opłaty z cennika</label>
+                        <select id="feeDefinitionSelect">
+                            <option value="">-- opcjonalnie --</option>
+                        </select>
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Notatka</label>
+                        <textarea id="feeNote"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveAdminFee()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelFeeForm()">
+                            Anuluj
+                        </button>
+                    </div>
+
+                </div>
+
+                <div id="adminFeesContent"></div>
+
+            </div>
+
+
+            <!-- PROPERTIES -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>🏠 Nieruchomości gracza</h2>
+                    <button class="primary" onclick="showPropertyAddForm()">
+                        ➕ Dodaj nieruchomość
+                    </button>
+                </div>
+
+                <div id="adminPropertyForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <input type="hidden" id="editPropertyId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Numer działki</label>
+                            <input id="propertyPlot">
+                        </div>
+
+                        <div class="field">
+                            <label>Adres</label>
+                            <input id="propertyAddress">
+                        </div>
+
+                        <div class="field">
+                            <label>Typ nieruchomości</label>
+                            <input id="propertyType" placeholder="np. Dom">
+                        </div>
+
+                        <div class="field">
+                            <label>Wartość</label>
+                            <input id="propertyValue" type="number" step="0.01">
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="form-actions">
+
+                        <button class="primary" onclick="saveAdminProperty()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelPropertyForm()">
+                            Anuluj
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="adminPropertiesContent"></div>
+
+            </div>
+
+
+            <!-- TAX DEFINITIONS -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>📊 Definicje podatków</h2>
+                    <button class="primary" onclick="showDefinitionForm()">
+                        ➕ Dodaj stawkę
+                    </button>
+                </div>
+
+                <div id="definitionForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <input type="hidden" id="editDefinitionId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Nazwa</label>
+                            <input id="definitionName">
+                        </div>
+
+                        <div class="field">
+                            <label>Stawka</label>
+                            <input id="definitionRate" type="number" step="0.01">
+                        </div>
+
+                        <div class="field">
+                            <label>Jednostka</label>
+                            <input id="definitionUnit" value="DX">
+                        </div>
+
+                        <div class="field">
+                            <label>Aktywna</label>
+                            <select id="definitionActive">
+                                <option value="true">Tak</option>
+                                <option value="false">Nie</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Opis</label>
+                        <textarea id="definitionDescription"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button class="primary" onclick="saveDefinition()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelDefinitionForm()">
+                            Anuluj
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="adminDefinitionsContent"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 
 <script>
 
+/* =====================================================
+   SUPABASE
+===================================================== */
+
 const SUPABASE_URL =
-  "https://qbhmbawqdgzplwtboqal.supabase.co";
+    "https://qbhmbawqdgzplwtboqal.supabase.co";
 
 /*
-  WKLEJ TUTAJ SWÓJ PUBLISHABLE KEY
+   Wklej tutaj swój AKTUALNY PUBLISHABLE KEY.
+   Nie używaj secret/service_role.
 */
 const SUPABASE_KEY =
-  "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
-
+    "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
 
 const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
+
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
 
 let currentUser = null;
 let currentProfile = null;
 
+let players = [];
+let selectedPlayer = null;
+let selectedPlayerProperties = [];
 
-/* ==========================
-   POŁĄCZENIE
-========================== */
+let taxDefinitions = [];
+let licenseDefinitions = [];
+let feeDefinitions = [];
 
-async function checkConnection() {
 
-  const status =
-    document.getElementById("connectionStatus");
+/* =====================================================
+   HELPERS
+===================================================== */
 
-  const { error } =
-    await supabaseClient
-      .from("profiles")
-      .select("id")
-      .limit(1);
+function $(id) {
+    return document.getElementById(id);
+}
 
-  if (error) {
+function escapeHtml(value) {
+    if (value === null || value === undefined) return "";
 
-    status.textContent =
-      "⚠️ Błąd połączenia";
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
 
-    console.error(error);
+function money(value) {
+    return `${Number(value || 0).toFixed(2)} DX`;
+}
 
-  } else {
+function datePL(value) {
+    if (!value) return "-";
 
-    status.textContent =
-      "● Połączono z bazą";
+    const d = new Date(value);
 
-  }
+    if (Number.isNaN(d.getTime())) {
+        return value;
+    }
+
+    return d.toLocaleDateString("pl-PL");
+}
+
+function statusBadge(status) {
+
+    let text = status;
+
+    if (status === "paid") text = "Opłacone";
+    if (status === "unpaid") text = "Nieopłacone";
+    if (status === "cancelled") text = "Anulowane";
+    if (status === "active") text = "Aktywna";
+    if (status === "expired") text = "Wygasła";
+
+    const cls =
+        status === "paid" || status === "active"
+            ? "badge badge-paid"
+            : status === "cancelled"
+                ? "badge badge-cancelled"
+                : "badge badge-unpaid";
+
+    return `<span class="${cls}">${escapeHtml(text)}</span>`;
+}
+
+function showMessage(text, type = "ok") {
+
+    const box = $("authMessage");
+
+    box.textContent = text;
+    box.className = `message show ${type}`;
+}
+
+function hideMessage() {
+    $("authMessage").className = "message";
 }
 
 
-/* ==========================
-   LOGOWANIE
-========================== */
+/* =====================================================
+   AUTH SCREENS
+===================================================== */
+
+function showLogin() {
+
+    $("loginForm").classList.remove("hidden");
+    $("registerForm").classList.add("hidden");
+
+    $("loginTab").classList.add("primary");
+    $("registerTab").classList.remove("primary");
+
+    hideMessage();
+}
+
+function showRegister() {
+
+    $("loginForm").classList.add("hidden");
+    $("registerForm").classList.remove("hidden");
+
+    $("loginTab").classList.remove("primary");
+    $("registerTab").classList.add("primary");
+
+    hideMessage();
+}
+
+
+/* =====================================================
+   REGISTER
+===================================================== */
+
+async function registerPlayer() {
+
+    hideMessage();
+
+    const nick =
+        $("registerNick").value.trim();
+
+    const email =
+        $("registerEmail").value.trim();
+
+    const password =
+        $("registerPassword").value;
+
+    const password2 =
+        $("registerPassword2").value;
+
+    if (!nick || !email || !password) {
+
+        showMessage(
+            "Wypełnij wszystkie pola.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (password.length < 6) {
+
+        showMessage(
+            "Hasło musi mieć minimum 6 znaków.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (password !== password2) {
+
+        showMessage(
+            "Hasła nie są takie same.",
+            "error"
+        );
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient.auth.signUp({
+
+            email,
+            password,
+
+            options: {
+                data: {
+                    username: nick,
+                    display_name: nick,
+                    minecraft_nick: nick
+                }
+            }
+
+        });
+
+    if (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+    if (data.session) {
+
+        showMessage(
+            "Konto utworzone. Logowanie...",
+            "ok"
+        );
+
+        return;
+    }
+
+    showMessage(
+        "Konto utworzone. Jeżeli Supabase wymaga potwierdzenia e-maila, sprawdź skrzynkę.",
+        "ok"
+    );
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
 
 async function login() {
 
-  const email =
-    document.getElementById("email").value.trim();
+    hideMessage();
 
-  const password =
-    document.getElementById("password").value;
+    const email =
+        $("loginEmail").value.trim();
 
-  const errorBox =
-    document.getElementById("loginError");
+    const password =
+        $("loginPassword").value;
 
-  errorBox.textContent = "";
+    if (!email || !password) {
 
-  const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+        showMessage(
+            "Wpisz e-mail i hasło.",
+            "error"
+        );
 
-  if (error) {
+        return;
+    }
 
-    errorBox.textContent =
-      error.message;
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-    return;
-  }
+    if (error) {
 
-  await showApp(data.user);
+        showMessage(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+    currentUser = data.user;
+
+    await loadProfile();
+
+    await showApp();
 }
 
 
-/* ==========================
-   PROFIL
-========================== */
-
-async function showApp(user) {
-
-  currentUser = user;
-
-  const { data: profile, error } =
-    await supabaseClient
-      .from("profiles")
-      .select("username, display_name, role")
-      .eq("id", user.id)
-      .single();
-
-  if (error) {
-
-    document.getElementById("loginError").textContent =
-      "Zalogowano, ale nie znaleziono profilu.";
-
-    console.error(error);
-
-    return;
-  }
-
-  currentProfile = profile;
-
-  document
-    .getElementById("loginScreen")
-    .classList.add("hidden");
-
-  document
-    .getElementById("appScreen")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("displayName")
-    .textContent =
-      profile.display_name ||
-      profile.username ||
-      "Użytkowniku";
-
-  document
-    .getElementById("roleText")
-    .textContent =
-      "Rola: " + profile.role;
-
-  if (profile.role === "admin") {
-
-    document
-      .getElementById("adminPanel")
-      .classList.remove("hidden");
-
-  }
-}
-
-
-/* ==========================
-   NAWIGACJA
-========================== */
-
-function openTax() {
-
-  document
-    .getElementById("homePage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("otherPage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("taxPage")
-    .classList.remove("hidden");
-
-  loadTaxData();
-}
-
-
-function openOther(title, text) {
-
-  document
-    .getElementById("homePage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("taxPage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("otherPage")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("otherTitle")
-    .textContent = title;
-
-  document
-    .getElementById("otherText")
-    .textContent = text;
-}
-
-
-function goHome() {
-
-  document
-    .getElementById("taxPage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("otherPage")
-    .classList.add("hidden");
-
-  document
-    .getElementById("homePage")
-    .classList.remove("hidden");
-}
-
-
-/* ==========================
-   URZĄD — ŁADOWANIE
-========================== */
-
-async function loadTaxData() {
-
-  await Promise.all([
-    loadTaxes(),
-    loadFees(),
-    loadLicenses(),
-    loadProperties(),
-    loadSalaries()
-  ]);
-}
-
-
-/* ==========================
-   PODATKI
-========================== */
-
-async function loadTaxes() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("tax_rates")
-      .select("*")
-      .order("id", { ascending: false });
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  document.getElementById("taxCount").textContent =
-    data.filter(x => x.active).length;
-
-  const list =
-    document.getElementById("taxList");
-
-  if (!data.length) {
-
-    list.innerHTML =
-      '<div class="empty">Brak podatków.</div>';
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(item => `
-      <div class="item">
-
-        <div class="item-top">
-
-          <div>
-            <h3>${esc(item.name)}</h3>
-
-            <p>${esc(item.description || "")}</p>
-
-            <strong>
-              ${item.rate} ${esc(item.unit || "DX")}
-            </strong>
-
-            ${item.active
-              ? "<p>🟢 Aktywny</p>"
-              : "<p>🔴 Nieaktywny</p>"
-            }
-          </div>
-
-          ${isAdmin() ? `
-            <div class="item-actions">
-              <button onclick='editTax(${JSON.stringify(item)})'>
-                ✏️ Edytuj
-              </button>
-
-              <button class="danger"
-                onclick="deleteTax(${item.id})">
-                🗑️ Usuń
-              </button>
-            </div>
-          ` : ""}
-
-        </div>
-
-      </div>
-    `).join("");
-}
-
-
-/* ==========================
-   OPŁATY
-========================== */
-
-async function loadFees() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("fees")
-      .select("*")
-      .order("id", { ascending: false });
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  document.getElementById("feeCount").textContent =
-    data.filter(x => x.active).length;
-
-  const list =
-    document.getElementById("feeList");
-
-  if (!data.length) {
-
-    list.innerHTML =
-      '<div class="empty">Brak opłat.</div>';
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(item => `
-      <div class="item">
-
-        <div class="item-top">
-
-          <div>
-            <h3>${esc(item.name)}</h3>
-
-            <p>${esc(item.description || "")}</p>
-
-            <strong>
-              ${item.amount} ${esc(item.unit || "DX")}
-            </strong>
-          </div>
-
-          ${isAdmin() ? `
-            <div class="item-actions">
-
-              <button onclick='editFee(${JSON.stringify(item)})'>
-                ✏️ Edytuj
-              </button>
-
-              <button class="danger"
-                onclick="deleteFee(${item.id})">
-                🗑️ Usuń
-              </button>
-
-            </div>
-          ` : ""}
-
-        </div>
-
-      </div>
-    `).join("");
-}
-
-
-/* ==========================
-   LICENCJE
-========================== */
-
-async function loadLicenses() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("licenses")
-      .select("*")
-      .order("id", { ascending: false });
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  document.getElementById("licenseCount").textContent =
-    data.filter(x => x.active).length;
-
-  const list =
-    document.getElementById("licenseList");
-
-  if (!data.length) {
-
-    list.innerHTML =
-      '<div class="empty">Brak licencji.</div>';
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(item => `
-      <div class="item">
-
-        <div class="item-top">
-
-          <div>
-            <h3>${esc(item.name)}</h3>
-
-            <p>${esc(item.description || "")}</p>
-
-            <strong>
-              ${item.price} DX
-            </strong>
-
-            ${
-              item.validity_days
-                ? `<p>Ważność: ${item.validity_days} dni</p>`
-                : ""
-            }
-          </div>
-
-          ${isAdmin() ? `
-            <div class="item-actions">
-
-              <button onclick='editLicense(${JSON.stringify(item)})'>
-                ✏️ Edytuj
-              </button>
-
-              <button class="danger"
-                onclick="deleteLicense(${item.id})">
-                🗑️ Usuń
-              </button>
-
-            </div>
-          ` : ""}
-
-        </div>
-
-      </div>
-    `).join("");
-}
-
-
-/* ==========================
-   NIERUCHOMOŚCI
-========================== */
-
-async function loadProperties() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("properties")
-      .select("*")
-      .order("id", { ascending: false });
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  document.getElementById("propertyCount").textContent =
-    data.length;
-
-  const list =
-    document.getElementById("propertyList");
-
-  if (!data.length) {
-
-    list.innerHTML =
-      '<div class="empty">Brak nieruchomości.</div>';
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(item => `
-      <div class="item">
-
-        <div class="item-top">
-
-          <div>
-            <h3>🏠 Działka ${esc(item.plot_number)}</h3>
-
-            <p>
-              Adres: ${esc(item.address || "brak")}
-            </p>
-
-            <p>
-              Właściciel: ${esc(item.owner_name || "brak")}
-            </p>
-
-            <p>
-              Typ: ${esc(item.property_type || "brak")}
-            </p>
-
-            <strong>
-              Wartość: ${item.value || 0} DX
-            </strong>
-          </div>
-
-          ${isAdmin() ? `
-            <div class="item-actions">
-
-              <button onclick='editProperty(${JSON.stringify(item)})'>
-                ✏️ Edytuj
-              </button>
-
-              <button class="danger"
-                onclick="deleteProperty(${item.id})">
-                🗑️ Usuń
-              </button>
-
-            </div>
-          ` : ""}
-
-        </div>
-
-      </div>
-    `).join("");
-}
-
-
-/* ==========================
-   WYNAGRODZENIA
-========================== */
-
-async function loadSalaries() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("salaries")
-      .select("*")
-      .order("id", { ascending: false });
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  const list =
-    document.getElementById("salaryList");
-
-  if (!data.length) {
-
-    list.innerHTML =
-      '<div class="empty">Brak wynagrodzeń.</div>';
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(item => `
-      <div class="item">
-
-        <div class="item-top">
-
-          <div>
-            <h3>💼 ${esc(item.position)}</h3>
-
-            <p>${esc(item.description || "")}</p>
-
-            <strong>
-              ${item.amount} ${esc(item.unit || "DX")}
-            </strong>
-          </div>
-
-          ${isAdmin() ? `
-            <div class="item-actions">
-
-              <button onclick='editSalary(${JSON.stringify(item)})'>
-                ✏️ Edytuj
-              </button>
-
-              <button class="danger"
-                onclick="deleteSalary(${item.id})">
-                🗑️ Usuń
-              </button>
-
-            </div>
-          ` : ""}
-
-        </div>
-
-      </div>
-    `).join("");
-}
-
-
-/* ==========================
-   DODAWANIE / EDYCJA PODATKU
-========================== */
-
-async function saveTax() {
-
-  if (!isAdmin()) return;
-
-  const id =
-    document.getElementById("taxEditId").value;
-
-  const payload = {
-    name: document.getElementById("taxName").value.trim(),
-    description: document.getElementById("taxDescription").value.trim(),
-    rate: Number(document.getElementById("taxRate").value) || 0,
-    unit: document.getElementById("taxUnit").value.trim() || "DX"
-  };
-
-  if (!payload.name) {
-
-    showTaxMessage("Podaj nazwę podatku.", true);
-    return;
-  }
-
-  let result;
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("tax_rates")
-        .update(payload)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("tax_rates")
-        .insert(payload);
-
-  }
-
-  if (result.error) {
-
-    showTaxMessage(result.error.message, true);
-    return;
-  }
-
-  clearTaxForm();
-  showTaxMessage("Podatek zapisany.");
-  await loadTaxes();
-}
-
-
-function editTax(item) {
-
-  document.getElementById("taxEditId").value =
-    item.id;
-
-  document.getElementById("taxName").value =
-    item.name || "";
-
-  document.getElementById("taxDescription").value =
-    item.description || "";
-
-  document.getElementById("taxRate").value =
-    item.rate || 0;
-
-  document.getElementById("taxUnit").value =
-    item.unit || "DX";
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-
-function clearTaxForm() {
-
-  document.getElementById("taxEditId").value = "";
-  document.getElementById("taxName").value = "";
-  document.getElementById("taxDescription").value = "";
-  document.getElementById("taxRate").value = "";
-  document.getElementById("taxUnit").value = "DX";
-}
-
-
-async function deleteTax(id) {
-
-  if (!isAdmin()) return;
-
-  if (!confirm("Na pewno usunąć ten podatek?")) return;
-
-  const { error } =
-    await supabaseClient
-      .from("tax_rates")
-      .delete()
-      .eq("id", id);
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  showTaxMessage("Podatek usunięty.");
-  await loadTaxes();
-}
-
-
-/* ==========================
-   OPŁATY
-========================== */
-
-async function saveFee() {
-
-  if (!isAdmin()) return;
-
-  const id =
-    document.getElementById("feeEditId").value;
-
-  const payload = {
-    name: document.getElementById("feeName").value.trim(),
-    description: document.getElementById("feeDescription").value.trim(),
-    amount: Number(document.getElementById("feeAmount").value) || 0,
-    unit: document.getElementById("feeUnit").value.trim() || "DX"
-  };
-
-  if (!payload.name) {
-
-    showTaxMessage("Podaj nazwę opłaty.", true);
-    return;
-  }
-
-  let result;
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("fees")
-        .update(payload)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("fees")
-        .insert(payload);
-
-  }
-
-  if (result.error) {
-
-    showTaxMessage(result.error.message, true);
-    return;
-  }
-
-  clearFeeForm();
-  showTaxMessage("Opłata zapisana.");
-  await loadFees();
-}
-
-
-function editFee(item) {
-
-  document.getElementById("feeEditId").value = item.id;
-  document.getElementById("feeName").value = item.name || "";
-  document.getElementById("feeDescription").value = item.description || "";
-  document.getElementById("feeAmount").value = item.amount || 0;
-  document.getElementById("feeUnit").value = item.unit || "DX";
-}
-
-
-function clearFeeForm() {
-
-  document.getElementById("feeEditId").value = "";
-  document.getElementById("feeName").value = "";
-  document.getElementById("feeDescription").value = "";
-  document.getElementById("feeAmount").value = "";
-  document.getElementById("feeUnit").value = "DX";
-}
-
-
-async function deleteFee(id) {
-
-  if (!isAdmin()) return;
-
-  if (!confirm("Na pewno usunąć tę opłatę?")) return;
-
-  const { error } =
-    await supabaseClient
-      .from("fees")
-      .delete()
-      .eq("id", id);
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  showTaxMessage("Opłata usunięta.");
-  await loadFees();
-}
-
-
-/* ==========================
-   LICENCJE
-========================== */
-
-async function saveLicense() {
-
-  if (!isAdmin()) return;
-
-  const id =
-    document.getElementById("licenseEditId").value;
-
-  const payload = {
-    name: document.getElementById("licenseName").value.trim(),
-    description: document.getElementById("licenseDescription").value.trim(),
-    price: Number(document.getElementById("licensePrice").value) || 0,
-    validity_days:
-      Number(document.getElementById("licenseDays").value) || null
-  };
-
-  if (!payload.name) {
-
-    showTaxMessage("Podaj nazwę licencji.", true);
-    return;
-  }
-
-  let result;
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("licenses")
-        .update(payload)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("licenses")
-        .insert(payload);
-
-  }
-
-  if (result.error) {
-
-    showTaxMessage(result.error.message, true);
-    return;
-  }
-
-  clearLicenseForm();
-  showTaxMessage("Licencja zapisana.");
-  await loadLicenses();
-}
-
-
-function editLicense(item) {
-
-  document.getElementById("licenseEditId").value = item.id;
-  document.getElementById("licenseName").value = item.name || "";
-  document.getElementById("licenseDescription").value =
-    item.description || "";
-  document.getElementById("licensePrice").value =
-    item.price || 0;
-  document.getElementById("licenseDays").value =
-    item.validity_days || "";
-}
-
-
-function clearLicenseForm() {
-
-  document.getElementById("licenseEditId").value = "";
-  document.getElementById("licenseName").value = "";
-  document.getElementById("licenseDescription").value = "";
-  document.getElementById("licensePrice").value = "";
-  document.getElementById("licenseDays").value = "";
-}
-
-
-async function deleteLicense(id) {
-
-  if (!isAdmin()) return;
-
-  if (!confirm("Na pewno usunąć tę licencję?")) return;
-
-  const { error } =
-    await supabaseClient
-      .from("licenses")
-      .delete()
-      .eq("id", id);
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  showTaxMessage("Licencja usunięta.");
-  await loadLicenses();
-}
-
-
-/* ==========================
-   NIERUCHOMOŚCI
-========================== */
-
-async function saveProperty() {
-
-  if (!isAdmin()) return;
-
-  const id =
-    document.getElementById("propertyEditId").value;
-
-  const payload = {
-    plot_number:
-      document.getElementById("propertyPlot").value.trim(),
-
-    address:
-      document.getElementById("propertyAddress").value.trim(),
-
-    owner_name:
-      document.getElementById("propertyOwner").value.trim(),
-
-    property_type:
-      document.getElementById("propertyType").value.trim(),
-
-    value:
-      Number(document.getElementById("propertyValue").value) || 0
-  };
-
-  if (!payload.plot_number) {
-
-    showTaxMessage("Podaj numer działki.", true);
-    return;
-  }
-
-  let result;
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("properties")
-        .update(payload)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("properties")
-        .insert(payload);
-
-  }
-
-  if (result.error) {
-
-    showTaxMessage(result.error.message, true);
-    return;
-  }
-
-  clearPropertyForm();
-  showTaxMessage("Nieruchomość zapisana.");
-  await loadProperties();
-}
-
-
-function editProperty(item) {
-
-  document.getElementById("propertyEditId").value = item.id;
-
-  document.getElementById("propertyPlot").value =
-    item.plot_number || "";
-
-  document.getElementById("propertyAddress").value =
-    item.address || "";
-
-  document.getElementById("propertyOwner").value =
-    item.owner_name || "";
-
-  document.getElementById("propertyType").value =
-    item.property_type || "";
-
-  document.getElementById("propertyValue").value =
-    item.value || 0;
-}
-
-
-function clearPropertyForm() {
-
-  document.getElementById("propertyEditId").value = "";
-  document.getElementById("propertyPlot").value = "";
-  document.getElementById("propertyAddress").value = "";
-  document.getElementById("propertyOwner").value = "";
-  document.getElementById("propertyType").value = "";
-  document.getElementById("propertyValue").value = "";
-}
-
-
-async function deleteProperty(id) {
-
-  if (!isAdmin()) return;
-
-  if (!confirm("Na pewno usunąć tę nieruchomość?")) return;
-
-  const { error } =
-    await supabaseClient
-      .from("properties")
-      .delete()
-      .eq("id", id);
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  showTaxMessage("Nieruchomość usunięta.");
-  await loadProperties();
-}
-
-
-/* ==========================
-   WYNAGRODZENIA
-========================== */
-
-async function saveSalary() {
-
-  if (!isAdmin()) return;
-
-  const id =
-    document.getElementById("salaryEditId").value;
-
-  const payload = {
-    position:
-      document.getElementById("salaryPosition").value.trim(),
-
-    description:
-      document.getElementById("salaryDescription").value.trim(),
-
-    amount:
-      Number(document.getElementById("salaryAmount").value) || 0,
-
-    unit:
-      document.getElementById("salaryUnit").value.trim() || "DX"
-  };
-
-  if (!payload.position) {
-
-    showTaxMessage("Podaj stanowisko.", true);
-    return;
-  }
-
-  let result;
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("salaries")
-        .update(payload)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("salaries")
-        .insert(payload);
-
-  }
-
-  if (result.error) {
-
-    showTaxMessage(result.error.message, true);
-    return;
-  }
-
-  clearSalaryForm();
-  showTaxMessage("Wynagrodzenie zapisane.");
-  await loadSalaries();
-}
-
-
-function editSalary(item) {
-
-  document.getElementById("salaryEditId").value = item.id;
-
-  document.getElementById("salaryPosition").value =
-    item.position || "";
-
-  document.getElementById("salaryDescription").value =
-    item.description || "";
-
-  document.getElementById("salaryAmount").value =
-    item.amount || 0;
-
-  document.getElementById("salaryUnit").value =
-    item.unit || "DX";
-}
-
-
-function clearSalaryForm() {
-
-  document.getElementById("salaryEditId").value = "";
-  document.getElementById("salaryPosition").value = "";
-  document.getElementById("salaryDescription").value = "";
-  document.getElementById("salaryAmount").value = "";
-  document.getElementById("salaryUnit").value = "DX";
-}
-
-
-async function deleteSalary(id) {
-
-  if (!isAdmin()) return;
-
-  if (!confirm("Na pewno usunąć to wynagrodzenie?")) return;
-
-  const { error } =
-    await supabaseClient
-      .from("salaries")
-      .delete()
-      .eq("id", id);
-
-  if (error) {
-
-    showTaxMessage(error.message, true);
-    return;
-  }
-
-  showTaxMessage("Wynagrodzenie usunięte.");
-  await loadSalaries();
-}
-
-
-/* ==========================
-   POMOCNICZE
-========================== */
-
-function isAdmin() {
-
-  return currentProfile &&
-    currentProfile.role === "admin";
-}
-
-
-function showTaxMessage(text, error = false) {
-
-  const box =
-    document.getElementById("taxMessage");
-
-  box.innerHTML =
-    `<div class="${error ? "error" : "message"}">
-      ${esc(text)}
-    </div>`;
-
-  setTimeout(() => {
-    box.innerHTML = "";
-  }, 4000);
-}
-
-
-function esc(value) {
-
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-/* ==========================
-   WYLOGOWANIE
-========================== */
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 async function logout() {
 
-  await supabaseClient.auth.signOut();
+    await supabaseClient.auth.signOut();
 
-  currentUser = null;
-  currentProfile = null;
+    currentUser = null;
+    currentProfile = null;
 
-  document
-    .getElementById("appScreen")
-    .classList.add("hidden");
+    $("app").classList.add("hidden");
+    $("authScreen").classList.remove("hidden");
 
-  document
-    .getElementById("loginScreen")
-    .classList.remove("hidden");
-
-  goHome();
+    showLogin();
 }
 
 
-/* ==========================
+/* =====================================================
+   PROFILE
+===================================================== */
+
+async function loadProfile() {
+
+    if (!currentUser) return;
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", currentUser.id)
+            .single();
+
+    if (error) {
+
+        console.error(error);
+
+        currentProfile = {
+            id: currentUser.id,
+            username: currentUser.email,
+            display_name: currentUser.email,
+            role: "player"
+        };
+
+        return;
+    }
+
+    currentProfile = data;
+}
+
+
+/* =====================================================
+   SHOW APP
+===================================================== */
+
+async function showApp() {
+
+    $("authScreen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+
+    $("topUser").textContent =
+        currentProfile?.minecraft_nick ||
+        currentProfile?.display_name ||
+        currentProfile?.username ||
+        currentUser.email;
+
+    if (isAdmin()) {
+        $("adminNotice").classList.remove("hidden");
+    } else {
+        $("adminNotice").classList.add("hidden");
+    }
+
+    await loadDefinitions();
+
+    goHome();
+}
+
+
+/* =====================================================
+   ADMIN CHECK
+===================================================== */
+
+function isAdmin() {
+
+    return currentProfile &&
+        currentProfile.role === "admin";
+}
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+const pages = [
+    "homePage",
+    "myTaxesPage",
+    "myLicensesPage",
+    "myFeesPage",
+    "myPropertiesPage",
+    "taxRulesPage",
+    "adminPage"
+];
+
+function hideAllPages() {
+
+    pages.forEach(id => {
+        $(id).classList.add("hidden");
+    });
+}
+
+function goHome() {
+
+    hideAllPages();
+
+    $("homePage").classList.remove("hidden");
+}
+
+async function openMyTaxes() {
+
+    hideAllPages();
+
+    $("myTaxesPage").classList.remove("hidden");
+
+    await loadMyTaxes();
+}
+
+async function openMyLicenses() {
+
+    hideAllPages();
+
+    $("myLicensesPage").classList.remove("hidden");
+
+    await loadMyLicenses();
+}
+
+async function openMyFees() {
+
+    hideAllPages();
+
+    $("myFeesPage").classList.remove("hidden");
+
+    await loadMyFees();
+}
+
+async function openMyProperties() {
+
+    hideAllPages();
+
+    $("myPropertiesPage").classList.remove("hidden");
+
+    await loadMyProperties();
+}
+
+async function openTaxRules() {
+
+    hideAllPages();
+
+    $("taxRulesPage").classList.remove("hidden");
+
+    await renderTaxRules();
+}
+
+async function openAdmin() {
+
+    if (!isAdmin()) return;
+
+    hideAllPages();
+
+    $("adminPage").classList.remove("hidden");
+
+    await loadAdminData();
+}
+
+
+/* =====================================================
+   MY TAXES
+===================================================== */
+
+async function loadMyTaxes() {
+
+    const box = $("myTaxesContent");
+
+    box.innerHTML =
+        `<div class="card">Ładowanie...</div>`;
+
+    const { data, error } =
+        await supabaseClient
+            .from("tax_liabilities")
+            .select(`
+                *,
+                properties (
+                    plot_number,
+                    address
+                ),
+                tax_rates (
+                    name
+                )
+            `)
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<div class="card">${escapeHtml(error.message)}</div>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<div class="card">
+                <h3>Brak podatków</h3>
+                <p class="muted">
+                    Aktualnie nie masz przypisanych żadnych podatków.
+                </p>
+            </div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Podatek</th>
+                            <th>Kwota</th>
+                            <th>Termin</th>
+                            <th>Nieruchomość</th>
+                            <th>Status</th>
+                            <th>Notatka</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map(t => `
+
+                            <tr>
+
+                                <td>
+                                    <strong>${escapeHtml(t.title)}</strong>
+                                    ${t.tax_rates?.name
+                                        ? `<div class="small">${escapeHtml(t.tax_rates.name)}</div>`
+                                        : ""}
+                                </td>
+
+                                <td>${money(t.amount)}</td>
+
+                                <td>${datePL(t.due_date)}</td>
+
+                                <td>
+                                    ${t.properties
+                                        ? `Działka ${escapeHtml(t.properties.plot_number || "-")}
+                                           <div class="small">${escapeHtml(t.properties.address || "")}</div>`
+                                        : "-"}
+                                </td>
+
+                                <td>${statusBadge(t.status)}</td>
+
+                                <td>${escapeHtml(t.note || "-")}</td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   MY LICENSES
+===================================================== */
+
+async function loadMyLicenses() {
+
+    const box = $("myLicensesContent");
+
+    box.innerHTML =
+        `<div class="card">Ładowanie...</div>`;
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_licenses")
+            .select(`
+                *,
+                licenses (
+                    name
+                )
+            `)
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<div class="card">${escapeHtml(error.message)}</div>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<div class="card">
+                <h3>Brak licencji</h3>
+                <p class="muted">
+                    Nie masz jeszcze żadnej przypisanej licencji.
+                </p>
+            </div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Licencja</th>
+                            <th>Cena</th>
+                            <th>Ważna od</th>
+                            <th>Ważna do</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map(l => `
+
+                            <tr>
+
+                                <td>
+                                    <strong>${escapeHtml(l.name)}</strong>
+                                    ${l.licenses?.name
+                                        ? `<div class="small">${escapeHtml(l.licenses.name)}</div>`
+                                        : ""}
+                                </td>
+
+                                <td>${money(l.price)}</td>
+
+                                <td>${datePL(l.valid_from)}</td>
+
+                                <td>${datePL(l.valid_until)}</td>
+
+                                <td>${statusBadge(l.status)}</td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   MY FEES
+===================================================== */
+
+async function loadMyFees() {
+
+    const box = $("myFeesContent");
+
+    box.innerHTML =
+        `<div class="card">Ładowanie...</div>`;
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_fees")
+            .select(`
+                *,
+                fees (
+                    name
+                )
+            `)
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<div class="card">${escapeHtml(error.message)}</div>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<div class="card">
+                <h3>Brak opłat</h3>
+                <p class="muted">
+                    Nie masz obecnie żadnych przypisanych opłat.
+                </p>
+            </div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Opłata</th>
+                            <th>Kwota</th>
+                            <th>Termin</th>
+                            <th>Status</th>
+                            <th>Notatka</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map(f => `
+
+                            <tr>
+
+                                <td>
+                                    <strong>${escapeHtml(f.name)}</strong>
+                                    ${f.fees?.name
+                                        ? `<div class="small">${escapeHtml(f.fees.name)}</div>`
+                                        : ""}
+                                </td>
+
+                                <td>${money(f.amount)}</td>
+
+                                <td>${datePL(f.due_date)}</td>
+
+                                <td>${statusBadge(f.status)}</td>
+
+                                <td>${escapeHtml(f.note || "-")}</td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   MY PROPERTIES
+===================================================== */
+
+async function loadMyProperties() {
+
+    const box = $("myPropertiesContent");
+
+    box.innerHTML =
+        `<div class="card">Ładowanie...</div>`;
+
+    const { data, error } =
+        await supabaseClient
+            .from("properties")
+            .select("*")
+            .eq("owner_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<div class="card">${escapeHtml(error.message)}</div>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<div class="card">
+                <h3>Brak nieruchomości</h3>
+                <p class="muted">
+                    Nie masz jeszcze przypisanych nieruchomości.
+                </p>
+            </div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Działka</th>
+                            <th>Adres</th>
+                            <th>Typ</th>
+                            <th>Wartość</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map(p => `
+
+                            <tr>
+
+                                <td>${escapeHtml(p.plot_number || "-")}</td>
+
+                                <td>${escapeHtml(p.address || "-")}</td>
+
+                                <td>${escapeHtml(p.property_type || "-")}</td>
+
+                                <td>${money(p.value)}</td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   LOAD DEFINITIONS
+===================================================== */
+
+async function loadDefinitions() {
+
+    const taxes =
+        await supabaseClient
+            .from("tax_rates")
+            .select("*")
+            .order("name");
+
+    if (!taxes.error) {
+        taxDefinitions = taxes.data || [];
+    }
+
+    const licenses =
+        await supabaseClient
+            .from("licenses")
+            .select("*")
+            .order("name");
+
+    if (!licenses.error) {
+        licenseDefinitions = licenses.data || [];
+    }
+
+    const fees =
+        await supabaseClient
+            .from("fees")
+            .select("*")
+            .order("name");
+
+    if (!fees.error) {
+        feeDefinitions = fees.data || [];
+    }
+}
+
+
+/* =====================================================
+   TAX RULES
+===================================================== */
+
+async function renderTaxRules() {
+
+    const box = $("taxRulesContent");
+
+    await loadDefinitions();
+
+    if (!taxDefinitions.length) {
+
+        box.innerHTML =
+            `<div class="card">Brak zdefiniowanych stawek.</div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Nazwa</th>
+                            <th>Stawka</th>
+                            <th>Jednostka</th>
+                            <th>Opis</th>
+                            <th>Aktywna</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${taxDefinitions.map(t => `
+
+                            <tr>
+
+                                <td>
+                                    <strong>${escapeHtml(t.name)}</strong>
+                                </td>
+
+                                <td>${money(t.rate)}</td>
+
+                                <td>${escapeHtml(t.unit || "DX")}</td>
+
+                                <td>${escapeHtml(t.description || "-")}</td>
+
+                                <td>
+                                    ${t.active
+                                        ? statusBadge("active")
+                                        : statusBadge("cancelled")}
+                                </td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   ADMIN DATA
+===================================================== */
+
+async function loadAdminData() {
+
+    await loadDefinitions();
+
+    await loadPlayers();
+
+    await loadAdminStats();
+
+    fillDefinitionSelects();
+
+    if (selectedPlayer) {
+        await loadSelectedPlayer();
+    } else {
+        clearAdminTables();
+    }
+}
+
+
+/* =====================================================
+   PLAYERS
+===================================================== */
+
+async function loadPlayers() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .order("minecraft_nick");
+
+    if (error) {
+
+        console.error(error);
+
+        players = [];
+
+        return;
+    }
+
+    players = data || [];
+
+    const select =
+        $("adminPlayerSelect");
+
+    const old =
+        select.value;
+
+    select.innerHTML =
+        `<option value="">-- wybierz gracza --</option>`;
+
+    players
+        .filter(p => p.role !== "admin")
+        .forEach(p => {
+
+            const name =
+                p.minecraft_nick ||
+                p.display_name ||
+                p.username ||
+                p.id;
+
+            const option =
+                document.createElement("option");
+
+            option.value = p.id;
+
+            option.textContent = name;
+
+            select.appendChild(option);
+        });
+
+    if (old && players.some(p => p.id === old)) {
+        select.value = old;
+    }
+}
+
+
+/* =====================================================
+   SELECT PLAYER
+===================================================== */
+
+async function loadSelectedPlayer() {
+
+    const id =
+        $("adminPlayerSelect").value;
+
+    if (!id) {
+
+        selectedPlayer = null;
+
+        clearAdminTables();
+
+        $("selectedPlayerInfo").textContent = "";
+
+        return;
+    }
+
+    selectedPlayer =
+        players.find(p => p.id === id);
+
+    if (!selectedPlayer) return;
+
+    const name =
+        selectedPlayer.minecraft_nick ||
+        selectedPlayer.display_name ||
+        selectedPlayer.username;
+
+    $("selectedPlayerInfo").innerHTML =
+        `Wybrany gracz: <strong>${escapeHtml(name)}</strong>`;
+
+    await loadPlayerProperties();
+
+    await loadAdminTaxes();
+
+    await loadAdminLicenses();
+
+    await loadAdminFees();
+}
+
+
+/* =====================================================
+   ADMIN STATS
+===================================================== */
+
+async function loadAdminStats() {
+
+    const playerCount =
+        players.filter(p => p.role !== "admin").length;
+
+    $("statPlayers").textContent =
+        playerCount;
+
+    const taxes =
+        await supabaseClient
+            .from("tax_liabilities")
+            .select("id", {
+                count: "exact",
+                head: true
+            });
+
+    $("statTaxes").textContent =
+        taxes.count || 0;
+
+    const licenses =
+        await supabaseClient
+            .from("player_licenses")
+            .select("id", {
+                count: "exact",
+                head: true
+            });
+
+    $("statLicenses").textContent =
+        licenses.count || 0;
+
+    const fees =
+        await supabaseClient
+            .from("player_fees")
+            .select("id", {
+                count: "exact",
+                head: true
+            });
+
+    $("statFees").textContent =
+        fees.count || 0;
+}
+
+
+/* =====================================================
+   ADMIN TAXES
+===================================================== */
+
+async function loadAdminTaxes() {
+
+    const box =
+        $("adminTaxesContent");
+
+    if (!selectedPlayer) {
+
+        box.innerHTML =
+            `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("tax_liabilities")
+            .select(`
+                *,
+                properties (
+                    plot_number,
+                    address
+                ),
+                tax_rates (
+                    name
+                )
+            `)
+            .eq("user_id", selectedPlayer.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<p>${escapeHtml(error.message)}</p>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<p class="muted">Ten gracz nie ma podatków.</p>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Podatek</th>
+                        <th>Kwota</th>
+                        <th>Termin</th>
+                        <th>Nieruchomość</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${data.map(t => `
+
+                        <tr>
+
+                            <td>
+                                <strong>${escapeHtml(t.title)}</strong>
+                            </td>
+
+                            <td>${money(t.amount)}</td>
+
+                            <td>${datePL(t.due_date)}</td>
+
+                            <td>
+                                ${t.properties
+                                    ? `${escapeHtml(t.properties.plot_number || "-")}`
+                                    : "-"}
+                            </td>
+
+                            <td>${statusBadge(t.status)}</td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        onclick='editTax(${JSON.stringify(t)})'>
+                                        ✏️
+                                    </button>
+
+                                    <button
+                                        class="danger"
+                                        onclick="deleteTax('${t.id}')">
+                                        🗑️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   TAX FORM
+===================================================== */
+
+function showTaxAddForm() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    $("adminTaxForm").classList.remove("hidden");
+
+    $("editTaxId").value = "";
+
+    $("taxTitle").value = "";
+    $("taxAmount").value = "";
+    $("taxDueDate").value = "";
+    $("taxStatus").value = "unpaid";
+    $("taxNote").value = "";
+
+    fillDefinitionSelects();
+    fillPropertySelect();
+}
+
+function cancelTaxForm() {
+
+    $("adminTaxForm").classList.add("hidden");
+}
+
+function editTax(tax) {
+
+    $("adminTaxForm").classList.remove("hidden");
+
+    $("editTaxId").value = tax.id;
+
+    $("taxTitle").value =
+        tax.title || "";
+
+    $("taxAmount").value =
+        tax.amount || "";
+
+    $("taxDueDate").value =
+        tax.due_date || "";
+
+    $("taxStatus").value =
+        tax.status || "unpaid";
+
+    $("taxNote").value =
+        tax.note || "";
+
+    fillDefinitionSelects();
+    fillPropertySelect();
+
+    $("taxDefinitionSelect").value =
+        tax.tax_id || "";
+
+    $("taxPropertySelect").value =
+        tax.property_id || "";
+}
+
+async function saveAdminTax() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    const id =
+        $("editTaxId").value;
+
+    const payload = {
+
+        user_id: selectedPlayer.id,
+
+        title:
+            $("taxTitle").value.trim(),
+
+        amount:
+            Number($("taxAmount").value || 0),
+
+        due_date:
+            $("taxDueDate").value || null,
+
+        tax_id:
+            $("taxDefinitionSelect").value || null,
+
+        property_id:
+            $("taxPropertySelect").value || null,
+
+        status:
+            $("taxStatus").value,
+
+        note:
+            $("taxNote").value.trim() || null
+
+    };
+
+    if (!payload.title) {
+
+        alert("Podaj nazwę podatku.");
+
+        return;
+    }
+
+    let result;
+
+    if (id) {
+
+        result =
+            await supabaseClient
+                .from("tax_liabilities")
+                .update(payload)
+                .eq("id", id);
+
+    } else {
+
+        result =
+            await supabaseClient
+                .from("tax_liabilities")
+                .insert(payload);
+    }
+
+    if (result.error) {
+
+        alert(result.error.message);
+
+        return;
+    }
+
+    cancelTaxForm();
+
+    await loadAdminTaxes();
+
+    await loadAdminStats();
+}
+
+async function deleteTax(id) {
+
+    if (!confirm("Usunąć ten podatek graczowi?")) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("tax_liabilities")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    await loadAdminTaxes();
+    await loadAdminStats();
+}
+
+
+/* =====================================================
+   PLAYER PROPERTIES
+===================================================== */
+
+async function loadPlayerProperties() {
+
+    if (!selectedPlayer) return;
+
+    const { data, error } =
+        await supabaseClient
+            .from("properties")
+            .select("*")
+            .eq("owner_id", selectedPlayer.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        console.error(error);
+
+        selectedPlayerProperties = [];
+
+        return;
+    }
+
+    selectedPlayerProperties =
+        data || [];
+
+    renderAdminProperties();
+}
+
+function renderAdminProperties() {
+
+    const box =
+        $("adminPropertiesContent");
+
+    if (!selectedPlayer) {
+
+        box.innerHTML =
+            `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+        return;
+    }
+
+    if (!selectedPlayerProperties.length) {
+
+        box.innerHTML =
+            `<p class="muted">
+                Ten gracz nie ma jeszcze nieruchomości.
+            </p>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Działka</th>
+                        <th>Adres</th>
+                        <th>Typ</th>
+                        <th>Wartość</th>
+                        <th>Akcje</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${selectedPlayerProperties.map(p => `
+
+                        <tr>
+
+                            <td>${escapeHtml(p.plot_number || "-")}</td>
+
+                            <td>${escapeHtml(p.address || "-")}</td>
+
+                            <td>${escapeHtml(p.property_type || "-")}</td>
+
+                            <td>${money(p.value)}</td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        onclick='editProperty(${JSON.stringify(p)})'>
+                                        ✏️
+                                    </button>
+
+                                    <button
+                                        class="danger"
+                                        onclick="deleteProperty('${p.id}')">
+                                        🗑️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   PROPERTY FORM
+===================================================== */
+
+function showPropertyAddForm() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    $("adminPropertyForm")
+        .classList.remove("hidden");
+
+    $("editPropertyId").value = "";
+
+    $("propertyPlot").value = "";
+    $("propertyAddress").value = "";
+    $("propertyType").value = "";
+    $("propertyValue").value = "";
+}
+
+function cancelPropertyForm() {
+
+    $("adminPropertyForm")
+        .classList.add("hidden");
+}
+
+function editProperty(p) {
+
+    $("adminPropertyForm")
+        .classList.remove("hidden");
+
+    $("editPropertyId").value =
+        p.id;
+
+    $("propertyPlot").value =
+        p.plot_number || "";
+
+    $("propertyAddress").value =
+        p.address || "";
+
+    $("propertyType").value =
+        p.property_type || "";
+
+    $("propertyValue").value =
+        p.value || "";
+}
+
+async function saveAdminProperty() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    const id =
+        $("editPropertyId").value;
+
+    const payload = {
+
+        owner_id:
+            selectedPlayer.id,
+
+        plot_number:
+            $("propertyPlot").value.trim(),
+
+        address:
+            $("propertyAddress").value.trim(),
+
+        owner_name:
+            selectedPlayer.minecraft_nick ||
+            selectedPlayer.display_name ||
+            selectedPlayer.username,
+
+        property_type:
+            $("propertyType").value.trim(),
+
+        value:
+            Number($("propertyValue").value || 0)
+
+    };
+
+    let result;
+
+    if (id) {
+
+        result =
+            await supabaseClient
+                .from("properties")
+                .update(payload)
+                .eq("id", id);
+
+    } else {
+
+        result =
+            await supabaseClient
+                .from("properties")
+                .insert(payload);
+    }
+
+    if (result.error) {
+
+        alert(result.error.message);
+
+        return;
+    }
+
+    cancelPropertyForm();
+
+    await loadPlayerProperties();
+}
+
+async function deleteProperty(id) {
+
+    if (!confirm("Usunąć nieruchomość?")) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("properties")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    await loadPlayerProperties();
+}
+
+
+/* =====================================================
+   ADMIN LICENSES
+===================================================== */
+
+async function loadAdminLicenses() {
+
+    const box =
+        $("adminLicensesContent");
+
+    if (!selectedPlayer) {
+
+        box.innerHTML =
+            `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_licenses")
+            .select(`
+                *,
+                licenses (
+                    name
+                )
+            `)
+            .eq("user_id", selectedPlayer.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<p>${escapeHtml(error.message)}</p>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<p class="muted">Brak licencji tego gracza.</p>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Licencja</th>
+                        <th>Cena</th>
+                        <th>Ważna do</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${data.map(l => `
+
+                        <tr>
+
+                            <td>${escapeHtml(l.name)}</td>
+
+                            <td>${money(l.price)}</td>
+
+                            <td>${datePL(l.valid_until)}</td>
+
+                            <td>${statusBadge(l.status)}</td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        onclick='editLicense(${JSON.stringify(l)})'>
+                                        ✏️
+                                    </button>
+
+                                    <button
+                                        class="danger"
+                                        onclick="deleteLicense('${l.id}')">
+                                        🗑️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   LICENSE FORM
+===================================================== */
+
+function showLicenseAddForm() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    $("adminLicenseForm")
+        .classList.remove("hidden");
+
+    $("editLicenseId").value = "";
+
+    $("playerLicenseName").value = "";
+    $("playerLicensePrice").value = "";
+    $("licenseFrom").value = "";
+    $("licenseUntil").value = "";
+    $("licenseStatus").value = "active";
+    $("licenseNote").value = "";
+
+    fillDefinitionSelects();
+}
+
+function cancelLicenseForm() {
+
+    $("adminLicenseForm")
+        .classList.add("hidden");
+}
+
+function editLicense(l) {
+
+    $("adminLicenseForm")
+        .classList.remove("hidden");
+
+    $("editLicenseId").value =
+        l.id;
+
+    $("playerLicenseName").value =
+        l.name || "";
+
+    $("playerLicensePrice").value =
+        l.price || "";
+
+    $("licenseFrom").value =
+        l.valid_from || "";
+
+    $("licenseUntil").value =
+        l.valid_until || "";
+
+    $("licenseStatus").value =
+        l.status || "active";
+
+    $("licenseNote").value =
+        l.note || "";
+
+    fillDefinitionSelects();
+
+    $("licenseDefinitionSelect").value =
+        l.license_id || "";
+}
+
+async function saveAdminLicense() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    const id =
+        $("editLicenseId").value;
+
+    const payload = {
+
+        user_id:
+            selectedPlayer.id,
+
+        license_id:
+            $("licenseDefinitionSelect").value || null,
+
+        name:
+            $("playerLicenseName").value.trim(),
+
+        price:
+            Number($("playerLicensePrice").value || 0),
+
+        valid_from:
+            $("licenseFrom").value || null,
+
+        valid_until:
+            $("licenseUntil").value || null,
+
+        status:
+            $("licenseStatus").value,
+
+        note:
+            $("licenseNote").value.trim() || null
+
+    };
+
+    if (!payload.name) {
+
+        alert("Podaj nazwę licencji.");
+
+        return;
+    }
+
+    let result;
+
+    if (id) {
+
+        result =
+            await supabaseClient
+                .from("player_licenses")
+                .update(payload)
+                .eq("id", id);
+
+    } else {
+
+        result =
+            await supabaseClient
+                .from("player_licenses")
+                .insert(payload);
+    }
+
+    if (result.error) {
+
+        alert(result.error.message);
+
+        return;
+    }
+
+    cancelLicenseForm();
+
+    await loadAdminLicenses();
+
+    await loadAdminStats();
+}
+
+async function deleteLicense(id) {
+
+    if (!confirm("Usunąć tę licencję graczowi?")) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("player_licenses")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    await loadAdminLicenses();
+
+    await loadAdminStats();
+}
+
+
+/* =====================================================
+   ADMIN FEES
+===================================================== */
+
+async function loadAdminFees() {
+
+    const box =
+        $("adminFeesContent");
+
+    if (!selectedPlayer) {
+
+        box.innerHTML =
+            `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_fees")
+            .select(`
+                *,
+                fees (
+                    name
+                )
+            `)
+            .eq("user_id", selectedPlayer.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        box.innerHTML =
+            `<p>${escapeHtml(error.message)}</p>`;
+
+        return;
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<p class="muted">Brak opłat tego gracza.</p>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Opłata</th>
+                        <th>Kwota</th>
+                        <th>Termin</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${data.map(f => `
+
+                        <tr>
+
+                            <td>${escapeHtml(f.name)}</td>
+
+                            <td>${money(f.amount)}</td>
+
+                            <td>${datePL(f.due_date)}</td>
+
+                            <td>${statusBadge(f.status)}</td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        onclick='editFee(${JSON.stringify(f)})'>
+                                        ✏️
+                                    </button>
+
+                                    <button
+                                        class="danger"
+                                        onclick="deleteFee('${f.id}')">
+                                        🗑️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   FEE FORM
+===================================================== */
+
+function showFeeAddForm() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    $("adminFeeForm")
+        .classList.remove("hidden");
+
+    $("editFeeId").value = "";
+
+    $("playerFeeName").value = "";
+    $("playerFeeAmount").value = "";
+    $("feeDueDate").value = "";
+    $("feeStatus").value = "unpaid";
+    $("feeNote").value = "";
+
+    fillDefinitionSelects();
+}
+
+function cancelFeeForm() {
+
+    $("adminFeeForm")
+        .classList.add("hidden");
+}
+
+function editFee(f) {
+
+    $("adminFeeForm")
+        .classList.remove("hidden");
+
+    $("editFeeId").value =
+        f.id;
+
+    $("playerFeeName").value =
+        f.name || "";
+
+    $("playerFeeAmount").value =
+        f.amount || "";
+
+    $("feeDueDate").value =
+        f.due_date || "";
+
+    $("feeStatus").value =
+        f.status || "unpaid";
+
+    $("feeNote").value =
+        f.note || "";
+
+    fillDefinitionSelects();
+
+    $("feeDefinitionSelect").value =
+        f.fee_id || "";
+}
+
+async function saveAdminFee() {
+
+    if (!selectedPlayer) {
+
+        alert("Najpierw wybierz gracza.");
+
+        return;
+    }
+
+    const id =
+        $("editFeeId").value;
+
+    const payload = {
+
+        user_id:
+            selectedPlayer.id,
+
+        fee_id:
+            $("feeDefinitionSelect").value || null,
+
+        name:
+            $("playerFeeName").value.trim(),
+
+        amount:
+            Number($("playerFeeAmount").value || 0),
+
+        due_date:
+            $("feeDueDate").value || null,
+
+        status:
+            $("feeStatus").value,
+
+        note:
+            $("feeNote").value.trim() || null
+
+    };
+
+    if (!payload.name) {
+
+        alert("Podaj nazwę opłaty.");
+
+        return;
+    }
+
+    let result;
+
+    if (id) {
+
+        result =
+            await supabaseClient
+                .from("player_fees")
+                .update(payload)
+                .eq("id", id);
+
+    } else {
+
+        result =
+            await supabaseClient
+                .from("player_fees")
+                .insert(payload);
+    }
+
+    if (result.error) {
+
+        alert(result.error.message);
+
+        return;
+    }
+
+    cancelFeeForm();
+
+    await loadAdminFees();
+
+    await loadAdminStats();
+}
+
+async function deleteFee(id) {
+
+    if (!confirm("Usunąć tę opłatę graczowi?")) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("player_fees")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    await loadAdminFees();
+
+    await loadAdminStats();
+}
+
+
+/* =====================================================
+   SELECTS
+===================================================== */
+
+function fillDefinitionSelects() {
+
+    const taxSelect =
+        $("taxDefinitionSelect");
+
+    if (taxSelect) {
+
+        taxSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        taxDefinitions.forEach(t => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = t.id;
+
+            option.textContent =
+                `${t.name} — ${money(t.rate)}`;
+
+            taxSelect.appendChild(option);
+        });
+    }
+
+
+    const licenseSelect =
+        $("licenseDefinitionSelect");
+
+    if (licenseSelect) {
+
+        licenseSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        licenseDefinitions.forEach(l => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = l.id;
+
+            option.textContent =
+                `${l.name} — ${money(l.price)}`;
+
+            licenseSelect.appendChild(option);
+        });
+    }
+
+
+    const feeSelect =
+        $("feeDefinitionSelect");
+
+    if (feeSelect) {
+
+        feeSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        feeDefinitions.forEach(f => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = f.id;
+
+            option.textContent =
+                `${f.name} — ${money(f.amount)}`;
+
+            feeSelect.appendChild(option);
+        });
+    }
+}
+
+function fillPropertySelect() {
+
+    const select =
+        $("taxPropertySelect");
+
+    if (!select) return;
+
+    select.innerHTML =
+        `<option value="">-- brak --</option>`;
+
+    selectedPlayerProperties.forEach(p => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = p.id;
+
+        option.textContent =
+            `Działka ${p.plot_number || "-"} — ${p.address || "brak adresu"}`;
+
+        select.appendChild(option);
+    });
+}
+
+
+/* =====================================================
+   TAX DEFINITIONS ADMIN
+===================================================== */
+
+function showDefinitionForm() {
+
+    $("definitionForm")
+        .classList.remove("hidden");
+
+    $("editDefinitionId").value = "";
+
+    $("definitionName").value = "";
+    $("definitionRate").value = "";
+    $("definitionUnit").value = "DX";
+    $("definitionDescription").value = "";
+    $("definitionActive").value = "true";
+}
+
+function cancelDefinitionForm() {
+
+    $("definitionForm")
+        .classList.add("hidden");
+}
+
+async function saveDefinition() {
+
+    const id =
+        $("editDefinitionId").value;
+
+    const payload = {
+
+        name:
+            $("definitionName").value.trim(),
+
+        rate:
+            Number($("definitionRate").value || 0),
+
+        unit:
+            $("definitionUnit").value.trim() || "DX",
+
+        description:
+            $("definitionDescription").value.trim() || null,
+
+        active:
+            $("definitionActive").value === "true"
+
+    };
+
+    if (!payload.name) {
+
+        alert("Podaj nazwę stawki.");
+
+        return;
+    }
+
+    let result;
+
+    if (id) {
+
+        result =
+            await supabaseClient
+                .from("tax_rates")
+                .update(payload)
+                .eq("id", id);
+
+    } else {
+
+        result =
+            await supabaseClient
+                .from("tax_rates")
+                .insert(payload);
+    }
+
+    if (result.error) {
+
+        alert(result.error.message);
+
+        return;
+    }
+
+    cancelDefinitionForm();
+
+    await loadDefinitions();
+
+    await renderAdminDefinitions();
+
+    fillDefinitionSelects();
+}
+
+async function renderAdminDefinitions() {
+
+    const box =
+        $("adminDefinitionsContent");
+
+    await loadDefinitions();
+
+    if (!taxDefinitions.length) {
+
+        box.innerHTML =
+            `<p class="muted">Brak definicji podatków.</p>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Stawka</th>
+                        <th>Jednostka</th>
+                        <th>Aktywna</th>
+                        <th>Akcje</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${taxDefinitions.map(t => `
+
+                        <tr>
+
+                            <td>
+                                <strong>${escapeHtml(t.name)}</strong>
+                                <div class="small">
+                                    ${escapeHtml(t.description || "")}
+                                </div>
+                            </td>
+
+                            <td>${money(t.rate)}</td>
+
+                            <td>${escapeHtml(t.unit || "DX")}</td>
+
+                            <td>
+                                ${t.active
+                                    ? statusBadge("active")
+                                    : statusBadge("cancelled")}
+                            </td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        onclick='editDefinition(${JSON.stringify(t)})'>
+                                        ✏️
+                                    </button>
+
+                                    <button
+                                        class="danger"
+                                        onclick="deleteDefinition('${t.id}')">
+                                        🗑️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+function editDefinition(t) {
+
+    $("definitionForm")
+        .classList.remove("hidden");
+
+    $("editDefinitionId").value =
+        t.id;
+
+    $("definitionName").value =
+        t.name || "";
+
+    $("definitionRate").value =
+        t.rate || "";
+
+    $("definitionUnit").value =
+        t.unit || "DX";
+
+    $("definitionDescription").value =
+        t.description || "";
+
+    $("definitionActive").value =
+        t.active ? "true" : "false";
+}
+
+async function deleteDefinition(id) {
+
+    if (!confirm(
+        "Usunąć definicję podatku? Istniejące podatki graczy nie zostaną automatycznie usunięte."
+    )) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("tax_rates")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    await loadDefinitions();
+
+    await renderAdminDefinitions();
+
+    fillDefinitionSelects();
+}
+
+
+/* =====================================================
+   CLEAR ADMIN TABLES
+===================================================== */
+
+function clearAdminTables() {
+
+    $("adminTaxesContent").innerHTML =
+        `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+    $("adminLicensesContent").innerHTML =
+        `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+    $("adminFeesContent").innerHTML =
+        `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+    $("adminPropertiesContent").innerHTML =
+        `<p class="muted">Najpierw wybierz gracza.</p>`;
+}
+
+
+/* =====================================================
+   INITIALIZATION
+===================================================== */
+
+async function init() {
+
+    const {
+        data
+    } =
+        await supabaseClient.auth.getSession();
+
+    if (data.session) {
+
+        currentUser =
+            data.session.user;
+
+        await loadProfile();
+
+        await showApp();
+
+    } else {
+
+        $("authScreen")
+            .classList.remove("hidden");
+
+        $("app")
+            .classList.add("hidden");
+    }
+
+
+    supabaseClient.auth.onAuthStateChange(
+        async (event, session) => {
+
+            if (event === "SIGNED_IN" && session) {
+
+                currentUser =
+                    session.user;
+
+                await loadProfile();
+
+                await showApp();
+            }
+
+            if (event === "SIGNED_OUT") {
+
+                currentUser = null;
+                currentProfile = null;
+
+                $("authScreen")
+                    .classList.remove("hidden");
+
+                $("app")
+                    .classList.add("hidden");
+            }
+
+        }
+    );
+}
+
+
+/* =====================================================
+   ADMIN DEFINITIONS HOOK
+===================================================== */
+
+const originalLoadAdminData =
+    loadAdminData;
+
+loadAdminData = async function() {
+
+    await originalLoadAdminData();
+
+    await renderAdminDefinitions();
+};
+
+
+/* =====================================================
    START
-========================== */
+===================================================== */
 
-async function startApp() {
-
-  await checkConnection();
-
-  const {
-    data: { session }
-  } =
-    await supabaseClient.auth.getSession();
-
-  if (session) {
-
-    await showApp(session.user);
-
-  }
-}
-
-startApp();
+init();
 
 </script>
 
 </body>
 </html>
+```
