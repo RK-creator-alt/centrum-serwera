@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Centrum Serwera</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    header {
+      background: #111827;
+      border-bottom: 1px solid #263244;
+      padding: 18px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .status {
+      font-size: 14px;
+      color: #22c55e;
+    }
+
+    .login-box {
+      max-width: 420px;
+      margin: 80px auto;
+      background: #111827;
+      padding: 30px;
+      border-radius: 14px;
+      border: 1px solid #263244;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      background: #1f2937;
+      color: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .welcome {
+      background: #111827;
+      padding: 25px;
+      border-radius: 14px;
+      border: 1px solid #263244;
+      margin-bottom: 20px;
+    }
+
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    .module {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 14px;
+      padding: 22px;
+      min-height: 130px;
+    }
+
+    .module h3 {
+      margin-top: 0;
+    }
+
+    .logout {
+      width: auto;
+      padding: 9px 16px;
+      margin: 0;
+      background: #374151;
+    }
+
+    .error {
+      color: #f87171;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🏢 Centrum Serwera</div>
+  <div class="status" id="connectionStatus">Łączenie...</div>
+</header>
+
+<div class="container">
+
+  <!-- LOGOWANIE -->
+  <div id="loginScreen" class="login-box">
+    <h1>Logowanie</h1>
+
+    <p>Zaloguj się do Centrum Serwera.</p>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="E-mail"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Hasło"
+    >
+
+    <button onclick="login()">Zaloguj się</button>
+
+    <div id="loginError" class="error"></div>
+  </div>
+
+  <!-- PANEL -->
+  <div id="appScreen" class="hidden">
+
+    <div class="welcome">
+      <h1>Witaj, <span id="displayName">graczu</span>!</h1>
+      <p id="roleText"></p>
+
+      <button class="logout" onclick="logout()">
+        Wyloguj
+      </button>
+    </div>
+
+    <div class="modules">
+
+      <div class="module">
+        <h3>🏢 Urząd Skarbowy</h3>
+        <p>Podatki, opłaty, licencje, działki i nieruchomości.</p>
+      </div>
+
+      <div class="module">
+        <h3>⚖️ Sąd</h3>
+        <p>Sprawy, wyroki, orzeczenia i archiwum sądowe.</p>
+      </div>
+
+      <div class="module">
+        <h3>🚒 Bezpieczeństwo</h3>
+        <p>Straż, wojsko, SWAT, ratownictwo i alarmy.</p>
+      </div>
+
+      <div class="module">
+        <h3>🏦 Bank</h3>
+        <p>Kursy, kredyty, opłaty i informacje bankowe.</p>
+      </div>
+
+      <div class="module">
+        <h3>👑 Władze</h3>
+        <p>Burmistrz, rząd, Sejm, urzędy i wybory.</p>
+      </div>
+
+      <div class="module">
+        <h3>⛪ Parafia</h3>
+        <p>Kościoły, msze, wydarzenia i kronika parafialna.</p>
+      </div>
+
+      <div class="module">
+        <h3>📰 TVW / Redakcja</h3>
+        <p>Aktualności, artykuły, wywiady i śledztwa.</p>
+      </div>
+
+      <div class="module">
+        <h3>📚 Archiwum</h3>
+        <p>Historia miasta, prawa, mapy i ważne wydarzenia.</p>
+      </div>
+
+      <div class="module">
+        <h3>📋 Rejestry</h3>
+        <p>Działki, budynki, licencje, prawa i instytucje.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = "https://qbhmbawqdgzplwtboqal.supabase.co";
+
+  const SUPABASE_KEY = "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function checkConnection() {
+    const status = document.getElementById("connectionStatus");
+
+    const { error } = await supabaseClient
+      .from("profiles")
+      .select("id")
+      .limit(1);
+
+    if (error) {
+      status.textContent = "⚠️ Sprawdź konfigurację";
+      console.log(error);
+    } else {
+      status.textContent = "● Połączono z bazą";
+    }
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const errorBox = document.getElementById("loginError");
+    errorBox.textContent = "";
+
+    if (!email || !password) {
+      errorBox.textContent = "Wpisz e-mail i hasło.";
+      return;
+    }
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      errorBox.textContent = error.message;
+      return;
+    }
+
+    await showApp(data.user);
+  }
+
+  async function showApp(user) {
+    const { data: profile, error } =
+      await supabaseClient
+        .from("profiles")
+        .select("username, display_name, role")
+        .eq("id", user.id)
+        .single();
+
+    if (error) {
+      document.getElementById("loginError").textContent =
+        "Zalogowano, ale nie znaleziono profilu użytkownika.";
+      return;
+    }
+
+    document.getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document.getElementById("appScreen")
+      .classList.remove("hidden");
+
+    document.getElementById("displayName").textContent =
+      profile.display_name || profile.username || "użytkowniku";
+
+    document.getElementById("roleText").textContent =
+      "Rola: " + profile.role;
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+
+    document.getElementById("appScreen")
+      .classList.add("hidden");
+
+    document.getElementById("loginScreen")
+      .classList.remove("hidden");
+  }
+
+  async function startApp() {
+    checkConnection();
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (session) {
+      await showApp(session.user);
+    }
+  }
+
+  startApp();
+</script>
+
+</body>
+</html>
