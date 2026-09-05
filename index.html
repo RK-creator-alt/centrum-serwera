@@ -43,7 +43,7 @@
 
     .container {
       max-width: 1150px;
-      margin: 0 auto;
+      margin: auto;
       padding: 30px 20px;
     }
 
@@ -64,8 +64,8 @@
     textarea,
     select {
       width: 100%;
-      padding: 13px;
-      margin: 8px 0;
+      padding: 12px;
+      margin: 7px 0;
       border: 1px solid #374151;
       border-radius: 8px;
       background: #1f2937;
@@ -74,12 +74,12 @@
     }
 
     textarea {
-      min-height: 110px;
+      min-height: 90px;
       resize: vertical;
     }
 
     button {
-      padding: 12px 16px;
+      padding: 11px 16px;
       border: 0;
       border-radius: 8px;
       background: #2563eb;
@@ -92,9 +92,24 @@
       background: #1d4ed8;
     }
 
-    .logout {
+    .danger {
+      background: #dc2626;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .secondary {
       background: #374151;
-      margin-top: 15px;
+    }
+
+    .secondary:hover {
+      background: #4b5563;
+    }
+
+    .success {
+      background: #15803d;
     }
 
     .welcome {
@@ -103,6 +118,10 @@
       border-radius: 14px;
       border: 1px solid #263244;
       margin-bottom: 20px;
+    }
+
+    .logout {
+      margin-top: 15px;
     }
 
     .modules {
@@ -118,17 +137,13 @@
       padding: 22px;
       min-height: 140px;
       cursor: pointer;
-      transition: 0.2s;
+      transition: .2s;
     }
 
     .module:hover {
       transform: translateY(-3px);
       border-color: #3b82f6;
       background: #162033;
-    }
-
-    .module h3 {
-      margin-top: 0;
     }
 
     .page {
@@ -145,9 +160,9 @@
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 15px;
-      margin-top: 20px;
+      margin: 20px 0;
     }
 
     .card {
@@ -161,13 +176,58 @@
       margin-top: 0;
     }
 
-    .section {
+    .admin-box {
       margin-top: 30px;
+      padding: 20px;
+      background: #0f172a;
+      border: 1px solid #374151;
+      border-radius: 12px;
     }
 
-    .section h2 {
-      border-bottom: 1px solid #263244;
-      padding-bottom: 10px;
+    .admin-box h2 {
+      margin-top: 0;
+    }
+
+    .admin-section {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 15px;
+    }
+
+    .admin-section h3 {
+      margin-top: 0;
+    }
+
+    .item {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 9px;
+      padding: 14px;
+      margin: 10px 0;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .item-actions button {
+      padding: 8px 11px;
+    }
+
+    .empty {
+      color: #9ca3af;
+      padding: 10px 0;
     }
 
     .error {
@@ -175,35 +235,31 @@
       margin-top: 10px;
     }
 
-    .success {
-      color: #4ade80;
-      margin-top: 10px;
+    .message {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: #172554;
+      border: 1px solid #1d4ed8;
     }
 
-    .admin-box {
-      margin-top: 25px;
-      padding: 20px;
-      border: 1px solid #374151;
-      border-radius: 10px;
-      background: #0f172a;
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
-    .admin-label {
-      color: #93c5fd;
-      font-weight: bold;
-    }
+    @media (max-width: 650px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
 
-    @media (max-width: 600px) {
+      .item-top {
+        flex-direction: column;
+      }
+
       header {
         padding: 15px;
-      }
-
-      .logo {
-        font-size: 19px;
-      }
-
-      .container {
-        padding: 20px 12px;
       }
     }
   </style>
@@ -223,17 +279,8 @@
     <h1>Logowanie</h1>
     <p>Zaloguj się do Centrum Serwera.</p>
 
-    <input
-      type="email"
-      id="email"
-      placeholder="E-mail"
-    >
-
-    <input
-      type="password"
-      id="password"
-      placeholder="Hasło"
-    >
+    <input id="email" type="email" placeholder="E-mail">
+    <input id="password" type="password" placeholder="Hasło">
 
     <button onclick="login()">Zaloguj się</button>
 
@@ -241,67 +288,67 @@
   </div>
 
 
-  <!-- GŁÓWNY PANEL -->
+  <!-- APLIKACJA -->
   <div id="appScreen" class="hidden">
 
     <div class="welcome">
-      <h1>Witaj, <span id="displayName">graczu</span>!</h1>
+      <h1>Witaj, <span id="displayName"></span>!</h1>
       <p id="roleText"></p>
 
-      <button class="logout" onclick="logout()">
+      <button class="secondary logout" onclick="logout()">
         Wyloguj
       </button>
     </div>
 
 
-    <!-- MENU -->
+    <!-- STRONA GŁÓWNA -->
     <div id="homePage">
 
       <div class="modules">
 
-        <div class="module" onclick="openPage('tax')">
+        <div class="module" onclick="openTax()">
           <h3>🏢 Urząd Skarbowy</h3>
           <p>Podatki, opłaty, licencje, działki i nieruchomości.</p>
         </div>
 
-        <div class="module" onclick="openPage('court')">
+        <div class="module" onclick="openOther('⚖️ Sąd','Sprawy, wyroki, orzeczenia i archiwum sądowe.')">
           <h3>⚖️ Sąd</h3>
-          <p>Sprawy, wyroki, orzeczenia i archiwum sądowe.</p>
+          <p>Sprawy, wyroki, orzeczenia i archiwum.</p>
         </div>
 
-        <div class="module" onclick="openPage('security')">
+        <div class="module" onclick="openOther('🚒 Bezpieczeństwo','Straż, wojsko, SWAT, ratownictwo, alarmy i schrony.')">
           <h3>🚒 Bezpieczeństwo</h3>
-          <p>Straż, wojsko, SWAT, ratownictwo i alarmy.</p>
+          <p>Służby, alarmy i ratownictwo.</p>
         </div>
 
-        <div class="module" onclick="openPage('bank')">
+        <div class="module" onclick="openOther('🏦 Bank','Kursy DX, kredyty, opłaty i informacje bankowe.')">
           <h3>🏦 Bank</h3>
-          <p>Kursy, kredyty, opłaty i informacje bankowe.</p>
+          <p>Bank, kursy, kredyty i opłaty.</p>
         </div>
 
-        <div class="module" onclick="openPage('government')">
+        <div class="module" onclick="openOther('👑 Władze','Burmistrz, rząd, Sejm, urzędy i wybory.')">
           <h3>👑 Władze</h3>
-          <p>Burmistrz, rząd, Sejm, urzędy i wybory.</p>
+          <p>Władze i historia wyborów.</p>
         </div>
 
-        <div class="module" onclick="openPage('parish')">
+        <div class="module" onclick="openOther('⛪ Parafia','Kościoły, msze, wydarzenia i kronika parafialna.')">
           <h3>⛪ Parafia</h3>
-          <p>Kościoły, msze, wydarzenia i kronika.</p>
+          <p>Msze, wydarzenia i kronika.</p>
         </div>
 
-        <div class="module" onclick="openPage('news')">
+        <div class="module" onclick="openOther('📰 TVW / Redakcja','Aktualności, artykuły, wywiady i śledztwa.')">
           <h3>📰 TVW / Redakcja</h3>
-          <p>Aktualności, artykuły, wywiady i śledztwa.</p>
+          <p>Aktualności i dziennikarstwo.</p>
         </div>
 
-        <div class="module" onclick="openPage('archive')">
+        <div class="module" onclick="openOther('📚 Archiwum','Dawne prawa, konstytucje, burmistrzowie, mapy i wydarzenia.')">
           <h3>📚 Archiwum</h3>
-          <p>Historia miasta, prawa, mapy i wydarzenia.</p>
+          <p>Historia miasta i dokumenty.</p>
         </div>
 
-        <div class="module" onclick="openPage('registers')">
+        <div class="module" onclick="openOther('📋 Rejestry','Działki, budynki, licencje, prawa, wyroki i instytucje.')">
           <h3>📋 Rejestry</h3>
-          <p>Działki, budynki, licencje, prawa i instytucje.</p>
+          <p>Publiczne rejestry serwera.</p>
         </div>
 
       </div>
@@ -317,423 +364,1442 @@
       <h1>🏢 Urząd Skarbowy</h1>
 
       <p>
-        Informacje dotyczące podatków, opłat, licencji,
-        nieruchomości oraz spraw urzędowych.
+        Aktualne podatki, opłaty, licencje, nieruchomości
+        i wynagrodzenia.
       </p>
 
+      <div id="taxMessage"></div>
 
       <div class="cards">
 
         <div class="card">
           <h3>💰 Podatki</h3>
-          <p>Podatek od nieruchomości</p>
-          <strong>0,00 ₿</strong>
+          <p>Aktywne podatki:</p>
+          <strong id="taxCount">0</strong>
         </div>
 
         <div class="card">
           <h3>💳 Opłaty</h3>
-          <p>Opłaty administracyjne</p>
-          <strong>0,00 ₿</strong>
+          <p>Aktywne opłaty:</p>
+          <strong id="feeCount">0</strong>
         </div>
 
         <div class="card">
           <h3>📜 Licencje</h3>
-          <p>Rejestr licencji i zezwoleń</p>
-          <strong>Brak danych</strong>
+          <p>Aktywne licencje:</p>
+          <strong id="licenseCount">0</strong>
         </div>
 
         <div class="card">
           <h3>🏠 Nieruchomości</h3>
-          <p>Rejestr nieruchomości</p>
-          <strong>Brak danych</strong>
+          <p>Zarejestrowane:</p>
+          <strong id="propertyCount">0</strong>
         </div>
 
       </div>
 
 
+      <!-- PODATKI -->
       <div class="section">
-        <h2>📄 Formularze</h2>
+        <h2>💰 Podatki</h2>
+        <div id="taxList"></div>
+      </div>
 
-        <div class="card">
-          <h3>Wniosek urzędowy</h3>
-          <p>
-            W przyszłości formularze będą mogły być
-            wysyłane bezpośrednio przez Centrum Serwera.
-          </p>
 
-          <button onclick="showMessage('Formularze będą dostępne w kolejnej wersji.')">
-            Otwórz formularze
-          </button>
-        </div>
+      <!-- OPŁATY -->
+      <div class="section">
+        <h2>💳 Opłaty</h2>
+        <div id="feeList"></div>
+      </div>
+
+
+      <!-- LICENCJE -->
+      <div class="section">
+        <h2>📜 Licencje</h2>
+        <div id="licenseList"></div>
+      </div>
+
+
+      <!-- NIERUCHOMOŚCI -->
+      <div class="section">
+        <h2>🏠 Nieruchomości</h2>
+        <div id="propertyList"></div>
+      </div>
+
+
+      <!-- WYNAGRODZENIA -->
+      <div class="section">
+        <h2>💼 Wynagrodzenia</h2>
+        <div id="salaryList"></div>
       </div>
 
 
       <!-- PANEL ADMINA -->
-      <div id="taxAdmin" class="admin-box hidden">
+      <div id="adminPanel" class="admin-box hidden">
 
-        <div class="admin-label">
-          ⚙️ Panel administratora
-        </div>
+        <h2>⚙️ Panel administratora</h2>
 
         <p>
-          Masz uprawnienia administratora.
-          W kolejnej wersji tutaj będziesz mógł dodawać
-          i edytować podatki, opłaty oraz licencje.
+          Administrator może dodawać, edytować i usuwać
+          dane Urzędu Skarbowego.
         </p>
 
-        <button onclick="showMessage('Panel zarządzania bazą zostanie podłączony w następnym kroku.')">
-          Zarządzaj Urzędem
-        </button>
+
+        <!-- PODATEK -->
+        <div class="admin-section">
+
+          <h3>💰 Zarządzanie podatkami</h3>
+
+          <input type="hidden" id="taxEditId">
+
+          <input id="taxName" placeholder="Nazwa podatku">
+          <textarea id="taxDescription" placeholder="Opis"></textarea>
+
+          <div class="form-grid">
+            <input id="taxRate" type="number" step="0.01" placeholder="Kwota">
+            <input id="taxUnit" placeholder="Jednostka, np. DX" value="DX">
+          </div>
+
+          <button onclick="saveTax()">💾 Zapisz podatek</button>
+          <button class="secondary" onclick="clearTaxForm()">Wyczyść</button>
+
+        </div>
+
+
+        <!-- OPŁATA -->
+        <div class="admin-section">
+
+          <h3>💳 Zarządzanie opłatami</h3>
+
+          <input type="hidden" id="feeEditId">
+
+          <input id="feeName" placeholder="Nazwa opłaty">
+          <textarea id="feeDescription" placeholder="Opis"></textarea>
+
+          <div class="form-grid">
+            <input id="feeAmount" type="number" step="0.01" placeholder="Kwota">
+            <input id="feeUnit" placeholder="Jednostka, np. DX" value="DX">
+          </div>
+
+          <button onclick="saveFee()">💾 Zapisz opłatę</button>
+          <button class="secondary" onclick="clearFeeForm()">Wyczyść</button>
+
+        </div>
+
+
+        <!-- LICENCJA -->
+        <div class="admin-section">
+
+          <h3>📜 Zarządzanie licencjami</h3>
+
+          <input type="hidden" id="licenseEditId">
+
+          <input id="licenseName" placeholder="Nazwa licencji">
+          <textarea id="licenseDescription" placeholder="Opis"></textarea>
+
+          <div class="form-grid">
+            <input id="licensePrice" type="number" step="0.01" placeholder="Cena">
+            <input id="licenseDays" type="number" placeholder="Ważność w dniach">
+          </div>
+
+          <button onclick="saveLicense()">💾 Zapisz licencję</button>
+          <button class="secondary" onclick="clearLicenseForm()">Wyczyść</button>
+
+        </div>
+
+
+        <!-- NIERUCHOMOŚĆ -->
+        <div class="admin-section">
+
+          <h3>🏠 Zarządzanie nieruchomościami</h3>
+
+          <input type="hidden" id="propertyEditId">
+
+          <input id="propertyPlot" placeholder="Numer działki">
+          <input id="propertyAddress" placeholder="Adres">
+
+          <div class="form-grid">
+            <input id="propertyOwner" placeholder="Właściciel">
+            <input id="propertyType" placeholder="Typ nieruchomości">
+          </div>
+
+          <input id="propertyValue" type="number" step="0.01" placeholder="Wartość">
+
+          <button onclick="saveProperty()">💾 Zapisz nieruchomość</button>
+          <button class="secondary" onclick="clearPropertyForm()">Wyczyść</button>
+
+        </div>
+
+
+        <!-- WYNAGRODZENIE -->
+        <div class="admin-section">
+
+          <h3>💼 Zarządzanie wynagrodzeniami</h3>
+
+          <input type="hidden" id="salaryEditId">
+
+          <input id="salaryPosition" placeholder="Stanowisko">
+          <textarea id="salaryDescription" placeholder="Opis"></textarea>
+
+          <div class="form-grid">
+            <input id="salaryAmount" type="number" step="0.01" placeholder="Kwota">
+            <input id="salaryUnit" placeholder="Jednostka, np. DX" value="DX">
+          </div>
+
+          <button onclick="saveSalary()">💾 Zapisz wynagrodzenie</button>
+          <button class="secondary" onclick="clearSalaryForm()">Wyczyść</button>
+
+        </div>
 
       </div>
 
     </div>
 
 
-    <!-- POZOSTAŁE MODUŁY -->
+    <!-- INNE -->
     <div id="otherPage" class="page hidden">
 
       <button class="back" onclick="goHome()">← Wróć do Centrum</button>
 
       <h1 id="otherTitle"></h1>
-
       <p id="otherText"></p>
 
       <div class="card">
         <h3>🚧 Moduł w budowie</h3>
         <p>
-          Ten dział jest już przygotowany w aplikacji.
-          Teraz będziemy dodawać do niego prawdziwe dane,
-          formularze i funkcje administracyjne.
+          Ten moduł jest przygotowany.
+          Będziemy go teraz wypełniać prawdziwymi funkcjami
+          i danymi z Supabase.
         </p>
       </div>
 
     </div>
 
   </div>
-
 </div>
 
 
 <script>
 
-  /* =========================
-     SUPABASE
-     ========================= */
+const SUPABASE_URL =
+  "https://qbhmbawqdgzplwtboqal.supabase.co";
 
-  const SUPABASE_URL =
-    "https://qbhmbawqdgzplwtboqal.supabase.co";
-
-  const SUPABASE_KEY =
-    "sb_publishable_NG0ZfDdJUVrmykG4ju3R5Q_KMXdwfvz";
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+/*
+  WKLEJ TUTAJ SWÓJ PUBLISHABLE KEY
+*/
+const SUPABASE_KEY =
+  "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
 
 
-  /* =========================
-     POŁĄCZENIE
-     ========================= */
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-  async function checkConnection() {
 
-    const status =
-      document.getElementById("connectionStatus");
+let currentUser = null;
+let currentProfile = null;
 
-    const { error } =
+
+/* ==========================
+   POŁĄCZENIE
+========================== */
+
+async function checkConnection() {
+
+  const status =
+    document.getElementById("connectionStatus");
+
+  const { error } =
+    await supabaseClient
+      .from("profiles")
+      .select("id")
+      .limit(1);
+
+  if (error) {
+
+    status.textContent =
+      "⚠️ Błąd połączenia";
+
+    console.error(error);
+
+  } else {
+
+    status.textContent =
+      "● Połączono z bazą";
+
+  }
+}
+
+
+/* ==========================
+   LOGOWANIE
+========================== */
+
+async function login() {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const errorBox =
+    document.getElementById("loginError");
+
+  errorBox.textContent = "";
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if (error) {
+
+    errorBox.textContent =
+      error.message;
+
+    return;
+  }
+
+  await showApp(data.user);
+}
+
+
+/* ==========================
+   PROFIL
+========================== */
+
+async function showApp(user) {
+
+  currentUser = user;
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("username, display_name, role")
+      .eq("id", user.id)
+      .single();
+
+  if (error) {
+
+    document.getElementById("loginError").textContent =
+      "Zalogowano, ale nie znaleziono profilu.";
+
+    console.error(error);
+
+    return;
+  }
+
+  currentProfile = profile;
+
+  document
+    .getElementById("loginScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("appScreen")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("displayName")
+    .textContent =
+      profile.display_name ||
+      profile.username ||
+      "Użytkowniku";
+
+  document
+    .getElementById("roleText")
+    .textContent =
+      "Rola: " + profile.role;
+
+  if (profile.role === "admin") {
+
+    document
+      .getElementById("adminPanel")
+      .classList.remove("hidden");
+
+  }
+}
+
+
+/* ==========================
+   NAWIGACJA
+========================== */
+
+function openTax() {
+
+  document
+    .getElementById("homePage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("otherPage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("taxPage")
+    .classList.remove("hidden");
+
+  loadTaxData();
+}
+
+
+function openOther(title, text) {
+
+  document
+    .getElementById("homePage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("taxPage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("otherPage")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("otherTitle")
+    .textContent = title;
+
+  document
+    .getElementById("otherText")
+    .textContent = text;
+}
+
+
+function goHome() {
+
+  document
+    .getElementById("taxPage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("otherPage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("homePage")
+    .classList.remove("hidden");
+}
+
+
+/* ==========================
+   URZĄD — ŁADOWANIE
+========================== */
+
+async function loadTaxData() {
+
+  await Promise.all([
+    loadTaxes(),
+    loadFees(),
+    loadLicenses(),
+    loadProperties(),
+    loadSalaries()
+  ]);
+}
+
+
+/* ==========================
+   PODATKI
+========================== */
+
+async function loadTaxes() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("tax_rates")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  document.getElementById("taxCount").textContent =
+    data.filter(x => x.active).length;
+
+  const list =
+    document.getElementById("taxList");
+
+  if (!data.length) {
+
+    list.innerHTML =
+      '<div class="empty">Brak podatków.</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(item => `
+      <div class="item">
+
+        <div class="item-top">
+
+          <div>
+            <h3>${esc(item.name)}</h3>
+
+            <p>${esc(item.description || "")}</p>
+
+            <strong>
+              ${item.rate} ${esc(item.unit || "DX")}
+            </strong>
+
+            ${item.active
+              ? "<p>🟢 Aktywny</p>"
+              : "<p>🔴 Nieaktywny</p>"
+            }
+          </div>
+
+          ${isAdmin() ? `
+            <div class="item-actions">
+              <button onclick='editTax(${JSON.stringify(item)})'>
+                ✏️ Edytuj
+              </button>
+
+              <button class="danger"
+                onclick="deleteTax(${item.id})">
+                🗑️ Usuń
+              </button>
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `).join("");
+}
+
+
+/* ==========================
+   OPŁATY
+========================== */
+
+async function loadFees() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("fees")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  document.getElementById("feeCount").textContent =
+    data.filter(x => x.active).length;
+
+  const list =
+    document.getElementById("feeList");
+
+  if (!data.length) {
+
+    list.innerHTML =
+      '<div class="empty">Brak opłat.</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(item => `
+      <div class="item">
+
+        <div class="item-top">
+
+          <div>
+            <h3>${esc(item.name)}</h3>
+
+            <p>${esc(item.description || "")}</p>
+
+            <strong>
+              ${item.amount} ${esc(item.unit || "DX")}
+            </strong>
+          </div>
+
+          ${isAdmin() ? `
+            <div class="item-actions">
+
+              <button onclick='editFee(${JSON.stringify(item)})'>
+                ✏️ Edytuj
+              </button>
+
+              <button class="danger"
+                onclick="deleteFee(${item.id})">
+                🗑️ Usuń
+              </button>
+
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `).join("");
+}
+
+
+/* ==========================
+   LICENCJE
+========================== */
+
+async function loadLicenses() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("licenses")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  document.getElementById("licenseCount").textContent =
+    data.filter(x => x.active).length;
+
+  const list =
+    document.getElementById("licenseList");
+
+  if (!data.length) {
+
+    list.innerHTML =
+      '<div class="empty">Brak licencji.</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(item => `
+      <div class="item">
+
+        <div class="item-top">
+
+          <div>
+            <h3>${esc(item.name)}</h3>
+
+            <p>${esc(item.description || "")}</p>
+
+            <strong>
+              ${item.price} DX
+            </strong>
+
+            ${
+              item.validity_days
+                ? `<p>Ważność: ${item.validity_days} dni</p>`
+                : ""
+            }
+          </div>
+
+          ${isAdmin() ? `
+            <div class="item-actions">
+
+              <button onclick='editLicense(${JSON.stringify(item)})'>
+                ✏️ Edytuj
+              </button>
+
+              <button class="danger"
+                onclick="deleteLicense(${item.id})">
+                🗑️ Usuń
+              </button>
+
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `).join("");
+}
+
+
+/* ==========================
+   NIERUCHOMOŚCI
+========================== */
+
+async function loadProperties() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("properties")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  document.getElementById("propertyCount").textContent =
+    data.length;
+
+  const list =
+    document.getElementById("propertyList");
+
+  if (!data.length) {
+
+    list.innerHTML =
+      '<div class="empty">Brak nieruchomości.</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(item => `
+      <div class="item">
+
+        <div class="item-top">
+
+          <div>
+            <h3>🏠 Działka ${esc(item.plot_number)}</h3>
+
+            <p>
+              Adres: ${esc(item.address || "brak")}
+            </p>
+
+            <p>
+              Właściciel: ${esc(item.owner_name || "brak")}
+            </p>
+
+            <p>
+              Typ: ${esc(item.property_type || "brak")}
+            </p>
+
+            <strong>
+              Wartość: ${item.value || 0} DX
+            </strong>
+          </div>
+
+          ${isAdmin() ? `
+            <div class="item-actions">
+
+              <button onclick='editProperty(${JSON.stringify(item)})'>
+                ✏️ Edytuj
+              </button>
+
+              <button class="danger"
+                onclick="deleteProperty(${item.id})">
+                🗑️ Usuń
+              </button>
+
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `).join("");
+}
+
+
+/* ==========================
+   WYNAGRODZENIA
+========================== */
+
+async function loadSalaries() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("salaries")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  const list =
+    document.getElementById("salaryList");
+
+  if (!data.length) {
+
+    list.innerHTML =
+      '<div class="empty">Brak wynagrodzeń.</div>';
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(item => `
+      <div class="item">
+
+        <div class="item-top">
+
+          <div>
+            <h3>💼 ${esc(item.position)}</h3>
+
+            <p>${esc(item.description || "")}</p>
+
+            <strong>
+              ${item.amount} ${esc(item.unit || "DX")}
+            </strong>
+          </div>
+
+          ${isAdmin() ? `
+            <div class="item-actions">
+
+              <button onclick='editSalary(${JSON.stringify(item)})'>
+                ✏️ Edytuj
+              </button>
+
+              <button class="danger"
+                onclick="deleteSalary(${item.id})">
+                🗑️ Usuń
+              </button>
+
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `).join("");
+}
+
+
+/* ==========================
+   DODAWANIE / EDYCJA PODATKU
+========================== */
+
+async function saveTax() {
+
+  if (!isAdmin()) return;
+
+  const id =
+    document.getElementById("taxEditId").value;
+
+  const payload = {
+    name: document.getElementById("taxName").value.trim(),
+    description: document.getElementById("taxDescription").value.trim(),
+    rate: Number(document.getElementById("taxRate").value) || 0,
+    unit: document.getElementById("taxUnit").value.trim() || "DX"
+  };
+
+  if (!payload.name) {
+
+    showTaxMessage("Podaj nazwę podatku.", true);
+    return;
+  }
+
+  let result;
+
+  if (id) {
+
+    result =
       await supabaseClient
-        .from("profiles")
-        .select("id")
-        .limit(1);
+        .from("tax_rates")
+        .update(payload)
+        .eq("id", id);
 
-    if (error) {
+  } else {
 
-      status.textContent =
-        "⚠️ Błąd połączenia";
-
-      console.log(error);
-
-    } else {
-
-      status.textContent =
-        "● Połączono z bazą";
-
-    }
-  }
-
-
-  /* =========================
-     LOGOWANIE
-     ========================= */
-
-  async function login() {
-
-    const email =
-      document.getElementById("email").value.trim();
-
-    const password =
-      document.getElementById("password").value;
-
-    const errorBox =
-      document.getElementById("loginError");
-
-    errorBox.textContent = "";
-
-
-    if (!email || !password) {
-
-      errorBox.textContent =
-        "Wpisz e-mail i hasło.";
-
-      return;
-    }
-
-
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-
-    if (error) {
-
-      errorBox.textContent =
-        error.message;
-
-      return;
-    }
-
-
-    await showApp(data.user);
-  }
-
-
-  /* =========================
-     PANEL UŻYTKOWNIKA
-     ========================= */
-
-  async function showApp(user) {
-
-    const { data: profile, error } =
+    result =
       await supabaseClient
-        .from("profiles")
-        .select(
-          "username, display_name, role"
-        )
-        .eq("id", user.id)
-        .single();
+        .from("tax_rates")
+        .insert(payload);
 
-
-    if (error) {
-
-      document.getElementById("loginError").textContent =
-        "Zalogowano, ale nie znaleziono profilu.";
-
-      console.log(error);
-
-      return;
-    }
-
-
-    document
-      .getElementById("loginScreen")
-      .classList.add("hidden");
-
-
-    document
-      .getElementById("appScreen")
-      .classList.remove("hidden");
-
-
-    document
-      .getElementById("displayName")
-      .textContent =
-        profile.display_name ||
-        profile.username ||
-        "użytkowniku";
-
-
-    document
-      .getElementById("roleText")
-      .textContent =
-        "Rola: " + profile.role;
-
-
-    if (profile.role === "admin") {
-
-      document
-        .getElementById("taxAdmin")
-        .classList.remove("hidden");
-
-    }
   }
 
+  if (result.error) {
 
-  /* =========================
-     NAWIGACJA
-     ========================= */
-
-  function openPage(page) {
-
-    document
-      .getElementById("homePage")
-      .classList.add("hidden");
-
-    document
-      .getElementById("taxPage")
-      .classList.add("hidden");
-
-    document
-      .getElementById("otherPage")
-      .classList.add("hidden");
-
-
-    if (page === "tax") {
-
-      document
-        .getElementById("taxPage")
-        .classList.remove("hidden");
-
-      return;
-    }
-
-
-    const pages = {
-
-      court: [
-        "⚖️ Sąd",
-        "Sąd Najwyższy, sędziowie, sprawy, wyroki i archiwum."
-      ],
-
-      security: [
-        "🚒 Bezpieczeństwo",
-        "Straż pożarna, wojsko, SWAT, ratownictwo, alarmy i schrony."
-      ],
-
-      bank: [
-        "🏦 Bank",
-        "Informacje bankowe, kursy DX, kredyty i opłaty."
-      ],
-
-      government: [
-        "👑 Władze",
-        "Burmistrz, rząd, Sejm, urzędy oraz historia wyborów."
-      ],
-
-      parish: [
-        "⛪ Parafia",
-        "Proboszcz, kościoły, msze, wydarzenia i kronika parafialna."
-      ],
-
-      news: [
-        "📰 TVW / Redakcja",
-        "Aktualności, artykuły, wywiady, śledztwa i sondaże."
-      ],
-
-      archive: [
-        "📚 Archiwum",
-        "Dawne prawa, konstytucje, burmistrzowie, mapy i wydarzenia."
-      ],
-
-      registers: [
-        "📋 Rejestry",
-        "Działki, budynki, licencje, prawa, wyroki i instytucje."
-      ]
-
-    };
-
-
-    document
-      .getElementById("otherTitle")
-      .textContent =
-        pages[page][0];
-
-
-    document
-      .getElementById("otherText")
-      .textContent =
-        pages[page][1];
-
-
-    document
-      .getElementById("otherPage")
-      .classList.remove("hidden");
+    showTaxMessage(result.error.message, true);
+    return;
   }
 
+  clearTaxForm();
+  showTaxMessage("Podatek zapisany.");
+  await loadTaxes();
+}
 
-  function goHome() {
 
-    document
-      .getElementById("taxPage")
-      .classList.add("hidden");
+function editTax(item) {
 
-    document
-      .getElementById("otherPage")
-      .classList.add("hidden");
+  document.getElementById("taxEditId").value =
+    item.id;
 
-    document
-      .getElementById("homePage")
-      .classList.remove("hidden");
+  document.getElementById("taxName").value =
+    item.name || "";
+
+  document.getElementById("taxDescription").value =
+    item.description || "";
+
+  document.getElementById("taxRate").value =
+    item.rate || 0;
+
+  document.getElementById("taxUnit").value =
+    item.unit || "DX";
+
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+
+function clearTaxForm() {
+
+  document.getElementById("taxEditId").value = "";
+  document.getElementById("taxName").value = "";
+  document.getElementById("taxDescription").value = "";
+  document.getElementById("taxRate").value = "";
+  document.getElementById("taxUnit").value = "DX";
+}
+
+
+async function deleteTax(id) {
+
+  if (!isAdmin()) return;
+
+  if (!confirm("Na pewno usunąć ten podatek?")) return;
+
+  const { error } =
+    await supabaseClient
+      .from("tax_rates")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
   }
 
+  showTaxMessage("Podatek usunięty.");
+  await loadTaxes();
+}
 
-  /* =========================
-     WYLOGOWANIE
-     ========================= */
 
-  async function logout() {
+/* ==========================
+   OPŁATY
+========================== */
 
-    await supabaseClient.auth.signOut();
+async function saveFee() {
 
-    document
-      .getElementById("appScreen")
-      .classList.add("hidden");
+  if (!isAdmin()) return;
 
-    document
-      .getElementById("loginScreen")
-      .classList.remove("hidden");
+  const id =
+    document.getElementById("feeEditId").value;
 
-    goHome();
+  const payload = {
+    name: document.getElementById("feeName").value.trim(),
+    description: document.getElementById("feeDescription").value.trim(),
+    amount: Number(document.getElementById("feeAmount").value) || 0,
+    unit: document.getElementById("feeUnit").value.trim() || "DX"
+  };
+
+  if (!payload.name) {
+
+    showTaxMessage("Podaj nazwę opłaty.", true);
+    return;
   }
 
+  let result;
 
-  /* =========================
-     KOMUNIKAT
-     ========================= */
+  if (id) {
 
-  function showMessage(text) {
-    alert(text);
+    result =
+      await supabaseClient
+        .from("fees")
+        .update(payload)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await supabaseClient
+        .from("fees")
+        .insert(payload);
+
   }
 
+  if (result.error) {
 
-  /* =========================
-     START
-     ========================= */
-
-  async function startApp() {
-
-    await checkConnection();
-
-
-    const {
-      data: { session }
-    } =
-      await supabaseClient.auth.getSession();
-
-
-    if (session) {
-
-      await showApp(session.user);
-
-    }
+    showTaxMessage(result.error.message, true);
+    return;
   }
 
+  clearFeeForm();
+  showTaxMessage("Opłata zapisana.");
+  await loadFees();
+}
 
-  startApp();
+
+function editFee(item) {
+
+  document.getElementById("feeEditId").value = item.id;
+  document.getElementById("feeName").value = item.name || "";
+  document.getElementById("feeDescription").value = item.description || "";
+  document.getElementById("feeAmount").value = item.amount || 0;
+  document.getElementById("feeUnit").value = item.unit || "DX";
+}
+
+
+function clearFeeForm() {
+
+  document.getElementById("feeEditId").value = "";
+  document.getElementById("feeName").value = "";
+  document.getElementById("feeDescription").value = "";
+  document.getElementById("feeAmount").value = "";
+  document.getElementById("feeUnit").value = "DX";
+}
+
+
+async function deleteFee(id) {
+
+  if (!isAdmin()) return;
+
+  if (!confirm("Na pewno usunąć tę opłatę?")) return;
+
+  const { error } =
+    await supabaseClient
+      .from("fees")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  showTaxMessage("Opłata usunięta.");
+  await loadFees();
+}
+
+
+/* ==========================
+   LICENCJE
+========================== */
+
+async function saveLicense() {
+
+  if (!isAdmin()) return;
+
+  const id =
+    document.getElementById("licenseEditId").value;
+
+  const payload = {
+    name: document.getElementById("licenseName").value.trim(),
+    description: document.getElementById("licenseDescription").value.trim(),
+    price: Number(document.getElementById("licensePrice").value) || 0,
+    validity_days:
+      Number(document.getElementById("licenseDays").value) || null
+  };
+
+  if (!payload.name) {
+
+    showTaxMessage("Podaj nazwę licencji.", true);
+    return;
+  }
+
+  let result;
+
+  if (id) {
+
+    result =
+      await supabaseClient
+        .from("licenses")
+        .update(payload)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await supabaseClient
+        .from("licenses")
+        .insert(payload);
+
+  }
+
+  if (result.error) {
+
+    showTaxMessage(result.error.message, true);
+    return;
+  }
+
+  clearLicenseForm();
+  showTaxMessage("Licencja zapisana.");
+  await loadLicenses();
+}
+
+
+function editLicense(item) {
+
+  document.getElementById("licenseEditId").value = item.id;
+  document.getElementById("licenseName").value = item.name || "";
+  document.getElementById("licenseDescription").value =
+    item.description || "";
+  document.getElementById("licensePrice").value =
+    item.price || 0;
+  document.getElementById("licenseDays").value =
+    item.validity_days || "";
+}
+
+
+function clearLicenseForm() {
+
+  document.getElementById("licenseEditId").value = "";
+  document.getElementById("licenseName").value = "";
+  document.getElementById("licenseDescription").value = "";
+  document.getElementById("licensePrice").value = "";
+  document.getElementById("licenseDays").value = "";
+}
+
+
+async function deleteLicense(id) {
+
+  if (!isAdmin()) return;
+
+  if (!confirm("Na pewno usunąć tę licencję?")) return;
+
+  const { error } =
+    await supabaseClient
+      .from("licenses")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  showTaxMessage("Licencja usunięta.");
+  await loadLicenses();
+}
+
+
+/* ==========================
+   NIERUCHOMOŚCI
+========================== */
+
+async function saveProperty() {
+
+  if (!isAdmin()) return;
+
+  const id =
+    document.getElementById("propertyEditId").value;
+
+  const payload = {
+    plot_number:
+      document.getElementById("propertyPlot").value.trim(),
+
+    address:
+      document.getElementById("propertyAddress").value.trim(),
+
+    owner_name:
+      document.getElementById("propertyOwner").value.trim(),
+
+    property_type:
+      document.getElementById("propertyType").value.trim(),
+
+    value:
+      Number(document.getElementById("propertyValue").value) || 0
+  };
+
+  if (!payload.plot_number) {
+
+    showTaxMessage("Podaj numer działki.", true);
+    return;
+  }
+
+  let result;
+
+  if (id) {
+
+    result =
+      await supabaseClient
+        .from("properties")
+        .update(payload)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await supabaseClient
+        .from("properties")
+        .insert(payload);
+
+  }
+
+  if (result.error) {
+
+    showTaxMessage(result.error.message, true);
+    return;
+  }
+
+  clearPropertyForm();
+  showTaxMessage("Nieruchomość zapisana.");
+  await loadProperties();
+}
+
+
+function editProperty(item) {
+
+  document.getElementById("propertyEditId").value = item.id;
+
+  document.getElementById("propertyPlot").value =
+    item.plot_number || "";
+
+  document.getElementById("propertyAddress").value =
+    item.address || "";
+
+  document.getElementById("propertyOwner").value =
+    item.owner_name || "";
+
+  document.getElementById("propertyType").value =
+    item.property_type || "";
+
+  document.getElementById("propertyValue").value =
+    item.value || 0;
+}
+
+
+function clearPropertyForm() {
+
+  document.getElementById("propertyEditId").value = "";
+  document.getElementById("propertyPlot").value = "";
+  document.getElementById("propertyAddress").value = "";
+  document.getElementById("propertyOwner").value = "";
+  document.getElementById("propertyType").value = "";
+  document.getElementById("propertyValue").value = "";
+}
+
+
+async function deleteProperty(id) {
+
+  if (!isAdmin()) return;
+
+  if (!confirm("Na pewno usunąć tę nieruchomość?")) return;
+
+  const { error } =
+    await supabaseClient
+      .from("properties")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  showTaxMessage("Nieruchomość usunięta.");
+  await loadProperties();
+}
+
+
+/* ==========================
+   WYNAGRODZENIA
+========================== */
+
+async function saveSalary() {
+
+  if (!isAdmin()) return;
+
+  const id =
+    document.getElementById("salaryEditId").value;
+
+  const payload = {
+    position:
+      document.getElementById("salaryPosition").value.trim(),
+
+    description:
+      document.getElementById("salaryDescription").value.trim(),
+
+    amount:
+      Number(document.getElementById("salaryAmount").value) || 0,
+
+    unit:
+      document.getElementById("salaryUnit").value.trim() || "DX"
+  };
+
+  if (!payload.position) {
+
+    showTaxMessage("Podaj stanowisko.", true);
+    return;
+  }
+
+  let result;
+
+  if (id) {
+
+    result =
+      await supabaseClient
+        .from("salaries")
+        .update(payload)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await supabaseClient
+        .from("salaries")
+        .insert(payload);
+
+  }
+
+  if (result.error) {
+
+    showTaxMessage(result.error.message, true);
+    return;
+  }
+
+  clearSalaryForm();
+  showTaxMessage("Wynagrodzenie zapisane.");
+  await loadSalaries();
+}
+
+
+function editSalary(item) {
+
+  document.getElementById("salaryEditId").value = item.id;
+
+  document.getElementById("salaryPosition").value =
+    item.position || "";
+
+  document.getElementById("salaryDescription").value =
+    item.description || "";
+
+  document.getElementById("salaryAmount").value =
+    item.amount || 0;
+
+  document.getElementById("salaryUnit").value =
+    item.unit || "DX";
+}
+
+
+function clearSalaryForm() {
+
+  document.getElementById("salaryEditId").value = "";
+  document.getElementById("salaryPosition").value = "";
+  document.getElementById("salaryDescription").value = "";
+  document.getElementById("salaryAmount").value = "";
+  document.getElementById("salaryUnit").value = "DX";
+}
+
+
+async function deleteSalary(id) {
+
+  if (!isAdmin()) return;
+
+  if (!confirm("Na pewno usunąć to wynagrodzenie?")) return;
+
+  const { error } =
+    await supabaseClient
+      .from("salaries")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    showTaxMessage(error.message, true);
+    return;
+  }
+
+  showTaxMessage("Wynagrodzenie usunięte.");
+  await loadSalaries();
+}
+
+
+/* ==========================
+   POMOCNICZE
+========================== */
+
+function isAdmin() {
+
+  return currentProfile &&
+    currentProfile.role === "admin";
+}
+
+
+function showTaxMessage(text, error = false) {
+
+  const box =
+    document.getElementById("taxMessage");
+
+  box.innerHTML =
+    `<div class="${error ? "error" : "message"}">
+      ${esc(text)}
+    </div>`;
+
+  setTimeout(() => {
+    box.innerHTML = "";
+  }, 4000);
+}
+
+
+function esc(value) {
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* ==========================
+   WYLOGOWANIE
+========================== */
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+  currentProfile = null;
+
+  document
+    .getElementById("appScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("loginScreen")
+    .classList.remove("hidden");
+
+  goHome();
+}
+
+
+/* ==========================
+   START
+========================== */
+
+async function startApp() {
+
+  await checkConnection();
+
+  const {
+    data: { session }
+  } =
+    await supabaseClient.auth.getSession();
+
+  if (session) {
+
+    await showApp(session.user);
+
+  }
+}
+
+startApp();
 
 </script>
 
