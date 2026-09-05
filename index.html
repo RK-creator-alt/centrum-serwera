@@ -352,6 +352,88 @@ td {
     font-size: 12px;
     margin-top: 20px;
 }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.info-list {
+    display: grid;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 11px 0;
+    border-bottom: 1px solid #213650;
+}
+
+.info-row:last-child {
+    border-bottom: 0;
+}
+
+.info-label {
+    color: #91a4bd;
+}
+
+.info-value {
+    text-align: right;
+    font-weight: bold;
+}
+
+.profile-card {
+    height: 100%;
+}
+
+.profile-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: #12243a;
+    border: 1px solid #29415f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 14px;
+}
+
+.profile-line {
+    margin: 10px 0;
+}
+
+.profile-line strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.news-box {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #29415f;
+    border-radius: 10px;
+    background: #091626;
+}
+
+.status-online {
+    color: #72d6a5;
+}
+
+.status-offline {
+    color: #ff8b8b;
+}
+
+@media (max-width: 800px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 </head>
 
@@ -476,11 +558,80 @@ td {
         <!-- HOME -->
         <div id="homePage">
 
-            <div class="card">
-                <h1>Centrum Serwera</h1>
-                <p class="muted">
-                    Witaj w panelu serwera. Twoje dane prywatne są oddzielone od danych innych graczy.
-                </p>
+            <div class="dashboard-grid">
+
+                <div class="card">
+                    <h2>🌐 Informacje ogólne</h2>
+                    <p class="muted">
+                        Najważniejsze informacje dotyczące serwera.
+                    </p>
+
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Adres serwera</span>
+                            <span id="serverAddress" class="info-value">Ładowanie...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Wersja serwera</span>
+                            <span id="serverVersion" class="info-value">Ładowanie...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Aktualny burmistrz</span>
+                            <span id="serverMayor" class="info-value">Ładowanie...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status serwera</span>
+                            <span id="serverStatus" class="info-value">Ładowanie...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Gracze online</span>
+                            <span id="serverPlayers" class="info-value">Ładowanie...</span>
+                        </div>
+                    </div>
+
+                    <div class="news-box">
+                        <strong>📢 Ważny komunikat</strong>
+                        <p id="serverAnnouncement" class="muted">Ładowanie...</p>
+                        <a id="serverNewsLink"
+                           href="#"
+                           target="_blank"
+                           rel="noopener"
+                           class="hidden">
+                            <button class="primary">📰 Sprawdź aktualności</button>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card profile-card">
+                    <h2>👤 Mój profil</h2>
+                    <div class="profile-avatar">👤</div>
+
+                    <div class="profile-line">
+                        <strong>Nick Minecraft</strong>
+                        <span id="profileMinecraftNick" class="muted">-</span>
+                    </div>
+
+                    <div class="profile-line">
+                        <strong>E-mail</strong>
+                        <span id="profileEmail" class="muted">-</span>
+                    </div>
+
+                    <div class="profile-line">
+                        <strong>Nazwa użytkownika</strong>
+                        <span id="profileDisplayName" class="muted">-</span>
+                    </div>
+
+                    <div class="profile-line">
+                        <strong>Ranga</strong>
+                        <span id="profileRole" class="muted">-</span>
+                    </div>
+
+                    <div class="profile-line">
+                        <strong>Konto utworzone</strong>
+                        <span id="profileCreatedAt" class="muted">-</span>
+                    </div>
+                </div>
+
             </div>
 
             <div id="adminNotice" class="card hidden">
@@ -1073,6 +1224,71 @@ td {
             </div>
 
 
+            <!-- SERVER SETTINGS -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <h2>🌐 Informacje ogólne serwera</h2>
+                    <button class="primary" onclick="saveServerSettings()">
+                        💾 Zapisz informacje
+                    </button>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Adres serwera</label>
+                        <input id="adminServerAddress" placeholder="np. play.twojserwer.pl">
+                    </div>
+
+                    <div class="field">
+                        <label>Wersja serwera</label>
+                        <input id="adminServerVersion" placeholder="np. 1.21.8">
+                    </div>
+
+                    <div class="field">
+                        <label>Aktualny burmistrz</label>
+                        <input id="adminServerMayor" placeholder="np. Jan Kowalski">
+                    </div>
+
+                    <div class="field">
+                        <label>Status serwera</label>
+                        <select id="adminServerStatus">
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Konserwacja">Konserwacja</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Gracze online</label>
+                        <input id="adminServerPlayers" type="number" min="0" value="0">
+                    </div>
+
+                    <div class="field">
+                        <label>Maksymalna liczba graczy</label>
+                        <input id="adminServerMaxPlayers" type="number" min="1" value="50">
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="field">
+                    <label>Ważny komunikat</label>
+                    <textarea id="adminServerAnnouncement"
+                              placeholder="Np. W sobotę o 19:00 odbędzie się zebranie mieszkańców."></textarea>
+                </div>
+
+                <br>
+
+                <div class="field">
+                    <label>Link do aktualności na stronie parafii</label>
+                    <input id="adminServerNewsUrl" type="url" placeholder="https://...">
+                </div>
+
+            </div>
+
+
             <!-- TAX DEFINITIONS -->
 
             <div class="card">
@@ -1186,6 +1402,7 @@ let selectedPlayerProperties = [];
 let taxDefinitions = [];
 let licenseDefinitions = [];
 let feeDefinitions = [];
+let serverSettings = null;
 
 
 /* =====================================================
@@ -1476,6 +1693,135 @@ async function loadProfile() {
 
 
 /* =====================================================
+   SERVER SETTINGS + HOME PROFILE
+===================================================== */
+
+async function loadServerSettings() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("server_settings")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    serverSettings = data;
+
+    if (!serverSettings) return;
+
+    const status = serverSettings.server_status || "-";
+
+    if ($("serverAddress")) $("serverAddress").textContent =
+        serverSettings.server_address || "-";
+
+    if ($("serverVersion")) $("serverVersion").textContent =
+        serverSettings.server_version || "-";
+
+    if ($("serverMayor")) $("serverMayor").textContent =
+        serverSettings.mayor_name || "-";
+
+    if ($("serverStatus")) {
+        $("serverStatus").textContent = status;
+        $("serverStatus").classList.remove("status-online", "status-offline");
+        if (status === "Online") $("serverStatus").classList.add("status-online");
+        if (status === "Offline") $("serverStatus").classList.add("status-offline");
+    }
+
+    if ($("serverPlayers")) $("serverPlayers").textContent =
+        `${serverSettings.online_players ?? 0} / ${serverSettings.max_players ?? 0}`;
+
+    if ($("serverAnnouncement")) $("serverAnnouncement").textContent =
+        serverSettings.announcement || "Brak ważnych komunikatów.";
+
+    if ($("serverNewsLink")) {
+        const url = (serverSettings.news_url || "").trim();
+        if (url) {
+            $("serverNewsLink").href = url;
+            $("serverNewsLink").classList.remove("hidden");
+        } else {
+            $("serverNewsLink").classList.add("hidden");
+        }
+    }
+
+    if ($("adminServerAddress")) {
+        $("adminServerAddress").value = serverSettings.server_address || "";
+        $("adminServerVersion").value = serverSettings.server_version || "";
+        $("adminServerMayor").value = serverSettings.mayor_name || "";
+        $("adminServerStatus").value = serverSettings.server_status || "Online";
+        $("adminServerPlayers").value = serverSettings.online_players ?? 0;
+        $("adminServerMaxPlayers").value = serverSettings.max_players ?? 50;
+        $("adminServerAnnouncement").value = serverSettings.announcement || "";
+        $("adminServerNewsUrl").value = serverSettings.news_url || "";
+    }
+}
+
+
+async function saveServerSettings() {
+
+    if (!isAdmin()) return;
+
+    const payload = {
+        server_address: $("adminServerAddress").value.trim(),
+        server_version: $("adminServerVersion").value.trim(),
+        mayor_name: $("adminServerMayor").value.trim(),
+        server_status: $("adminServerStatus").value,
+        online_players: Number($("adminServerPlayers").value || 0),
+        max_players: Number($("adminServerMaxPlayers").value || 50),
+        announcement: $("adminServerAnnouncement").value.trim() || null,
+        news_url: $("adminServerNewsUrl").value.trim() || null,
+        updated_at: new Date().toISOString()
+    };
+
+    let result;
+
+    if (serverSettings?.id) {
+        result = await supabaseClient
+            .from("server_settings")
+            .update(payload)
+            .eq("id", serverSettings.id);
+    } else {
+        result = await supabaseClient
+            .from("server_settings")
+            .insert(payload);
+    }
+
+    if (result.error) {
+        alert(result.error.message);
+        return;
+    }
+
+    await loadServerSettings();
+    alert("Informacje serwera zostały zapisane.");
+}
+
+
+function renderHomeProfile() {
+
+    if (!currentUser) return;
+
+    if ($("profileMinecraftNick")) $("profileMinecraftNick").textContent =
+        currentProfile?.minecraft_nick || currentProfile?.username || "-";
+
+    if ($("profileEmail")) $("profileEmail").textContent =
+        currentUser.email || "-";
+
+    if ($("profileDisplayName")) $("profileDisplayName").textContent =
+        currentProfile?.display_name || currentProfile?.username || "-";
+
+    if ($("profileRole")) $("profileRole").textContent =
+        currentProfile?.role === "admin" ? "Administrator" : "Gracz";
+
+    if ($("profileCreatedAt")) $("profileCreatedAt").textContent =
+        datePL(currentUser.created_at);
+}
+
+
+/* =====================================================
    SHOW APP
 ===================================================== */
 
@@ -1497,6 +1843,8 @@ async function showApp() {
     }
 
     await loadDefinitions();
+    await loadServerSettings();
+    renderHomeProfile();
 
     goHome();
 }
@@ -1539,6 +1887,9 @@ function goHome() {
     hideAllPages();
 
     $("homePage").classList.remove("hidden");
+
+    renderHomeProfile();
+    loadServerSettings();
 }
 
 async function openMyTaxes() {
@@ -2114,6 +2465,7 @@ async function renderTaxRules() {
 
 async function loadAdminData() {
 
+    await loadServerSettings();
     await loadDefinitions();
 
     await loadPlayers();
@@ -2127,6 +2479,8 @@ async function loadAdminData() {
     } else {
         clearAdminTables();
     }
+
+    await renderAdminDefinitions();
 }
 
 
@@ -3788,21 +4142,6 @@ async function init() {
         }
     );
 }
-
-
-/* =====================================================
-   ADMIN DEFINITIONS HOOK
-===================================================== */
-
-const originalLoadAdminData =
-    loadAdminData;
-
-loadAdminData = async function() {
-
-    await originalLoadAdminData();
-
-    await renderAdminDefinitions();
-};
 
 
 /* =====================================================
