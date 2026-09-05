@@ -671,6 +671,14 @@ td {
                     </div>
                 </div>
 
+                <div class="module" onclick="openMySalaries()">
+                    <div class="module-icon">💵</div>
+                    <div class="module-title">Moje pensje</div>
+                    <div class="module-desc">
+                        Pensje za pracę lub budynki przypisane do Twojego konta.
+                    </div>
+                </div>
+
                 <div class="module" onclick="openMyProperties()">
                     <div class="module-icon">🏠</div>
                     <div class="module-title">Moje nieruchomości</div>
@@ -891,6 +899,12 @@ td {
                         <div class="muted">Opłaty</div>
                         <div id="statFees" class="stat-number">0</div>
                     </div>
+
+                <div class="stat-card">
+                    <div class="stat-value" id="statSalaries">0</div>
+                    <div class="stat-label">Pensje</div>
+                </div>
+
 
                 </div>
 
@@ -1231,6 +1245,71 @@ td {
                 </div>
 
                 <div id="adminFeesContent"></div>
+
+            </div>
+
+
+            <!-- PLAYER SALARIES -->
+
+            <div class="card">
+
+                <div class="section-title">
+
+                    <div>
+                        <h2>💵 Pensje gracza</h2>
+                        <p class="muted">
+                            Pensje przypisane do wybranego gracza. Kwota jest miesięczna.
+                        </p>
+                    </div>
+
+                    <button class="primary" onclick="showSalaryAddForm()">
+                        ➕ Dodaj pensję
+                    </button>
+
+                </div>
+
+                <div id="adminSalaryForm" class="hidden">
+
+                    <hr style="border-color:#213650;margin:18px 0;">
+
+                    <input type="hidden" id="editSalaryId">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>Za jaką pracę / budynek</label>
+                            <input id="salaryJob" placeholder="np. Burmistrz, właściciel sklepu, zarządca kopalni">
+                        </div>
+
+                        <div class="field">
+                            <label>Kwota miesięczna</label>
+                            <input id="salaryAmount" type="number" step="0.01" min="0">
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="field">
+                        <label>Notatka</label>
+                        <textarea id="salaryNote" placeholder="Opcjonalnie"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button class="primary" onclick="saveAdminSalary()">
+                            💾 Zapisz
+                        </button>
+
+                        <button onclick="cancelSalaryForm()">
+                            Anuluj
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="adminSalariesContent"></div>
 
             </div>
 
@@ -1878,6 +1957,7 @@ const pages = [
     "myTaxesPage",
     "myLicensesPage",
     "myFeesPage",
+    "mySalariesPage",
     "myPropertiesPage",
     "taxRulesPage",
     "adminPage"
@@ -1936,6 +2016,17 @@ async function openMyProperties() {
     await loadMyProperties();
 }
 
+async function openMySalaries() {
+
+    hideAllPages();
+
+    $("mySalariesPage").classList.remove("hidden");
+
+    await loadMySalaries();
+
+}
+
+
 async function openTaxRules() {
 
     hideAllPages();
@@ -1954,6 +2045,99 @@ async function openAdmin() {
     $("adminPage").classList.remove("hidden");
 
     await loadAdminData();
+}
+
+
+/* =====================================================
+   MY SALARIES
+===================================================== */
+
+async function loadMySalaries() {
+
+    const box = $("mySalariesContent");
+
+    box.innerHTML = `<div class="card">Ładowanie...</div>`;
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_salaries")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+    if (error) {
+
+        box.innerHTML =
+            `<div class="card">${escapeHtml(error.message)}</div>`;
+
+        return;
+
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<div class="card">
+                <h3>Brak pensji</h3>
+                <p class="muted">
+                    Nie masz obecnie przypisanych żadnych pensji.
+                </p>
+            </div>`;
+
+        return;
+
+    }
+
+    const total = data.reduce(
+        (sum, s) => sum + Number(s.amount || 0),
+        0
+    );
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="section-title">
+                <div>
+                    <h2>💵 Pensje</h2>
+                    <p class="muted">
+                        Łącznie miesięcznie: <strong>${money(total)}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Praca / budynek</th>
+                            <th>Kwota miesięczna</th>
+                            <th>Notatka</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map(s => `
+                            <tr>
+                                <td><strong>${escapeHtml(s.job_name)}</strong></td>
+                                <td>${money(s.amount)}</td>
+                                <td>${escapeHtml(s.note || "-")}</td>
+                            </tr>
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    `;
+
 }
 
 
@@ -2007,9 +2191,23 @@ async function loadMyTaxes() {
         return;
     }
 
+    const total = data.reduce(
+        (sum, t) => sum + Number(t.amount || 0),
+        0
+    );
+
     box.innerHTML = `
 
         <div class="card">
+
+            <div class="section-title">
+                <div>
+                    <h2>🧾 Podatki</h2>
+                    <p class="muted">
+                        Suma wszystkich zobowiązań: <strong>${money(total)}</strong>
+                    </p>
+                </div>
+            </div>
 
             <div class="table-wrap">
 
@@ -2215,9 +2413,23 @@ async function loadMyFees() {
         return;
     }
 
+    const total = data.reduce(
+        (sum, t) => sum + Number(t.amount || 0),
+        0
+    );
+
     box.innerHTML = `
 
         <div class="card">
+
+            <div class="section-title">
+                <div>
+                    <h2>🧾 Podatki</h2>
+                    <p class="muted">
+                        Suma wszystkich zobowiązań: <strong>${money(total)}</strong>
+                    </p>
+                </div>
+            </div>
 
             <div class="table-wrap">
 
@@ -2691,9 +2903,16 @@ async function loadAdminTaxes() {
         return;
     }
 
+    const total = data.reduce(
+        (sum, item) => sum + Number(item.amount || 0),
+        0
+    );
+
     box.innerHTML = `
 
-        <div class="table-wrap">
+        <p class="muted"><strong>Suma podatków:</strong> ${money(total)}</p>
+
+            <div class="table-wrap">
 
             <table>
 
@@ -3470,6 +3689,218 @@ async function deleteLicense(id) {
 
 
 /* =====================================================
+   ADMIN SALARIES
+===================================================== */
+
+async function loadAdminSalaries() {
+
+    const box = $("adminSalariesContent");
+
+    if (!selectedPlayerId) {
+
+        box.innerHTML =
+            `<p class="muted">Najpierw wybierz gracza.</p>`;
+
+        return;
+
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("player_salaries")
+            .select("*")
+            .eq("user_id", selectedPlayerId)
+            .order("created_at", { ascending: false });
+
+    if (error) {
+
+        box.innerHTML =
+            `<p class="muted">${escapeHtml(error.message)}</p>`;
+
+        return;
+
+    }
+
+    if (!data.length) {
+
+        box.innerHTML =
+            `<p class="muted">Ten gracz nie ma jeszcze żadnych pensji.</p>`;
+
+        return;
+
+    }
+
+    const total = data.reduce(
+        (sum, s) => sum + Number(s.amount || 0),
+        0
+    );
+
+    box.innerHTML = `
+
+        <div class="summary-box">
+            <strong>Suma pensji miesięcznie: ${money(total)}</strong>
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Praca / budynek</th>
+                        <th>Kwota miesięczna</th>
+                        <th>Notatka</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    ${data.map(s => `
+                        <tr>
+                            <td><strong>${escapeHtml(s.job_name)}</strong></td>
+                            <td>${money(s.amount)}</td>
+                            <td>${escapeHtml(s.note || "-")}</td>
+                            <td>
+                                <button onclick='editSalary(${JSON.stringify(s)})'>✏️</button>
+                                <button onclick="deleteSalary('${s.id}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+}
+
+
+function showSalaryAddForm() {
+
+    if (!selectedPlayerId) return;
+
+    $("adminSalaryForm").classList.remove("hidden");
+
+    $("editSalaryId").value = "";
+    $("salaryJob").value = "";
+    $("salaryAmount").value = "";
+    $("salaryNote").value = "";
+
+}
+
+
+function cancelSalaryForm() {
+
+    $("adminSalaryForm").classList.add("hidden");
+
+}
+
+
+function editSalary(s) {
+
+    $("adminSalaryForm").classList.remove("hidden");
+
+    $("editSalaryId").value = s.id;
+    $("salaryJob").value = s.job_name || "";
+    $("salaryAmount").value = s.amount ?? "";
+    $("salaryNote").value = s.note || "";
+
+}
+
+
+async function saveAdminSalary() {
+
+    if (!selectedPlayerId) return;
+
+    const id = $("editSalaryId").value;
+
+    const payload = {
+
+        user_id: selectedPlayerId,
+        job_name: $("salaryJob").value.trim(),
+        amount: Number($("salaryAmount").value || 0),
+        note: $("salaryNote").value.trim() || null
+
+    };
+
+    if (!payload.job_name) {
+
+        alert("Wpisz, za jaką pracę lub budynek jest pensja.");
+
+        return;
+
+    }
+
+    if (id) {
+
+        const { error } =
+            await supabaseClient
+                .from("player_salaries")
+                .update(payload)
+                .eq("id", id);
+
+        if (error) {
+
+            alert(error.message);
+
+            return;
+
+        }
+
+    } else {
+
+        const { error } =
+            await supabaseClient
+                .from("player_salaries")
+                .insert(payload);
+
+        if (error) {
+
+            alert(error.message);
+
+            return;
+
+        }
+
+    }
+
+    cancelSalaryForm();
+
+    await loadAdminSalaries();
+    await loadAdminStats();
+
+}
+
+
+async function deleteSalary(id) {
+
+    if (!confirm("Usunąć tę pensję?")) return;
+
+    const { error } =
+        await supabaseClient
+            .from("player_salaries")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+
+    }
+
+    await loadAdminSalaries();
+    await loadAdminStats();
+
+}
+
+
+/* =====================================================
    ADMIN FEES
 ===================================================== */
 
@@ -3516,9 +3947,16 @@ async function loadAdminFees() {
         return;
     }
 
+    const total = data.reduce(
+        (sum, item) => sum + Number(item.amount || 0),
+        0
+    );
+
     box.innerHTML = `
 
-        <div class="table-wrap">
+        <p class="muted"><strong>Suma opłat:</strong> ${money(total)}</p>
+
+            <div class="table-wrap">
 
             <table>
 
