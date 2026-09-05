@@ -4,6 +4,7 @@
 ===================================================== */
 
 async function registerPlayer() {
+
     const email = $("registerEmail").value.trim();
     const password = $("registerPassword").value;
     const password2 = $("registerPassword2").value;
@@ -19,20 +20,21 @@ async function registerPlayer() {
         return;
     }
 
-    const { data, error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-            data: {
-                username: minecraftNick,
-                display_name: minecraftNick,
-                minecraft_nick: minecraftNick
+    const { error } =
+        await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    username: minecraftNick,
+                    display_name: minecraftNick,
+                    minecraft_nick: minecraftNick
+                }
             }
-        }
-    });
+        });
 
     if (error) {
-        console.error("Błąd rejestracji:", error);
+        console.error(error);
         alert(error.message);
         return;
     }
@@ -42,7 +44,12 @@ async function registerPlayer() {
 }
 
 
+/* =====================================================
+   LOGIN
+===================================================== */
+
 async function login() {
+
     const email = $("loginEmail").value.trim();
     const password = $("loginPassword").value;
 
@@ -53,8 +60,8 @@ async function login() {
 
     const { data, error } =
         await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
+            email,
+            password
         });
 
     if (error) {
@@ -70,12 +77,17 @@ async function login() {
 }
 
 
+/* =====================================================
+   LOGOUT
+===================================================== */
+
 async function logout() {
+
     const { error } =
         await supabaseClient.auth.signOut();
 
     if (error) {
-        console.error("Błąd wylogowania:", error);
+        console.error(error);
         alert(error.message);
         return;
     }
@@ -83,8 +95,8 @@ async function logout() {
     currentUser = null;
     currentProfile = null;
 
-    $("app").classList.add("hidden");
     $("authScreen").classList.remove("hidden");
+    $("app").classList.add("hidden");
 
     showLogin();
 }
@@ -95,6 +107,7 @@ async function logout() {
 ===================================================== */
 
 function showLogin() {
+
     $("loginForm").classList.remove("hidden");
     $("registerForm").classList.add("hidden");
 
@@ -109,6 +122,7 @@ function showLogin() {
 
 
 function showRegister() {
+
     $("loginForm").classList.add("hidden");
     $("registerForm").classList.remove("hidden");
 
@@ -127,6 +141,7 @@ function showRegister() {
 ===================================================== */
 
 async function loadProfile() {
+
     if (!currentUser) {
         return;
     }
@@ -150,6 +165,7 @@ async function loadProfile() {
 
 
 function renderProfile() {
+
     if (!currentProfile) {
         return;
     }
@@ -165,6 +181,7 @@ function renderProfile() {
         currentProfile.role === "admin"
             ? "Administrator"
             : "Gracz";
+
 
     if ($("profileName")) {
         $("profileName").textContent = username;
@@ -228,6 +245,7 @@ function renderProfile() {
 ===================================================== */
 
 async function showApp() {
+
     $("authScreen").classList.add("hidden");
     $("app").classList.remove("hidden");
 
@@ -257,4 +275,4 @@ async function showApp() {
         await loadMyProperties();
     }
 }
-
+```
