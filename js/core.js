@@ -324,4 +324,4 @@ async function openAdmin() {
         await loadAdminData();
     }
 }
-```
+
