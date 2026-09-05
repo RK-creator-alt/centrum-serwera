@@ -1,3 +1,4 @@
+```js
 /* =====================================================
    SUPABASE
 ===================================================== */
@@ -115,8 +116,7 @@ function statusBadge(status) {
 ===================================================== */
 
 function isAdmin() {
-    return currentProfile &&
-        currentProfile.role === "admin";
+    return currentProfile?.role === "admin";
 }
 
 
@@ -124,17 +124,34 @@ function isAdmin() {
    PAGE NAVIGATION
 ===================================================== */
 
+/*
+   UWAGA:
+   Nawigacja jest zdefiniowana tylko tutaj.
+
+   Nie deklarujemy drugi raz:
+   - pages
+   - hideAllPages()
+   - goHome()
+   - openMyTaxes()
+   - itd.
+
+   Dzięki temu nie występuje błąd:
+   "Identifier 'pages' has already been declared"
+*/
+
 const pages = [
     "homePage",
+    "urzadPage",
     "myTaxesPage",
     "myLicensesPage",
     "myFeesPage",
     "mySalariesPage",
     "myPropertiesPage",
-    "courtPage",
     "taxRulesPage",
+    "courtPage",
     "adminPage"
 ];
+
 
 function hideAllPages() {
 
@@ -149,11 +166,16 @@ function hideAllPages() {
     });
 }
 
+
 function goHome() {
 
     hideAllPages();
 
-    $("homePage").classList.remove("hidden");
+    const page = $("homePage");
+
+    if (page) {
+        page.classList.remove("hidden");
+    }
 
     if (typeof renderHomeProfile === "function") {
         renderHomeProfile();
@@ -164,68 +186,125 @@ function goHome() {
     }
 }
 
+
 async function openMyTaxes() {
 
     hideAllPages();
 
-    $("myTaxesPage").classList.remove("hidden");
+    const page = $("myTaxesPage");
 
-    await loadMyTaxes();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadMyTaxes === "function") {
+        await loadMyTaxes();
+    }
 }
+
 
 async function openMyLicenses() {
 
     hideAllPages();
 
-    $("myLicensesPage").classList.remove("hidden");
+    const page = $("myLicensesPage");
 
-    await loadMyLicenses();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadMyLicenses === "function") {
+        await loadMyLicenses();
+    }
 }
+
 
 async function openMyFees() {
 
     hideAllPages();
 
-    $("myFeesPage").classList.remove("hidden");
+    const page = $("myFeesPage");
 
-    await loadMyFees();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadMyFees === "function") {
+        await loadMyFees();
+    }
 }
+
 
 async function openMyProperties() {
 
     hideAllPages();
 
-    $("myPropertiesPage").classList.remove("hidden");
+    const page = $("myPropertiesPage");
 
-    await loadMyProperties();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadMyProperties === "function") {
+        await loadMyProperties();
+    }
 }
+
 
 async function openMySalaries() {
 
     hideAllPages();
 
-    $("mySalariesPage").classList.remove("hidden");
+    const page = $("mySalariesPage");
 
-    await loadMySalaries();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadMySalaries === "function") {
+        await loadMySalaries();
+    }
 }
 
-async function openCourt() {
-
-    hideAllPages();
-
-    $("courtPage").classList.remove("hidden");
-
-    await loadCourtPublic();
-}
 
 async function openTaxRules() {
 
     hideAllPages();
 
-    $("taxRulesPage").classList.remove("hidden");
+    const page = $("taxRulesPage");
 
-    await renderTaxRules();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    /*
+       W zależności od wersji taxRules.js używana jest
+       jedna z tych funkcji.
+    */
+
+    if (typeof renderTaxRules === "function") {
+        await renderTaxRules();
+    } else if (typeof loadDefinitions === "function") {
+        await loadDefinitions();
+    }
 }
+
+
+async function openCourt() {
+
+    hideAllPages();
+
+    const page = $("courtPage");
+
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadCourtPublic === "function") {
+        await loadCourtPublic();
+    }
+}
+
 
 async function openAdmin() {
 
@@ -235,7 +314,14 @@ async function openAdmin() {
 
     hideAllPages();
 
-    $("adminPage").classList.remove("hidden");
+    const page = $("adminPage");
 
-    await loadAdminData();
+    if (page) {
+        page.classList.remove("hidden");
+    }
+
+    if (typeof loadAdminData === "function") {
+        await loadAdminData();
+    }
 }
+```
