@@ -2820,6 +2820,7 @@ async function loadSelectedPlayer() {
     await loadAdminLicenses();
 
     await loadAdminFees();
+    await loadAdminSalaries();
 }
 
 
@@ -3714,7 +3715,7 @@ async function loadAdminSalaries() {
 
     const box = $("adminSalariesContent");
 
-    if (!selectedPlayerId) {
+    if (!selectedPlayer) {
 
         box.innerHTML =
             `<p class="muted">Najpierw wybierz gracza.</p>`;
@@ -3727,7 +3728,7 @@ async function loadAdminSalaries() {
         await supabaseClient
             .from("player_salaries")
             .select("*")
-            .eq("user_id", selectedPlayerId)
+            .eq("user_id", selectedPlayer.id)
             .order("created_at", { ascending: false });
 
     if (error) {
