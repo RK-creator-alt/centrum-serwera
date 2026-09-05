@@ -3799,7 +3799,7 @@ async function loadAdminSalaries() {
 
 function showSalaryAddForm() {
 
-    if (!selectedPlayerId) return;
+    if (!selectedPlayer) return;
 
     $("adminSalaryForm").classList.remove("hidden");
 
@@ -3832,13 +3832,13 @@ function editSalary(s) {
 
 async function saveAdminSalary() {
 
-    if (!selectedPlayerId) return;
+    if (!selectedPlayer) return;
 
     const id = $("editSalaryId").value;
 
     const payload = {
 
-        user_id: selectedPlayerId,
+        user_id: selectedPlayer.id,
         job_name: $("salaryJob").value.trim(),
         amount: Number($("salaryAmount").value || 0),
         note: $("salaryNote").value.trim() || null
