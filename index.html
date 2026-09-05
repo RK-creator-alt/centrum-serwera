@@ -897,6 +897,79 @@ td {
             </div>
 
 
+            <!-- SERVER SETTINGS -->
+
+            <div class="card">
+
+                <div class="section-title">
+                    <div>
+                        <h2>🌐 Dane serwera</h2>
+                        <p class="muted">
+                            Administrator może tutaj zmieniać informacje widoczne na stronie głównej.
+                        </p>
+                    </div>
+
+                    <button class="primary" onclick="saveServerSettings()">
+                        💾 Zapisz dane serwera
+                    </button>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Adres serwera</label>
+                        <input id="adminServerAddress" placeholder="np. play.twojserwer.pl">
+                    </div>
+
+                    <div class="field">
+                        <label>Wersja serwera</label>
+                        <input id="adminServerVersion" placeholder="np. 1.21.8">
+                    </div>
+
+                    <div class="field">
+                        <label>Aktualny burmistrz</label>
+                        <input id="adminServerMayor" placeholder="np. Jan Kowalski">
+                    </div>
+
+                    <div class="field">
+                        <label>Status serwera</label>
+                        <select id="adminServerStatus">
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Konserwacja">Konserwacja</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Gracze online</label>
+                        <input id="adminServerPlayers" type="number" min="0" value="0">
+                    </div>
+
+                    <div class="field">
+                        <label>Maksymalna liczba graczy</label>
+                        <input id="adminServerMaxPlayers" type="number" min="1" value="50">
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="field">
+                    <label>Ważny komunikat</label>
+                    <textarea id="adminServerAnnouncement"
+                              placeholder="Np. W sobotę o 19:00 odbędzie się zebranie mieszkańców."></textarea>
+                </div>
+
+                <br>
+
+                <div class="field">
+                    <label>Link do aktualności na stronie parafii</label>
+                    <input id="adminServerNewsUrl" type="url" placeholder="https://...">
+                </div>
+
+            </div>
+
+
             <!-- PLAYER SELECT -->
 
             <div class="card">
@@ -1220,71 +1293,6 @@ td {
                 </div>
 
                 <div id="adminPropertiesContent"></div>
-
-            </div>
-
-
-            <!-- SERVER SETTINGS -->
-
-            <div class="card">
-
-                <div class="section-title">
-                    <h2>🌐 Informacje ogólne serwera</h2>
-                    <button class="primary" onclick="saveServerSettings()">
-                        💾 Zapisz informacje
-                    </button>
-                </div>
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Adres serwera</label>
-                        <input id="adminServerAddress" placeholder="np. parafia.aternos.me">
-                    </div>
-
-                    <div class="field">
-                        <label>Wersja serwera</label>
-                        <input id="adminServerVersion" placeholder="np. 26.2">
-                    </div>
-
-                    <div class="field">
-                        <label>Aktualny burmistrz</label>
-                        <input id="adminServerMayor" placeholder="np. Jan Kowalski">
-                    </div>
-
-                    <div class="field">
-                        <label>Status serwera</label>
-                        <select id="adminServerStatus">
-                            <option value="Online">Online</option>
-                            <option value="Offline">Offline</option>
-                            <option value="Konserwacja">Konserwacja</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label>Gracze online</label>
-                        <input id="adminServerPlayers" type="number" min="0" value="0">
-                    </div>
-
-                    <div class="field">
-                        <label>Maksymalna liczba graczy</label>
-                        <input id="adminServerMaxPlayers" type="number" min="1" value="50">
-                    </div>
-                </div>
-
-                <br>
-
-                <div class="field">
-                    <label>Ważny komunikat</label>
-                    <textarea id="adminServerAnnouncement"
-                              placeholder="Np. W sobotę o 19:00 odbędzie się zebranie mieszkańców."></textarea>
-                </div>
-
-                <br>
-
-                <div class="field">
-                    <label>Link do aktualności na stronie parafii</label>
-                    <input id="adminServerNewsUrl" type="url" placeholder="https://...">
-                </div>
 
             </div>
 
