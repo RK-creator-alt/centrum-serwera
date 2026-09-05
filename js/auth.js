@@ -4,7 +4,6 @@
 ===================================================== */
 
 async function registerPlayer() {
-
     const email = $("registerEmail").value.trim();
     const password = $("registerPassword").value;
     const password2 = $("registerPassword2").value;
@@ -20,33 +19,30 @@ async function registerPlayer() {
         return;
     }
 
-    const { data, error } =
-        await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    username: minecraftNick,
-                    display_name: minecraftNick,
-                    minecraft_nick: minecraftNick
-                }
+    const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: {
+                username: minecraftNick,
+                display_name: minecraftNick,
+                minecraft_nick: minecraftNick
             }
-        });
+        }
+    });
 
     if (error) {
-        console.error(error);
+        console.error("Błąd rejestracji:", error);
         alert(error.message);
         return;
     }
 
     alert("Konto zostało utworzone. Możesz się teraz zalogować.");
-
     showLogin();
 }
 
 
 async function login() {
-
     const email = $("loginEmail").value.trim();
     const password = $("loginPassword").value;
 
@@ -57,12 +53,12 @@ async function login() {
 
     const { data, error } =
         await supabaseClient.auth.signInWithPassword({
-            email,
-            password
+            email: email,
+            password: password
         });
 
     if (error) {
-        console.error(error);
+        console.error("Błąd logowania:", error);
         alert(error.message);
         return;
     }
@@ -75,12 +71,11 @@ async function login() {
 
 
 async function logout() {
-
     const { error } =
         await supabaseClient.auth.signOut();
 
     if (error) {
-        console.error(error);
+        console.error("Błąd wylogowania:", error);
         alert(error.message);
         return;
     }
@@ -88,15 +83,18 @@ async function logout() {
     currentUser = null;
     currentProfile = null;
 
-    $("authScreen").classList.remove("hidden");
     $("app").classList.add("hidden");
+    $("authScreen").classList.remove("hidden");
 
     showLogin();
 }
 
 
-function showLogin() {
+/* =====================================================
+   LOGIN / REGISTER SCREEN
+===================================================== */
 
+function showLogin() {
     $("loginForm").classList.remove("hidden");
     $("registerForm").classList.add("hidden");
 
@@ -111,7 +109,6 @@ function showLogin() {
 
 
 function showRegister() {
-
     $("loginForm").classList.add("hidden");
     $("registerForm").classList.remove("hidden");
 
@@ -125,8 +122,11 @@ function showRegister() {
 }
 
 
-async function loadProfile() {
+/* =====================================================
+   PROFILE
+===================================================== */
 
+async function loadProfile() {
     if (!currentUser) {
         return;
     }
@@ -150,7 +150,6 @@ async function loadProfile() {
 
 
 function renderProfile() {
-
     if (!currentProfile) {
         return;
     }
@@ -224,8 +223,11 @@ function renderProfile() {
 }
 
 
-async function showApp() {
+/* =====================================================
+   SHOW APP
+===================================================== */
 
+async function showApp() {
     $("authScreen").classList.add("hidden");
     $("app").classList.remove("hidden");
 
@@ -256,58 +258,3 @@ async function showApp() {
     }
 }
 
-
-/* =====================================================
-   INIT AUTH
-===================================================== */
-
-async function initAuth() {
-
-    const { data, error } =
-        await supabaseClient.auth.getSession();
-
-    if (error) {
-        console.error(error);
-    }
-
-    if (data?.session) {
-
-        currentUser = data.session.user;
-
-        await loadProfile();
-        await showApp();
-
-    } else {
-
-        $("authScreen").classList.remove("hidden");
-        $("app").classList.add("hidden");
-
-        showLogin();
-    }
-
-
-    supabaseClient.auth.onAuthStateChange(
-        async (event, session) => {
-
-            if (event === "SIGNED_IN" && session) {
-
-                currentUser = session.user;
-
-                await loadProfile();
-                await showApp();
-            }
-
-            if (event === "SIGNED_OUT") {
-
-                currentUser = null;
-                currentProfile = null;
-
-                $("authScreen").classList.remove("hidden");
-                $("app").classList.add("hidden");
-
-                showLogin();
-            }
-        }
-    );
-}
-```
