@@ -1,86 +1,95 @@
+
 /* =====================================================
-   APP / NAVIGATION
+   APP INITIALIZATION
 ===================================================== */
 
-function isAdmin(){
-  return currentProfile?.role === "admin";
-}
+/*
+   WAŻNE:
 
-const pages = [
-  "homePage",
-  "urzadPage",
-  "myTaxesPage",
-  "myLicensesPage",
-  "myFeesPage",
-  "myPropertiesPage",
-  "mySalariesPage",
-  "taxRulesPage",
-  "courtPage",
-  "adminPage"
-];
+   Ten plik NIE zawiera już:
+   - const pages
+   - isAdmin()
+   - hideAllPages()
+   - goHome()
+   - openMyTaxes()
+   - openMyLicenses()
+   - itd.
 
-function hideAllPages(){
-  pages.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.classList.add("hidden");
-  });
-}
+   Wszystkie funkcje nawigacji znajdują się w core.js.
 
-function goHome(){
-  hideAllPages();
-  document.getElementById("homePage")?.classList.remove("hidden");
-  renderHomeProfile();
-}
+   Dzięki temu nie ma konfliktu:
+   Identifier 'pages' has already been declared
+*/
 
-function openMyTaxes(){
-  hideAllPages();
-  document.getElementById("myTaxesPage")?.classList.remove("hidden");
-  loadMyTaxes();
-}
 
-function openMyLicenses(){
-  hideAllPages();
-  document.getElementById("myLicensesPage")?.classList.remove("hidden");
-  loadMyLicenses();
-}
+let appInitialized = false;
+let authListenerRegistered = false;
 
-function openMyFees(){
-  hideAllPages();
-  document.getElementById("myFeesPage")?.classList.remove("hidden");
-  loadMyFees();
-}
 
-function openMyProperties(){
-  hideAllPages();
-  document.getElementById("myPropertiesPage")?.classList.remove("hidden");
-  loadMyProperties();
-}
+/* =====================================================
+   AUTH SESSION
+===================================================== */
 
-function openMySalaries(){
-  hideAllPages();
-  document.getElementById("mySalariesPage")?.classList.remove("hidden");
-  loadMySalaries();
-}
+async function handleAuthSession(session) {
 
-function openTaxRules(){
-  hideAllPages();
-  document.getElementById("taxRulesPage")?.classList.remove("hidden");
-  loadDefinitions();
-}
+    if (session) {
 
-function openCourt(){
-  hideAllPages();
-  document.getElementById("courtPage")?.classList.remove("hidden");
-  loadCourtPublic();
-}
+        currentUser = session.user;
 
-function openAdmin(){
-  if(!isAdmin()) return;
+        /*
+           Korzystamy z loadProfile(), jeśli istnieje w auth.js.
+           Dzięki temu nie duplikujemy logiki profilu tutaj.
+        */
 
-  hideAllPages();
-  document.getElementById("adminPage")?.classList.remove("hidden");
+        if (typeof loadProfile === "function") {
+            await loadProfile();
+        } else {
 
-  loadAdminData();
+            /*
+               Awaryjnie pobierz profil, jeżeli auth.js
+               nie posiada funkcji loadProfile().
+            */
+
+            const {
+                data: profile,
+                error
+            } = await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq("id", currentUser.id)
+                .maybeSingle();
+
+            if (error) {
+                console.error(
+                    "Błąd pobierania profilu:",
+                    error
+                );
+
+                currentProfile = null;
+            } else {
+                currentProfile = profile;
+            }
+        }
+
+
+        if (typeof showApp === "function") {
+            await showApp();
+        }
+
+        return;
+    }
+
+
+    /* =================================================
+       USER LOGGED OUT
+    ================================================= */
+
+    currentUser = null;
+    currentProfile = null;
+
+    if (typeof showLogin === "function") {
+        showLogin();
+    }
 }
 
 
@@ -88,50 +97,113 @@ function openAdmin(){
    INIT
 ===================================================== */
 
-async function init(){
+async function init() {
 
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+    /*
+       Zabezpieczenie przed wielokrotnym uruchomieniem init().
+    */
 
-  if(session){
-    currentUser = session.user;
-
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUser.id)
-      .maybeSingle();
-
-    currentProfile = profile;
-
-    showApp();
-  }else{
-    showLogin();
-  }
-
-  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-
-    if(session){
-      currentUser = session.user;
-
-      const { data: profile } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-      currentProfile = profile;
-
-      showApp();
-    }else{
-      currentUser = null;
-      currentProfile = null;
-
-      showLogin();
+    if (appInitialized) {
+        return;
     }
 
-  });
+    appInitialized = true;
+
+
+    /* =================================================
+       CHECK EXISTING SESSION
+    ================================================= */
+
+    try {
+
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Błąd pobierania sesji Supabase:",
+                error
+            );
+
+            if (typeof showLogin === "function") {
+                showLogin();
+            }
+
+        } else {
+
+            await handleAuthSession(session);
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Błąd podczas uruchamiania aplikacji:",
+            error
+        );
+
+        if (typeof showLogin === "function") {
+            showLogin();
+        }
+    }
+
+
+    /* =================================================
+       AUTH STATE LISTENER
+    ================================================= */
+
+    if (!authListenerRegistered) {
+
+        authListenerRegistered = true;
+
+        supabaseClient.auth.onAuthStateChange(
+            async (_event, session) => {
+
+                /*
+                   Pozwalamy zakończyć bieżący callback Supabase,
+                   zanim wykonamy kolejną operację asynchroniczną.
+                */
+
+                await Promise.resolve();
+
+                try {
+
+                    await handleAuthSession(session);
+
+                } catch (error) {
+
+                    console.error(
+                        "Błąd zmiany stanu autoryzacji:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+    }
 }
 
-init();
+
+/* =====================================================
+   START APPLICATION
+===================================================== */
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init,
+        { once: true }
+    );
+
+} else {
+
+    init();
+
+}
+```
