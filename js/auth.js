@@ -1,16 +1,22 @@
+```javascript
 /* =====================================================
    AUTH
 ===================================================== */
 
-async function registerUser() {
+async function registerPlayer() {
 
     const email = $("registerEmail").value.trim();
     const password = $("registerPassword").value;
-    const username = $("registerUsername").value.trim();
-    const minecraftNick = $("registerMinecraftNick").value.trim();
+    const password2 = $("registerPassword2").value;
+    const minecraftNick = $("registerNick").value.trim();
 
-    if (!email || !password || !username || !minecraftNick) {
+    if (!email || !password || !minecraftNick) {
         alert("Uzupełnij wszystkie pola.");
+        return;
+    }
+
+    if (password !== password2) {
+        alert("Hasła nie są takie same.");
         return;
     }
 
@@ -20,8 +26,8 @@ async function registerUser() {
             password,
             options: {
                 data: {
-                    username: username,
-                    display_name: username,
+                    username: minecraftNick,
+                    display_name: minecraftNick,
                     minecraft_nick: minecraftNick
                 }
             }
@@ -33,15 +39,13 @@ async function registerUser() {
         return;
     }
 
-    alert(
-        "Konto zostało utworzone. Możesz się teraz zalogować."
-    );
+    alert("Konto zostało utworzone. Możesz się teraz zalogować.");
 
     showLogin();
 }
 
 
-async function loginUser() {
+async function login() {
 
     const email = $("loginEmail").value.trim();
     const password = $("loginPassword").value;
@@ -70,7 +74,7 @@ async function loginUser() {
 }
 
 
-async function logoutUser() {
+async function logout() {
 
     const { error } =
         await supabaseClient.auth.signOut();
@@ -86,6 +90,8 @@ async function logoutUser() {
 
     $("authScreen").classList.remove("hidden");
     $("app").classList.add("hidden");
+
+    showLogin();
 }
 
 
@@ -180,6 +186,41 @@ function renderProfile() {
             !isAdmin()
         );
     }
+
+    if ($("topUser")) {
+        $("topUser").textContent = username;
+    }
+
+    if ($("profileMinecraftNick")) {
+        $("profileMinecraftNick").textContent =
+            currentProfile.minecraft_nick || "-";
+    }
+
+    if ($("profileEmail")) {
+        $("profileEmail").textContent =
+            currentUser?.email || "-";
+    }
+
+    if ($("profileDisplayName")) {
+        $("profileDisplayName").textContent =
+            currentProfile.display_name ||
+            currentProfile.username ||
+            "-";
+    }
+
+    if ($("profileCreatedAt")) {
+        $("profileCreatedAt").textContent =
+            currentProfile.created_at
+                ? datePL(currentProfile.created_at)
+                : "-";
+    }
+
+    if ($("adminNotice")) {
+        $("adminNotice").classList.toggle(
+            "hidden",
+            !isAdmin()
+        );
+    }
 }
 
 
@@ -269,3 +310,4 @@ async function initAuth() {
         }
     );
 }
+```
