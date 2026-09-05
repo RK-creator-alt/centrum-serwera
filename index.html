@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Centrum Serwera</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,12 +19,6 @@
       color: #e5e7eb;
     }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 30px 20px;
-    }
-
     header {
       background: #111827;
       border-bottom: 1px solid #263244;
@@ -33,6 +26,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .logo {
@@ -45,6 +41,16 @@
       color: #22c55e;
     }
 
+    .container {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     .login-box {
       max-width: 420px;
       margin: 80px auto;
@@ -54,11 +60,9 @@
       border: 1px solid #263244;
     }
 
-    h1, h2 {
-      margin-top: 0;
-    }
-
-    input {
+    input,
+    textarea,
+    select {
       width: 100%;
       padding: 13px;
       margin: 8px 0;
@@ -66,12 +70,16 @@
       border-radius: 8px;
       background: #1f2937;
       color: white;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
     }
 
     button {
-      width: 100%;
-      padding: 13px;
-      margin-top: 10px;
+      padding: 12px 16px;
       border: 0;
       border-radius: 8px;
       background: #2563eb;
@@ -84,8 +92,9 @@
       background: #1d4ed8;
     }
 
-    .hidden {
-      display: none;
+    .logout {
+      background: #374151;
+      margin-top: 15px;
     }
 
     .welcome {
@@ -107,23 +116,95 @@
       border: 1px solid #263244;
       border-radius: 14px;
       padding: 22px;
-      min-height: 130px;
+      min-height: 140px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .module:hover {
+      transform: translateY(-3px);
+      border-color: #3b82f6;
+      background: #162033;
     }
 
     .module h3 {
       margin-top: 0;
     }
 
-    .logout {
-      width: auto;
-      padding: 9px 16px;
-      margin: 0;
+    .page {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 14px;
+      padding: 25px;
+    }
+
+    .back {
       background: #374151;
+      margin-bottom: 20px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section h2 {
+      border-bottom: 1px solid #263244;
+      padding-bottom: 10px;
     }
 
     .error {
       color: #f87171;
       margin-top: 10px;
+    }
+
+    .success {
+      color: #4ade80;
+      margin-top: 10px;
+    }
+
+    .admin-box {
+      margin-top: 25px;
+      padding: 20px;
+      border: 1px solid #374151;
+      border-radius: 10px;
+      background: #0f172a;
+    }
+
+    .admin-label {
+      color: #93c5fd;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 15px;
+      }
+
+      .logo {
+        font-size: 19px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
     }
   </style>
 </head>
@@ -140,7 +221,6 @@
   <!-- LOGOWANIE -->
   <div id="loginScreen" class="login-box">
     <h1>Logowanie</h1>
-
     <p>Zaloguj się do Centrum Serwera.</p>
 
     <input
@@ -160,7 +240,8 @@
     <div id="loginError" class="error"></div>
   </div>
 
-  <!-- PANEL -->
+
+  <!-- GŁÓWNY PANEL -->
   <div id="appScreen" class="hidden">
 
     <div class="welcome">
@@ -172,95 +253,244 @@
       </button>
     </div>
 
-    <div class="modules">
 
-      <div class="module">
-        <h3>🏢 Urząd Skarbowy</h3>
-        <p>Podatki, opłaty, licencje, działki i nieruchomości.</p>
-      </div>
+    <!-- MENU -->
+    <div id="homePage">
 
-      <div class="module">
-        <h3>⚖️ Sąd</h3>
-        <p>Sprawy, wyroki, orzeczenia i archiwum sądowe.</p>
-      </div>
+      <div class="modules">
 
-      <div class="module">
-        <h3>🚒 Bezpieczeństwo</h3>
-        <p>Straż, wojsko, SWAT, ratownictwo i alarmy.</p>
-      </div>
+        <div class="module" onclick="openPage('tax')">
+          <h3>🏢 Urząd Skarbowy</h3>
+          <p>Podatki, opłaty, licencje, działki i nieruchomości.</p>
+        </div>
 
-      <div class="module">
-        <h3>🏦 Bank</h3>
-        <p>Kursy, kredyty, opłaty i informacje bankowe.</p>
-      </div>
+        <div class="module" onclick="openPage('court')">
+          <h3>⚖️ Sąd</h3>
+          <p>Sprawy, wyroki, orzeczenia i archiwum sądowe.</p>
+        </div>
 
-      <div class="module">
-        <h3>👑 Władze</h3>
-        <p>Burmistrz, rząd, Sejm, urzędy i wybory.</p>
-      </div>
+        <div class="module" onclick="openPage('security')">
+          <h3>🚒 Bezpieczeństwo</h3>
+          <p>Straż, wojsko, SWAT, ratownictwo i alarmy.</p>
+        </div>
 
-      <div class="module">
-        <h3>⛪ Parafia</h3>
-        <p>Kościoły, msze, wydarzenia i kronika parafialna.</p>
-      </div>
+        <div class="module" onclick="openPage('bank')">
+          <h3>🏦 Bank</h3>
+          <p>Kursy, kredyty, opłaty i informacje bankowe.</p>
+        </div>
 
-      <div class="module">
-        <h3>📰 TVW / Redakcja</h3>
-        <p>Aktualności, artykuły, wywiady i śledztwa.</p>
-      </div>
+        <div class="module" onclick="openPage('government')">
+          <h3>👑 Władze</h3>
+          <p>Burmistrz, rząd, Sejm, urzędy i wybory.</p>
+        </div>
 
-      <div class="module">
-        <h3>📚 Archiwum</h3>
-        <p>Historia miasta, prawa, mapy i ważne wydarzenia.</p>
-      </div>
+        <div class="module" onclick="openPage('parish')">
+          <h3>⛪ Parafia</h3>
+          <p>Kościoły, msze, wydarzenia i kronika.</p>
+        </div>
 
-      <div class="module">
-        <h3>📋 Rejestry</h3>
-        <p>Działki, budynki, licencje, prawa i instytucje.</p>
+        <div class="module" onclick="openPage('news')">
+          <h3>📰 TVW / Redakcja</h3>
+          <p>Aktualności, artykuły, wywiady i śledztwa.</p>
+        </div>
+
+        <div class="module" onclick="openPage('archive')">
+          <h3>📚 Archiwum</h3>
+          <p>Historia miasta, prawa, mapy i wydarzenia.</p>
+        </div>
+
+        <div class="module" onclick="openPage('registers')">
+          <h3>📋 Rejestry</h3>
+          <p>Działki, budynki, licencje, prawa i instytucje.</p>
+        </div>
+
       </div>
 
     </div>
+
+
+    <!-- URZĄD SKARBOWY -->
+    <div id="taxPage" class="page hidden">
+
+      <button class="back" onclick="goHome()">← Wróć do Centrum</button>
+
+      <h1>🏢 Urząd Skarbowy</h1>
+
+      <p>
+        Informacje dotyczące podatków, opłat, licencji,
+        nieruchomości oraz spraw urzędowych.
+      </p>
+
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>💰 Podatki</h3>
+          <p>Podatek od nieruchomości</p>
+          <strong>0,00 ₿</strong>
+        </div>
+
+        <div class="card">
+          <h3>💳 Opłaty</h3>
+          <p>Opłaty administracyjne</p>
+          <strong>0,00 ₿</strong>
+        </div>
+
+        <div class="card">
+          <h3>📜 Licencje</h3>
+          <p>Rejestr licencji i zezwoleń</p>
+          <strong>Brak danych</strong>
+        </div>
+
+        <div class="card">
+          <h3>🏠 Nieruchomości</h3>
+          <p>Rejestr nieruchomości</p>
+          <strong>Brak danych</strong>
+        </div>
+
+      </div>
+
+
+      <div class="section">
+        <h2>📄 Formularze</h2>
+
+        <div class="card">
+          <h3>Wniosek urzędowy</h3>
+          <p>
+            W przyszłości formularze będą mogły być
+            wysyłane bezpośrednio przez Centrum Serwera.
+          </p>
+
+          <button onclick="showMessage('Formularze będą dostępne w kolejnej wersji.')">
+            Otwórz formularze
+          </button>
+        </div>
+      </div>
+
+
+      <!-- PANEL ADMINA -->
+      <div id="taxAdmin" class="admin-box hidden">
+
+        <div class="admin-label">
+          ⚙️ Panel administratora
+        </div>
+
+        <p>
+          Masz uprawnienia administratora.
+          W kolejnej wersji tutaj będziesz mógł dodawać
+          i edytować podatki, opłaty oraz licencje.
+        </p>
+
+        <button onclick="showMessage('Panel zarządzania bazą zostanie podłączony w następnym kroku.')">
+          Zarządzaj Urzędem
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- POZOSTAŁE MODUŁY -->
+    <div id="otherPage" class="page hidden">
+
+      <button class="back" onclick="goHome()">← Wróć do Centrum</button>
+
+      <h1 id="otherTitle"></h1>
+
+      <p id="otherText"></p>
+
+      <div class="card">
+        <h3>🚧 Moduł w budowie</h3>
+        <p>
+          Ten dział jest już przygotowany w aplikacji.
+          Teraz będziemy dodawać do niego prawdziwe dane,
+          formularze i funkcje administracyjne.
+        </p>
+      </div>
+
+    </div>
+
   </div>
 
 </div>
 
+
 <script>
-  const SUPABASE_URL = "https://qbhmbawqdgzplwtboqal.supabase.co";
 
-  const SUPABASE_KEY = "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
+  /* =========================
+     SUPABASE
+     ========================= */
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  const SUPABASE_URL =
+    "https://qbhmbawqdgzplwtboqal.supabase.co";
+
+  const SUPABASE_KEY =
+    "TU_WKLEJ_KEY";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  /* =========================
+     POŁĄCZENIE
+     ========================= */
 
   async function checkConnection() {
-    const status = document.getElementById("connectionStatus");
 
-    const { error } = await supabaseClient
-      .from("profiles")
-      .select("id")
-      .limit(1);
+    const status =
+      document.getElementById("connectionStatus");
+
+    const { error } =
+      await supabaseClient
+        .from("profiles")
+        .select("id")
+        .limit(1);
 
     if (error) {
-      status.textContent = "⚠️ Sprawdź konfigurację";
+
+      status.textContent =
+        "⚠️ Błąd połączenia";
+
       console.log(error);
+
     } else {
-      status.textContent = "● Połączono z bazą";
+
+      status.textContent =
+        "● Połączono z bazą";
+
     }
   }
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
 
-    const errorBox = document.getElementById("loginError");
+  /* =========================
+     LOGOWANIE
+     ========================= */
+
+  async function login() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const errorBox =
+      document.getElementById("loginError");
+
     errorBox.textContent = "";
 
+
     if (!email || !password) {
-      errorBox.textContent = "Wpisz e-mail i hasło.";
+
+      errorBox.textContent =
+        "Wpisz e-mail i hasło.";
+
       return;
     }
+
 
     const { data, error } =
       await supabaseClient.auth.signInWithPassword({
@@ -268,64 +498,243 @@
         password
       });
 
+
     if (error) {
-      errorBox.textContent = error.message;
+
+      errorBox.textContent =
+        error.message;
+
       return;
     }
+
 
     await showApp(data.user);
   }
 
+
+  /* =========================
+     PANEL UŻYTKOWNIKA
+     ========================= */
+
   async function showApp(user) {
+
     const { data: profile, error } =
       await supabaseClient
         .from("profiles")
-        .select("username, display_name, role")
+        .select(
+          "username, display_name, role"
+        )
         .eq("id", user.id)
         .single();
 
+
     if (error) {
+
       document.getElementById("loginError").textContent =
-        "Zalogowano, ale nie znaleziono profilu użytkownika.";
+        "Zalogowano, ale nie znaleziono profilu.";
+
+      console.log(error);
+
       return;
     }
 
-    document.getElementById("loginScreen")
+
+    document
+      .getElementById("loginScreen")
       .classList.add("hidden");
 
-    document.getElementById("appScreen")
+
+    document
+      .getElementById("appScreen")
       .classList.remove("hidden");
 
-    document.getElementById("displayName").textContent =
-      profile.display_name || profile.username || "użytkowniku";
 
-    document.getElementById("roleText").textContent =
-      "Rola: " + profile.role;
-  }
+    document
+      .getElementById("displayName")
+      .textContent =
+        profile.display_name ||
+        profile.username ||
+        "użytkowniku";
 
-  async function logout() {
-    await supabaseClient.auth.signOut();
 
-    document.getElementById("appScreen")
-      .classList.add("hidden");
+    document
+      .getElementById("roleText")
+      .textContent =
+        "Rola: " + profile.role;
 
-    document.getElementById("loginScreen")
-      .classList.remove("hidden");
-  }
 
-  async function startApp() {
-    checkConnection();
+    if (profile.role === "admin") {
 
-    const {
-      data: { session }
-    } = await supabaseClient.auth.getSession();
+      document
+        .getElementById("taxAdmin")
+        .classList.remove("hidden");
 
-    if (session) {
-      await showApp(session.user);
     }
   }
 
+
+  /* =========================
+     NAWIGACJA
+     ========================= */
+
+  function openPage(page) {
+
+    document
+      .getElementById("homePage")
+      .classList.add("hidden");
+
+    document
+      .getElementById("taxPage")
+      .classList.add("hidden");
+
+    document
+      .getElementById("otherPage")
+      .classList.add("hidden");
+
+
+    if (page === "tax") {
+
+      document
+        .getElementById("taxPage")
+        .classList.remove("hidden");
+
+      return;
+    }
+
+
+    const pages = {
+
+      court: [
+        "⚖️ Sąd",
+        "Sąd Najwyższy, sędziowie, sprawy, wyroki i archiwum."
+      ],
+
+      security: [
+        "🚒 Bezpieczeństwo",
+        "Straż pożarna, wojsko, SWAT, ratownictwo, alarmy i schrony."
+      ],
+
+      bank: [
+        "🏦 Bank",
+        "Informacje bankowe, kursy DX, kredyty i opłaty."
+      ],
+
+      government: [
+        "👑 Władze",
+        "Burmistrz, rząd, Sejm, urzędy oraz historia wyborów."
+      ],
+
+      parish: [
+        "⛪ Parafia",
+        "Proboszcz, kościoły, msze, wydarzenia i kronika parafialna."
+      ],
+
+      news: [
+        "📰 TVW / Redakcja",
+        "Aktualności, artykuły, wywiady, śledztwa i sondaże."
+      ],
+
+      archive: [
+        "📚 Archiwum",
+        "Dawne prawa, konstytucje, burmistrzowie, mapy i wydarzenia."
+      ],
+
+      registers: [
+        "📋 Rejestry",
+        "Działki, budynki, licencje, prawa, wyroki i instytucje."
+      ]
+
+    };
+
+
+    document
+      .getElementById("otherTitle")
+      .textContent =
+        pages[page][0];
+
+
+    document
+      .getElementById("otherText")
+      .textContent =
+        pages[page][1];
+
+
+    document
+      .getElementById("otherPage")
+      .classList.remove("hidden");
+  }
+
+
+  function goHome() {
+
+    document
+      .getElementById("taxPage")
+      .classList.add("hidden");
+
+    document
+      .getElementById("otherPage")
+      .classList.add("hidden");
+
+    document
+      .getElementById("homePage")
+      .classList.remove("hidden");
+  }
+
+
+  /* =========================
+     WYLOGOWANIE
+     ========================= */
+
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    document
+      .getElementById("appScreen")
+      .classList.add("hidden");
+
+    document
+      .getElementById("loginScreen")
+      .classList.remove("hidden");
+
+    goHome();
+  }
+
+
+  /* =========================
+     KOMUNIKAT
+     ========================= */
+
+  function showMessage(text) {
+    alert(text);
+  }
+
+
+  /* =========================
+     START
+     ========================= */
+
+  async function startApp() {
+
+    await checkConnection();
+
+
+    const {
+      data: { session }
+    } =
+      await supabaseClient.auth.getSession();
+
+
+    if (session) {
+
+      await showApp(session.user);
+
+    }
+  }
+
+
   startApp();
+
 </script>
 
 </body>
