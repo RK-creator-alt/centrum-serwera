@@ -1010,7 +1010,6 @@ async function deleteLicense(id) {
 ===================================================== */
 
 
-
 async function loadAdminFees() {
 
     const box =
@@ -1293,7 +1292,6 @@ async function deleteFee(id) {
 ===================================================== */
 
 
-
 function clearAdminTables() {
 
     $("adminTaxesContent").innerHTML =
@@ -1316,3 +1314,4 @@ function clearAdminTables() {
 /* =====================================================
    INITIALIZATION
 ===================================================== */
+
