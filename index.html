@@ -8,9 +8,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- INLINE CSS MOVED TO css/style.css -->
 <link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -428,8 +428,6 @@
             <div id="myPropertiesContent"></div>
 
         </div>
-
-
 
 
         <!-- =====================================
@@ -1063,77 +1061,6 @@
             </div>
 
 
-
-
-            <!-- SECURITY ADMIN -->
-
-            <div class="card">
-                <div class="section-title">
-                    <div>
-                        <h2>🛡️ Bezpieczeństwo</h2>
-                        <p class="muted">Zarządzanie statusem, instrukcjami, służbami i historią zdarzeń.</p>
-                    </div>
-                </div>
-
-                <h3>🛡️ Status bezpieczeństwa</h3>
-                <div class="form-grid">
-                    <div class="field"><label>Status</label><select id="adminSecurityStatus"><option>Bezpieczny</option><option>Ostrzeżenie</option><option>Zagrożenie</option></select></div>
-                    <div class="field"><label>Komunikat</label><input id="adminSecurityMessage" placeholder="Aktualny komunikat bezpieczeństwa"></div>
-                </div>
-                <br>
-                <button class="primary" onclick="saveSecurityStatus()">💾 Zapisz status</button>
-
-                <hr style="border-color:#213650;margin:25px 0;">
-                <h3>📖 Instrukcje</h3>
-                <button class="primary" onclick="showSecurityInstructionForm()">➕ Dodaj instrukcję</button>
-                <div id="securityInstructionForm" class="hidden">
-                    <hr style="border-color:#213650;margin:18px 0;">
-                    <input type="hidden" id="editSecurityInstructionId">
-                    <div class="field"><label>Tytuł</label><input id="securityInstructionTitle"></div>
-                    <br>
-                    <div class="field"><label>Treść</label><textarea id="securityInstructionContent" rows="5"></textarea></div>
-                    <br>
-                    <div class="form-actions"><button class="primary" onclick="saveSecurityInstruction()">💾 Zapisz</button><button onclick="cancelSecurityInstructionForm()">Anuluj</button></div>
-                </div>
-                <div id="adminSecurityInstructions"></div>
-
-                <hr style="border-color:#213650;margin:25px 0;">
-                <h3>👮 Uprawnienia służb</h3>
-                <button class="primary" onclick="showSecurityServiceForm()">➕ Dodaj służbę</button>
-                <div id="securityServiceForm" class="hidden">
-                    <hr style="border-color:#213650;margin:18px 0;">
-                    <input type="hidden" id="editSecurityServiceId">
-                    <div class="form-grid">
-                        <div class="field"><label>Nazwa służby</label><input id="securityServiceName"></div>
-                        <div class="field"><label>Uprawnienia</label><textarea id="securityServicePermissions" rows="3"></textarea></div>
-                    </div>
-                    <br>
-                    <div class="field"><label>Ograniczenia</label><textarea id="securityServiceRestrictions" rows="3"></textarea></div>
-                    <br>
-                    <div class="form-actions"><button class="primary" onclick="saveSecurityService()">💾 Zapisz</button><button onclick="cancelSecurityServiceForm()">Anuluj</button></div>
-                </div>
-                <div id="adminSecurityServices"></div>
-
-                <hr style="border-color:#213650;margin:25px 0;">
-                <h3>📜 Historia zdarzeń</h3>
-                <button class="primary" onclick="showSecurityEventForm()">➕ Dodaj zdarzenie</button>
-                <div id="securityEventForm" class="hidden">
-                    <hr style="border-color:#213650;margin:18px 0;">
-                    <input type="hidden" id="editSecurityEventId">
-                    <div class="form-grid">
-                        <div class="field"><label>Typ zdarzenia</label><input id="securityEventType"></div>
-                        <div class="field"><label>Służba</label><input id="securityEventService"></div>
-                        <div class="field"><label>Data i godzina</label><input id="securityEventDate" type="datetime-local"></div>
-                    </div>
-                    <br>
-                    <div class="field"><label>Opis</label><textarea id="securityEventDescription" rows="4"></textarea></div>
-                    <br>
-                    <div class="form-actions"><button class="primary" onclick="saveSecurityEvent()">💾 Zapisz</button><button onclick="cancelSecurityEventForm()">Anuluj</button></div>
-                </div>
-                <div id="adminSecurityEvents"></div>
-            </div>
-
-
             <!-- PROPERTIES -->
 
             <div class="card">
@@ -1261,7 +1188,76 @@
 
                 </div>
 
-                <div id="adminDefinitionsContent"></div>
+                            <!-- SECURITY ADMIN -->
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>🛡️ Zarządzanie bezpieczeństwem</h2>
+                        <p class="muted">Status, instrukcje, uprawnienia służb i historia zdarzeń.</p>
+                    </div>
+                </div>
+
+                <h3>Status bezpieczeństwa</h3>
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Status</label>
+                        <select id="adminSecurityStatus">
+                            <option value="Bezpieczny">Bezpieczny</option>
+                            <option value="Ostrzeżenie">Ostrzeżenie</option>
+                            <option value="Zagrożenie">Zagrożenie</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Komunikat</label>
+                        <input id="adminSecurityMessage" placeholder="Komunikat bezpieczeństwa">
+                    </div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityStatus()">💾 Zapisz status</button>
+
+                <hr>
+                <h3>Instrukcje bezpieczeństwa</h3>
+                <input type="hidden" id="editSecurityInstructionId">
+                <div class="form-grid">
+                    <div class="field"><label>Tytuł</label><input id="securityInstructionTitle"></div>
+                    <div class="field"><label>Treść</label><textarea id="securityInstructionContent"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityInstruction()">💾 Zapisz instrukcję</button>
+                <button onclick="cancelSecurityInstructionForm()">Anuluj</button>
+                <div id="adminSecurityInstructions" style="margin-top:16px;"></div>
+
+                <hr>
+                <h3>Uprawnienia służb</h3>
+                <input type="hidden" id="editSecurityServiceId">
+                <div class="form-grid">
+                    <div class="field"><label>Nazwa służby</label><input id="securityServiceName"></div>
+                    <div class="field"><label>Uprawnienia</label><textarea id="securityServicePermissions"></textarea></div>
+                    <div class="field"><label>Ograniczenia</label><textarea id="securityServiceRestrictions"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityService()">💾 Zapisz służbę</button>
+                <button onclick="cancelSecurityServiceForm()">Anuluj</button>
+                <div id="adminSecurityServices" style="margin-top:16px;"></div>
+
+                <hr>
+                <h3>Historia zdarzeń</h3>
+                <input type="hidden" id="editSecurityEventId">
+                <div class="form-grid">
+                    <div class="field"><label>Rodzaj</label><input id="securityEventType" placeholder="np. Incydent"></div>
+                    <div class="field"><label>Data i czas</label><input id="securityEventDate" type="datetime-local"></div>
+                    <div class="field"><label>Służba</label><input id="securityEventService" placeholder="np. Policja"></div>
+                    <div class="field"><label>Opis</label><textarea id="securityEventDescription"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityEvent()">💾 Zapisz zdarzenie</button>
+                <button onclick="cancelSecurityEventForm()">Anuluj</button>
+                <div id="adminSecurityEvents" style="margin-top:16px;"></div>
+            </div>
+
+
+<div id="adminDefinitionsContent"></div>
 
             </div>
 
@@ -1272,12 +1268,14 @@
 </div>
 
 
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/core.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/home.js"></script>
 <script src="js/urzad.js"></script>
+<script src="js/podatki.js"></script>
+<script src="js/licencje.js"></script>
+<script src="js/oplaty.js"></script>
 <script src="js/pensje.js"></script>
 <script src="js/sad.js"></script>
 <script src="js/security.js"></script>
