@@ -1,262 +1,273 @@
-/* =====================================================
-   UBEZPIECZENIA
-===================================================== */
+/* SECURITY */
 
-function insuranceStatusBadge(status) {
-    const map = {
-        active: ['Aktywne', 'status-active'],
-        expired: ['Wygasłe', 'status-warning'],
-        cancelled: ['Anulowane', 'status-danger']
-    };
+async function loadSecurity() {
+    if (!currentUser) return;
 
-    const [label, cls] = map[status] || ['Nieznany', 'status-warning'];
-    return `<span class="status-badge ${cls}">${label}</span>`;
+    const page = $("securityPage");
+    if (!page) {
+        console.error("Brak #securityPage w index.html");
+        return;
+    }
+
+    await Promise.all([
+        loadSecurityStatus(),
+        loadSecurityInstructions(),
+        loadSecurityServices(),
+        loadSecurityEvents()
+    ]);
+
+    if (isAdmin()) {
+        await loadAdminSecurity();
+    }
 }
 
-
-async function loadMyInsurances() {
-    const box = $("myInsurancesContent");
-
-    if (!box || !currentUser) return;
-
-    box.innerHTML = `<div class="card">Ładowanie...</div>`;
-
+async function loadSecurityStatus() {
+    const box = $("securityStatusBox");
     const { data, error } = await supabaseClient
-        .from("player_insurances")
+        .from("security_status")
         .select("*")
-        .eq("user_id", currentUser.id)
-        .order("valid_until", { ascending: true });
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
     if (error) {
-        box.innerHTML = `<div class="card"><p>${escapeHtml(error.message)}</p></div>`;
+        box.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`;
         return;
     }
-
-    if (!data || !data.length) {
-        box.innerHTML = `
-            <div class="card">
-                <h3>Brak ubezpieczeń</h3>
-                <p class="muted">Nie masz jeszcze przypisanych polis ubezpieczeniowych.</p>
-            </div>`;
-        return;
-    }
-
-    box.innerHTML = data.map(i => `
-        <div class="card">
-            <div class="section-title">
-                <div>
-                    <h2>🛡️ ${escapeHtml(i.name)}</h2>
-                    <p class="muted">Polisa ${escapeHtml(i.policy_number || "-")}</p>
-                </div>
-                ${insuranceStatusBadge(i.status)}
-            </div>
-
-            <div class="info-grid">
-                <div><span class="muted">Na co</span><strong>${escapeHtml(i.protection || "-")}</strong></div>
-                <div><span class="muted">Składka miesięczna</span><strong>${money(i.monthly_payment)}</strong></div>
-                <div><span class="muted">Odszkodowanie</span><strong>${money(i.compensation)}</strong></div>
-                <div><span class="muted">Obowiązuje od</span><strong>${datePL(i.valid_from)}</strong></div>
-                <div><span class="muted">Do kiedy</span><strong>${datePL(i.valid_until)}</strong></div>
-            </div>
-
-            ${i.description ? `
-                <div class="summary-box" style="margin-top:16px;">
-                    <span class="muted">Opis / warunki</span>
-                    <div>${escapeHtml(i.description)}</div>
-                </div>` : ""}
-        </div>
-    `).join("");
-}
-
-
-async function loadAdminInsurances() {
-    const box = $("adminInsurancesContent");
-
-    if (!box) return;
-
-    if (!selectedPlayer) {
-        box.innerHTML = `<p class="muted">Najpierw wybierz gracza.</p>`;
-        return;
-    }
-
-    const { data, error } = await supabaseClient
-        .from("player_insurances")
-        .select("*")
-        .eq("user_id", selectedPlayer.id)
-        .order("valid_until", { ascending: true });
-
-    if (error) {
-        box.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-        return;
-    }
-
-    if (!data || !data.length) {
-        box.innerHTML = `<p class="muted">Ten gracz nie ma jeszcze żadnych ubezpieczeń.</p>`;
+    if (!data) {
+        box.innerHTML = `<p class="muted">Brak informacji o statusie bezpieczeństwa.</p>`;
         return;
     }
 
     box.innerHTML = `
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Polisa</th>
-                        <th>Na co</th>
-                        <th>Składka</th>
-                        <th>Odszkodowanie</th>
-                        <th>Do kiedy</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(i => `
-                        <tr>
-                            <td>
-                                <strong>${escapeHtml(i.name)}</strong><br>
-                                <span class="muted">${escapeHtml(i.policy_number || "-")}</span>
-                            </td>
-                            <td>${escapeHtml(i.protection || "-")}</td>
-                            <td>${money(i.monthly_payment)}</td>
-                            <td>${money(i.compensation)}</td>
-                            <td>${datePL(i.valid_until)}</td>
-                            <td>${insuranceStatusBadge(i.status)}</td>
-                            <td>
-                                <button onclick='editInsurance(${JSON.stringify(i)})'>✏️</button>
-                                <button onclick="deleteInsurance('${i.id}')">🗑️</button>
-                            </td>
-                        </tr>
-                    `).join("")}
-                </tbody>
-            </table>
-        </div>`;
+        <div class="stat-grid">
+            <div class="stat">
+                <div class="muted">Status</div>
+                <div class="stat-number">${escapeHtml(data.status)}</div>
+            </div>
+            <div class="stat">
+                <div class="muted">Ostatnia aktualizacja</div>
+                <div>${datePL(data.updated_at)}</div>
+            </div>
+        </div>
+        <p>${escapeHtml(data.message || "Brak dodatkowego komunikatu.")}</p>
+    `;
 }
 
+async function loadSecurityInstructions() {
+    const box = $("securityInstructions");
+    const { data, error } = await supabaseClient
+        .from("security_instructions")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-function showInsuranceAddForm() {
-    if (!selectedPlayer) {
-        alert("Najpierw wybierz gracza.");
-        return;
-    }
-
-    $("adminInsuranceForm").classList.remove("hidden");
-    $("editInsuranceId").value = "";
-    $("insurancePolicyNumber").value = "";
-    $("insuranceName").value = "";
-    $("insuranceProtection").value = "";
-    $("insuranceMonthlyPayment").value = "";
-    $("insuranceCompensation").value = "";
-    $("insuranceValidFrom").value = "";
-    $("insuranceValidUntil").value = "";
-    $("insuranceStatus").value = "active";
-    $("insuranceDescription").value = "";
+    if (error) { box.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? data.map(x => `
+        <div class="card">
+            <h3>${escapeHtml(x.title)}</h3>
+            <p>${escapeHtml(x.content).replace(/\n/g, "<br>")}</p>
+        </div>
+    `).join("") : `<p class="muted">Brak instrukcji.</p>`;
 }
 
+async function loadSecurityServices() {
+    const box = $("securityServices");
+    const { data, error } = await supabaseClient
+        .from("security_services")
+        .select("*")
+        .order("service_name", { ascending: true });
 
-function cancelInsuranceForm() {
-    $("adminInsuranceForm").classList.add("hidden");
+    if (error) { box.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? `
+        <div class="table-wrap"><table><thead><tr><th>Służba</th><th>Uprawnienia</th><th>Ograniczenia</th></tr></thead><tbody>
+        ${data.map(x => `<tr><td>${escapeHtml(x.service_name)}</td><td>${escapeHtml(x.permissions).replace(/\n/g,"<br>")}</td><td>${escapeHtml(x.restrictions || "-").replace(/\n/g,"<br>")}</td></tr>`).join("")}
+        </tbody></table></div>` : `<p class="muted">Brak zdefiniowanych służb.</p>`;
 }
 
+async function loadSecurityEvents() {
+    const box = $("securityEvents");
+    const { data, error } = await supabaseClient
+        .from("security_events")
+        .select("*")
+        .order("event_date", { ascending: false });
 
-function editInsurance(i) {
-    $("adminInsuranceForm").classList.remove("hidden");
-    $("editInsuranceId").value = i.id;
-    $("insurancePolicyNumber").value = i.policy_number || "";
-    $("insuranceName").value = i.name || "";
-    $("insuranceProtection").value = i.protection || "";
-    $("insuranceMonthlyPayment").value = i.monthly_payment ?? "";
-    $("insuranceCompensation").value = i.compensation ?? "";
-    $("insuranceValidFrom").value = i.valid_from || "";
-    $("insuranceValidUntil").value = i.valid_until || "";
-    $("insuranceStatus").value = i.status || "active";
-    $("insuranceDescription").value = i.description || "";
+    if (error) { box.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? `
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Rodzaj</th><th>Opis</th><th>Służba</th></tr></thead><tbody>
+        ${data.map(x => `<tr><td>${datePL(x.event_date)}</td><td>${escapeHtml(x.event_type)}</td><td>${escapeHtml(x.description).replace(/\n/g,"<br>")}</td><td>${escapeHtml(x.service_name || "-")}</td></tr>`).join("")}
+        </tbody></table></div>` : `<p class="muted">Brak zdarzeń.</p>`;
 }
 
-
-async function saveAdminInsurance() {
-    if (!selectedPlayer) return;
-
-    const name = $("insuranceName").value.trim();
-    const protection = $("insuranceProtection").value.trim();
-
-    if (!name || !protection) {
-        alert("Wpisz nazwę ubezpieczenia oraz określ, na co jest ubezpieczenie.");
-        return;
-    }
-
+async function saveSecurityStatus() {
+    if (!isAdmin()) return;
     const payload = {
-        user_id: selectedPlayer.id,
-        policy_number: $("insurancePolicyNumber").value.trim() || null,
-        name,
-        protection,
-        monthly_payment: Number($("insuranceMonthlyPayment").value || 0),
-        compensation: Number($("insuranceCompensation").value || 0),
-        valid_from: $("insuranceValidFrom").value || null,
-        valid_until: $("insuranceValidUntil").value || null,
-        status: $("insuranceStatus").value,
-        description: $("insuranceDescription").value.trim() || null
+        status: $("adminSecurityStatus").value,
+        message: $("adminSecurityMessage").value.trim(),
+        updated_at: new Date().toISOString()
     };
-
-    const id = $("editInsuranceId").value;
-    let result;
-
-    if (id) {
-        result = await supabaseClient
-            .from("player_insurances")
-            .update(payload)
-            .eq("id", id);
-    } else {
-        result = await supabaseClient
-            .from("player_insurances")
-            .insert(payload);
-    }
-
-    if (result.error) {
-        alert(result.error.message);
-        return;
-    }
-
-    cancelInsuranceForm();
-    await loadAdminInsurances();
+    const { data: existing, error: readError } = await supabaseClient.from("security_status").select("id").limit(1).maybeSingle();
+    if (readError) { alert(readError.message); return; }
+    const q = existing
+        ? supabaseClient.from("security_status").update(payload).eq("id", existing.id)
+        : supabaseClient.from("security_status").insert(payload);
+    const { error } = await q;
+    if (error) { alert(error.message); return; }
+    await loadSecurityStatus();
+    alert("Status bezpieczeństwa zapisany.");
 }
 
+function clearSecurityInstructionForm() {
+    $("editSecurityInstructionId").value = "";
+    $("securityInstructionTitle").value = "";
+    $("securityInstructionContent").value = "";
+}
+function cancelSecurityInstructionForm() { clearSecurityInstructionForm(); }
 
-async function deleteInsurance(id) {
-    if (!confirm("Usunąć tę polisę?")) return;
-
-    const { error } = await supabaseClient
-        .from("player_insurances")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-        alert(error.message);
-        return;
-    }
-
-    await loadAdminInsurances();
+async function saveSecurityInstruction() {
+    if (!isAdmin()) return;
+    const payload = { title: $("securityInstructionTitle").value.trim(), content: $("securityInstructionContent").value.trim() };
+    if (!payload.title || !payload.content) { alert("Wypełnij tytuł i treść instrukcji."); return; }
+    const id = $("editSecurityInstructionId").value;
+    const q = id ? supabaseClient.from("security_instructions").update(payload).eq("id", id) : supabaseClient.from("security_instructions").insert(payload);
+    const { error } = await q;
+    if (error) { alert(error.message); return; }
+    clearSecurityInstructionForm();
+    await loadSecurityInstructions();
+    await loadAdminSecurityInstructions();
 }
 
-
-/* =====================================================
-   INTEGRACJA Z APLIKACJĄ
-===================================================== */
-
-async function openMyInsurances() {
-    if (typeof hideAllPages === "function") hideAllPages();
-    const page = $("myInsurancesPage");
-    if (page) page.classList.remove("hidden");
-    await loadMyInsurances();
+function editSecurityInstruction(x) {
+    $("editSecurityInstructionId").value = x.id;
+    $("securityInstructionTitle").value = x.title || "";
+    $("securityInstructionContent").value = x.content || "";
+}
+async function deleteSecurityInstruction(id) {
+    if (!confirm("Usunąć tę instrukcję?")) return;
+    const { error } = await supabaseClient.from("security_instructions").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
+    await loadSecurityInstructions(); await loadAdminSecurityInstructions();
 }
 
-if (typeof pages !== "undefined" && !pages.includes("myInsurancesPage")) {
-    pages.push("myInsurancesPage");
+function clearSecurityServiceForm() {
+    $("editSecurityServiceId").value = "";
+    $("securityServiceName").value = "";
+    $("securityServicePermissions").value = "";
+    $("securityServiceRestrictions").value = "";
 }
+function cancelSecurityServiceForm() { clearSecurityServiceForm(); }
 
-if (typeof loadSelectedPlayer === "function") {
-    const _loadSelectedPlayerBeforeInsurance = loadSelectedPlayer;
-    loadSelectedPlayer = async function() {
-        await _loadSelectedPlayerBeforeInsurance();
-        await loadAdminInsurances();
+async function saveSecurityService() {
+    if (!isAdmin()) return;
+    const payload = {
+        service_name: $("securityServiceName").value.trim(),
+        permissions: $("securityServicePermissions").value.trim(),
+        restrictions: $("securityServiceRestrictions").value.trim() || null
     };
+    if (!payload.service_name || !payload.permissions) { alert("Wypełnij nazwę służby i uprawnienia."); return; }
+    const id = $("editSecurityServiceId").value;
+    const q = id ? supabaseClient.from("security_services").update(payload).eq("id", id) : supabaseClient.from("security_services").insert(payload);
+    const { error } = await q;
+    if (error) { alert(error.message); return; }
+    clearSecurityServiceForm(); await loadSecurityServices(); await loadAdminSecurityServices();
+}
+function editSecurityService(x) {
+    $("editSecurityServiceId").value = x.id;
+    $("securityServiceName").value = x.service_name || "";
+    $("securityServicePermissions").value = x.permissions || "";
+    $("securityServiceRestrictions").value = x.restrictions || "";
+}
+async function deleteSecurityService(id) {
+    if (!confirm("Usunąć tę służbę?")) return;
+    const { error } = await supabaseClient.from("security_services").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
+    await loadSecurityServices(); await loadAdminSecurityServices();
+}
+
+function clearSecurityEventForm() {
+    $("editSecurityEventId").value = "";
+    $("securityEventType").value = "";
+    $("securityEventDescription").value = "";
+    $("securityEventService").value = "";
+    $("securityEventDate").value = new Date().toISOString().slice(0,16);
+}
+function cancelSecurityEventForm() { clearSecurityEventForm(); }
+
+async function saveSecurityEvent() {
+    if (!isAdmin()) return;
+    const dateValue = $("securityEventDate").value;
+    const payload = {
+        event_type: $("securityEventType").value.trim(),
+        description: $("securityEventDescription").value.trim(),
+        service_name: $("securityEventService").value.trim() || null,
+        event_date: dateValue ? new Date(dateValue).toISOString() : new Date().toISOString()
+    };
+    if (!payload.event_type || !payload.description) { alert("Wypełnij rodzaj i opis zdarzenia."); return; }
+    const id = $("editSecurityEventId").value;
+    const q = id ? supabaseClient.from("security_events").update(payload).eq("id", id) : supabaseClient.from("security_events").insert(payload);
+    const { error } = await q;
+    if (error) { alert(error.message); return; }
+    clearSecurityEventForm(); await loadSecurityEvents(); await loadAdminSecurityEvents();
+}
+function editSecurityEvent(x) {
+    $("editSecurityEventId").value = x.id;
+    $("securityEventType").value = x.event_type || "";
+    $("securityEventDescription").value = x.description || "";
+    $("securityEventService").value = x.service_name || "";
+    $("securityEventDate").value = x.event_date ? new Date(x.event_date).toISOString().slice(0,16) : "";
+}
+async function deleteSecurityEvent(id) {
+    if (!confirm("Usunąć to zdarzenie?")) return;
+    const { error } = await supabaseClient.from("security_events").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
+    await loadSecurityEvents(); await loadAdminSecurityEvents();
+}
+
+async function loadAdminSecurity() {
+    const { data, error } = await supabaseClient.from("security_status").select("*").order("updated_at", {ascending:false}).limit(1).maybeSingle();
+    if (!error && data) {
+        $("adminSecurityStatus").value = data.status || "Bezpieczny";
+        $("adminSecurityMessage").value = data.message || "";
+    }
+    await loadAdminSecurityInstructions();
+    await loadAdminSecurityServices();
+    await loadAdminSecurityEvents();
+    clearSecurityEventForm();
+}
+async function loadAdminSecurityInstructions() {
+    const box = $("adminSecurityInstructions");
+    const { data, error } = await supabaseClient.from("security_instructions").select("*").order("created_at", {ascending:false});
+    if (error) { box.innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? `<div class="table-wrap"><table><thead><tr><th>Tytuł</th><th>Treść</th><th>Akcje</th></tr></thead><tbody>${data.map(x=>`<tr><td>${escapeHtml(x.title)}</td><td>${escapeHtml(x.content)}</td><td><button onclick='editSecurityInstruction(${JSON.stringify(x)})'>✏️</button> <button onclick="deleteSecurityInstruction('${x.id}')">🗑️</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Brak instrukcji.</p>`;
+}
+async function loadAdminSecurityServices() {
+    const box = $("adminSecurityServices");
+    const { data, error } = await supabaseClient.from("security_services").select("*").order("service_name", {ascending:true});
+    if (error) { box.innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? `<div class="table-wrap"><table><thead><tr><th>Służba</th><th>Uprawnienia</th><th>Ograniczenia</th><th>Akcje</th></tr></thead><tbody>${data.map(x=>`<tr><td>${escapeHtml(x.service_name)}</td><td>${escapeHtml(x.permissions)}</td><td>${escapeHtml(x.restrictions||"-")}</td><td><button onclick='editSecurityService(${JSON.stringify(x)})'>✏️</button> <button onclick="deleteSecurityService('${x.id}')">🗑️</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Brak służb.</p>`;
+}
+async function loadAdminSecurityEvents() {
+    const box = $("adminSecurityEvents");
+    const { data, error } = await supabaseClient.from("security_events").select("*").order("event_date", {ascending:false});
+    if (error) { box.innerHTML=`<p class="muted">${escapeHtml(error.message)}</p>`; return; }
+    box.innerHTML = data?.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th>Rodzaj</th><th>Opis</th><th>Służba</th><th>Akcje</th></tr></thead><tbody>${data.map(x=>`<tr><td>${datePL(x.event_date)}</td><td>${escapeHtml(x.event_type)}</td><td>${escapeHtml(x.description)}</td><td>${escapeHtml(x.service_name||"-")}</td><td><button onclick='editSecurityEvent(${JSON.stringify(x)})'>✏️</button> <button onclick="deleteSecurityEvent('${x.id}')">🗑️</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Brak zdarzeń.</p>`;
+}
+
+async function changePassword() {
+    if (!currentUser) return;
+    const password = prompt("Podaj nowe hasło (minimum 6 znaków):");
+    if (password === null) return;
+    if (password.length < 6) { alert("Hasło musi mieć co najmniej 6 znaków."); return; }
+    const password2 = prompt("Powtórz nowe hasło:");
+    if (password2 === null) return;
+    if (password !== password2) { alert("Hasła nie są takie same."); return; }
+    const { error } = await supabaseClient.auth.updateUser({ password });
+    if (error) { alert(error.message); return; }
+    alert("Hasło zostało zmienione.");
+}
+
+async function logoutAllSessions() {
+    if (!confirm("Wylogować konto ze wszystkich urządzeń i sesji?")) return;
+    const { error } = await supabaseClient.auth.signOut({ scope: "global" });
+    if (error) { alert(error.message); return; }
+    showLogin();
 }
