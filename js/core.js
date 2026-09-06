@@ -1,4 +1,3 @@
-
 const SUPABASE_URL =
     "https://qbhmbawqdgzplwtboqal.supabase.co";
 
@@ -87,21 +86,4 @@ function statusBadge(status) {
 
     return `<span class="${cls}">${escapeHtml(text)}</span>`;
 }
-
-function showMessage(text, type = "ok") {
-
-    const box = $("authMessage");
-
-    box.textContent = text;
-    box.className = `message show ${type}`;
-}
-
-function hideMessage() {
-    $("authMessage").className = "message";
-}
-
-
-/* =====================================================
-   AUTH SCREENS
-===================================================== */
 

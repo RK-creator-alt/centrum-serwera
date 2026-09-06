@@ -1,3 +1,114 @@
+async function loadDefinitions() {
+
+    const taxes =
+        await supabaseClient
+            .from("tax_rates")
+            .select("*")
+            .order("name");
+
+    if (!taxes.error) {
+        taxDefinitions = taxes.data || [];
+    }
+
+    const licenses =
+        await supabaseClient
+            .from("licenses")
+            .select("*")
+            .order("name");
+
+    if (!licenses.error) {
+        licenseDefinitions = licenses.data || [];
+    }
+
+    const fees =
+        await supabaseClient
+            .from("fees")
+            .select("*")
+            .order("name");
+
+    if (!fees.error) {
+        feeDefinitions = fees.data || [];
+    }
+}
+
+
+/* =====================================================
+   TAX RULES
+===================================================== */
+
+async function renderTaxRules() {
+
+    const box = $("taxRulesContent");
+
+    await loadDefinitions();
+
+    if (!taxDefinitions.length) {
+
+        box.innerHTML =
+            `<div class="card">Brak zdefiniowanych stawek.</div>`;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Nazwa</th>
+                            <th>Stawka</th>
+                            <th>Jednostka</th>
+                            <th>Opis</th>
+                            <th>Aktywna</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${taxDefinitions.map(t => `
+
+                            <tr>
+
+                                <td>
+                                    <strong>${escapeHtml(t.name)}</strong>
+                                </td>
+
+                                <td>${money(t.rate)}</td>
+
+                                <td>${escapeHtml(t.unit || "DX")}</td>
+
+                                <td>${escapeHtml(t.description || "-")}</td>
+
+                                <td>
+                                    ${t.active
+                                        ? statusBadge("active")
+                                        : statusBadge("cancelled")}
+                                </td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   ADMIN DATA
+===================================================== */
+
 async function loadAdminData() {
 
     await loadServerSettings();
@@ -173,238 +284,154 @@ async function loadAdminStats() {
    ADMIN TAXES
 ===================================================== */
 
-async function loadAdminTaxes() {
 
-    const box =
-        $("adminTaxesContent");
+function fillDefinitionSelects() {
 
-    if (!selectedPlayer) {
+    const taxSelect =
+        $("taxDefinitionSelect");
 
-        box.innerHTML =
-            `<p class="muted">Najpierw wybierz gracza.</p>`;
+    if (taxSelect) {
 
-        return;
+        taxSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        taxDefinitions.forEach(t => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = t.id;
+
+            option.textContent =
+                `${t.name} — ${money(t.rate)}`;
+
+            taxSelect.appendChild(option);
+        });
     }
 
-    const { data, error } =
-        await supabaseClient
-            .from("tax_liabilities")
-            .select(`
-                *,
-                properties (
-                    plot_number,
-                    address
-                ),
-                tax_rates (
-                    name
-                )
-            `)
-            .eq("user_id", selectedPlayer.id)
-            .order("created_at", {
-                ascending: false
-            });
 
-    if (error) {
+    const licenseSelect =
+        $("licenseDefinitionSelect");
 
-        box.innerHTML =
-            `<p>${escapeHtml(error.message)}</p>`;
+    if (licenseSelect) {
 
-        return;
+        licenseSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        licenseDefinitions.forEach(l => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = l.id;
+
+            option.textContent =
+                `${l.name} — ${money(l.price)}`;
+
+            licenseSelect.appendChild(option);
+        });
     }
 
-    if (!data.length) {
 
-        box.innerHTML =
-            `<p class="muted">Ten gracz nie ma podatków.</p>`;
+    const feeSelect =
+        $("feeDefinitionSelect");
 
-        return;
+    if (feeSelect) {
+
+        feeSelect.innerHTML =
+            `<option value="">-- opcjonalnie --</option>`;
+
+        feeDefinitions.forEach(f => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = f.id;
+
+            option.textContent =
+                `${f.name} — ${money(f.amount)}`;
+
+            feeSelect.appendChild(option);
+        });
     }
+}
 
-    const total = data.reduce(
-        (sum, item) => sum + Number(item.amount || 0),
-        0
-    );
+function fillPropertySelect() {
 
-    box.innerHTML = `
+    const select =
+        $("taxPropertySelect");
 
-        <p class="muted"><strong>Suma podatków:</strong> ${money(total)}</p>
+    if (!select) return;
 
-            <div class="table-wrap">
+    select.innerHTML =
+        `<option value="">-- brak --</option>`;
 
-            <table>
+    selectedPlayerProperties.forEach(p => {
 
-                <thead>
+        const option =
+            document.createElement("option");
 
-                    <tr>
-                        <th>Podatek</th>
-                        <th>Kwota</th>
-                        <th>Termin</th>
-                        <th>Nieruchomość</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
+        option.value = p.id;
 
-                </thead>
+        option.textContent =
+            `Działka ${p.plot_number || "-"} — ${p.address || "brak adresu"}`;
 
-                <tbody>
-
-                    ${data.map(t => `
-
-                        <tr>
-
-                            <td>
-                                <strong>${escapeHtml(t.title)}</strong>
-                            </td>
-
-                            <td>${money(t.amount)}</td>
-
-                            <td>${datePL(t.due_date)}</td>
-
-                            <td>
-                                ${t.properties
-                                    ? `${escapeHtml(t.properties.plot_number || "-")}`
-                                    : "-"}
-                            </td>
-
-                            <td>${statusBadge(t.status)}</td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button
-                                        onclick='editTax(${JSON.stringify(t)})'>
-                                        ✏️
-                                    </button>
-
-                                    <button
-                                        class="danger"
-                                        onclick="deleteTax('${t.id}')">
-                                        🗑️
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    `).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-    `;
+        select.appendChild(option);
+    });
 }
 
 
 /* =====================================================
-   TAX FORM
+   TAX DEFINITIONS ADMIN
 ===================================================== */
 
-function showTaxAddForm() {
+function showDefinitionForm() {
 
-    if (!selectedPlayer) {
+    $("definitionForm")
+        .classList.remove("hidden");
 
-        alert("Najpierw wybierz gracza.");
+    $("editDefinitionId").value = "";
 
-        return;
-    }
-
-    $("adminTaxForm").classList.remove("hidden");
-
-    $("editTaxId").value = "";
-
-    $("taxTitle").value = "";
-    $("taxAmount").value = "";
-    $("taxDueDate").value = "";
-    $("taxStatus").value = "unpaid";
-    $("taxNote").value = "";
-
-    fillDefinitionSelects();
-    fillPropertySelect();
+    $("definitionName").value = "";
+    $("definitionRate").value = "";
+    $("definitionUnit").value = "DX";
+    $("definitionDescription").value = "";
+    $("definitionActive").value = "true";
 }
 
-function cancelTaxForm() {
+function cancelDefinitionForm() {
 
-    $("adminTaxForm").classList.add("hidden");
+    $("definitionForm")
+        .classList.add("hidden");
 }
 
-function editTax(tax) {
-
-    $("adminTaxForm").classList.remove("hidden");
-
-    $("editTaxId").value = tax.id;
-
-    $("taxTitle").value =
-        tax.title || "";
-
-    $("taxAmount").value =
-        tax.amount || "";
-
-    $("taxDueDate").value =
-        tax.due_date || "";
-
-    $("taxStatus").value =
-        tax.status || "unpaid";
-
-    $("taxNote").value =
-        tax.note || "";
-
-    fillDefinitionSelects();
-    fillPropertySelect();
-
-    $("taxDefinitionSelect").value =
-        tax.tax_id || "";
-
-    $("taxPropertySelect").value =
-        tax.property_id || "";
-}
-
-async function saveAdminTax() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
+async function saveDefinition() {
 
     const id =
-        $("editTaxId").value;
+        $("editDefinitionId").value;
 
     const payload = {
 
-        user_id: selectedPlayer.id,
+        name:
+            $("definitionName").value.trim(),
 
-        title:
-            $("taxTitle").value.trim(),
+        rate:
+            Number($("definitionRate").value || 0),
 
-        amount:
-            Number($("taxAmount").value || 0),
+        unit:
+            $("definitionUnit").value.trim() || "DX",
 
-        due_date:
-            $("taxDueDate").value || null,
+        description:
+            $("definitionDescription").value.trim() || null,
 
-        tax_id:
-            $("taxDefinitionSelect").value || null,
-
-        property_id:
-            $("taxPropertySelect").value || null,
-
-        status:
-            $("taxStatus").value,
-
-        note:
-            $("taxNote").value.trim() || null
+        active:
+            $("definitionActive").value === "true"
 
     };
 
-    if (!payload.title) {
+    if (!payload.name) {
 
-        alert("Podaj nazwę podatku.");
+        alert("Podaj nazwę stawki.");
 
         return;
     }
@@ -415,7 +442,7 @@ async function saveAdminTax() {
 
         result =
             await supabaseClient
-                .from("tax_liabilities")
+                .from("tax_rates")
                 .update(payload)
                 .eq("id", id);
 
@@ -423,7 +450,7 @@ async function saveAdminTax() {
 
         result =
             await supabaseClient
-                .from("tax_liabilities")
+                .from("tax_rates")
                 .insert(payload);
     }
 
@@ -434,88 +461,26 @@ async function saveAdminTax() {
         return;
     }
 
-    cancelTaxForm();
+    cancelDefinitionForm();
 
-    await loadAdminTaxes();
+    await loadDefinitions();
 
-    await loadAdminStats();
+    await renderAdminDefinitions();
+
+    fillDefinitionSelects();
 }
 
-async function deleteTax(id) {
-
-    if (!confirm("Usunąć ten podatek graczowi?")) {
-        return;
-    }
-
-    const { error } =
-        await supabaseClient
-            .from("tax_liabilities")
-            .delete()
-            .eq("id", id);
-
-    if (error) {
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadAdminTaxes();
-    await loadAdminStats();
-}
-
-
-/* =====================================================
-   PLAYER PROPERTIES
-===================================================== */
-
-async function loadPlayerProperties() {
-
-    if (!selectedPlayer) return;
-
-    const { data, error } =
-        await supabaseClient
-            .from("properties")
-            .select("*")
-            .eq("owner_id", selectedPlayer.id)
-            .order("created_at", {
-                ascending: false
-            });
-
-    if (error) {
-
-        console.error(error);
-
-        selectedPlayerProperties = [];
-
-        return;
-    }
-
-    selectedPlayerProperties =
-        data || [];
-
-    renderAdminProperties();
-}
-
-function renderAdminProperties() {
+async function renderAdminDefinitions() {
 
     const box =
-        $("adminPropertiesContent");
+        $("adminDefinitionsContent");
 
-    if (!selectedPlayer) {
+    await loadDefinitions();
 
-        box.innerHTML =
-            `<p class="muted">Najpierw wybierz gracza.</p>`;
-
-        return;
-    }
-
-    if (!selectedPlayerProperties.length) {
+    if (!taxDefinitions.length) {
 
         box.innerHTML =
-            `<p class="muted">
-                Ten gracz nie ma jeszcze nieruchomości.
-            </p>`;
+            `<p class="muted">Brak definicji podatków.</p>`;
 
         return;
     }
@@ -529,10 +494,10 @@ function renderAdminProperties() {
                 <thead>
 
                     <tr>
-                        <th>Działka</th>
-                        <th>Adres</th>
-                        <th>Typ</th>
-                        <th>Wartość</th>
+                        <th>Nazwa</th>
+                        <th>Stawka</th>
+                        <th>Jednostka</th>
+                        <th>Aktywna</th>
                         <th>Akcje</th>
                     </tr>
 
@@ -540,30 +505,39 @@ function renderAdminProperties() {
 
                 <tbody>
 
-                    ${selectedPlayerProperties.map(p => `
+                    ${taxDefinitions.map(t => `
 
                         <tr>
 
-                            <td>${escapeHtml(p.plot_number || "-")}</td>
+                            <td>
+                                <strong>${escapeHtml(t.name)}</strong>
+                                <div class="small">
+                                    ${escapeHtml(t.description || "")}
+                                </div>
+                            </td>
 
-                            <td>${escapeHtml(p.address || "-")}</td>
+                            <td>${money(t.rate)}</td>
 
-                            <td>${escapeHtml(p.property_type || "-")}</td>
+                            <td>${escapeHtml(t.unit || "DX")}</td>
 
-                            <td>${money(p.value)}</td>
+                            <td>
+                                ${t.active
+                                    ? statusBadge("active")
+                                    : statusBadge("cancelled")}
+                            </td>
 
                             <td>
 
                                 <div class="actions">
 
                                     <button
-                                        onclick='editProperty(${JSON.stringify(p)})'>
+                                        onclick='editDefinition(${JSON.stringify(t)})'>
                                         ✏️
                                     </button>
 
                                     <button
                                         class="danger"
-                                        onclick="deleteProperty('${p.id}')">
+                                        onclick="deleteDefinition('${t.id}')">
                                         🗑️
                                     </button>
 
@@ -583,133 +557,41 @@ function renderAdminProperties() {
     `;
 }
 
+function editDefinition(t) {
 
-/* =====================================================
-   PROPERTY FORM
-===================================================== */
-
-function showPropertyAddForm() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    $("adminPropertyForm")
+    $("definitionForm")
         .classList.remove("hidden");
 
-    $("editPropertyId").value = "";
+    $("editDefinitionId").value =
+        t.id;
 
-    $("propertyPlot").value = "";
-    $("propertyAddress").value = "";
-    $("propertyType").value = "";
-    $("propertyValue").value = "";
+    $("definitionName").value =
+        t.name || "";
+
+    $("definitionRate").value =
+        t.rate || "";
+
+    $("definitionUnit").value =
+        t.unit || "DX";
+
+    $("definitionDescription").value =
+        t.description || "";
+
+    $("definitionActive").value =
+        t.active ? "true" : "false";
 }
 
-function cancelPropertyForm() {
+async function deleteDefinition(id) {
 
-    $("adminPropertyForm")
-        .classList.add("hidden");
-}
-
-function editProperty(p) {
-
-    $("adminPropertyForm")
-        .classList.remove("hidden");
-
-    $("editPropertyId").value =
-        p.id;
-
-    $("propertyPlot").value =
-        p.plot_number || "";
-
-    $("propertyAddress").value =
-        p.address || "";
-
-    $("propertyType").value =
-        p.property_type || "";
-
-    $("propertyValue").value =
-        p.value || "";
-}
-
-async function saveAdminProperty() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    const id =
-        $("editPropertyId").value;
-
-    const payload = {
-
-        owner_id:
-            selectedPlayer.id,
-
-        plot_number:
-            $("propertyPlot").value.trim(),
-
-        address:
-            $("propertyAddress").value.trim(),
-
-        owner_name:
-            selectedPlayer.minecraft_nick ||
-            selectedPlayer.display_name ||
-            selectedPlayer.username,
-
-        property_type:
-            $("propertyType").value.trim(),
-
-        value:
-            Number($("propertyValue").value || 0)
-
-    };
-
-    let result;
-
-    if (id) {
-
-        result =
-            await supabaseClient
-                .from("properties")
-                .update(payload)
-                .eq("id", id);
-
-    } else {
-
-        result =
-            await supabaseClient
-                .from("properties")
-                .insert(payload);
-    }
-
-    if (result.error) {
-
-        alert(result.error.message);
-
-        return;
-    }
-
-    cancelPropertyForm();
-
-    await loadPlayerProperties();
-}
-
-async function deleteProperty(id) {
-
-    if (!confirm("Usunąć nieruchomość?")) {
+    if (!confirm(
+        "Usunąć definicję podatku? Istniejące podatki graczy nie zostaną automatycznie usunięte."
+    )) {
         return;
     }
 
     const { error } =
         await supabaseClient
-            .from("properties")
+            .from("tax_rates")
             .delete()
             .eq("id", id);
 
@@ -720,577 +602,17 @@ async function deleteProperty(id) {
         return;
     }
 
-    await loadPlayerProperties();
-}
+    await loadDefinitions();
 
-
-/* =====================================================
-   ADMIN LICENSES
-===================================================== */
-
-async function loadAdminLicenses() {
-
-    const box =
-        $("adminLicensesContent");
-
-    if (!selectedPlayer) {
-
-        box.innerHTML =
-            `<p class="muted">Najpierw wybierz gracza.</p>`;
-
-        return;
-    }
-
-    const { data, error } =
-        await supabaseClient
-            .from("player_licenses")
-            .select(`
-                *,
-                licenses (
-                    name
-                )
-            `)
-            .eq("user_id", selectedPlayer.id)
-            .order("created_at", {
-                ascending: false
-            });
-
-    if (error) {
-
-        box.innerHTML =
-            `<p>${escapeHtml(error.message)}</p>`;
-
-        return;
-    }
-
-    if (!data.length) {
-
-        box.innerHTML =
-            `<p class="muted">Brak licencji tego gracza.</p>`;
-
-        return;
-    }
-
-    box.innerHTML = `
-
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Licencja</th>
-                        <th>Cena</th>
-                        <th>Ważna do</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${data.map(l => `
-
-                        <tr>
-
-                            <td>${escapeHtml(l.name)}</td>
-
-                            <td>${money(l.price)}</td>
-
-                            <td>${datePL(l.valid_until)}</td>
-
-                            <td>${statusBadge(l.status)}</td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button
-                                        onclick='editLicense(${JSON.stringify(l)})'>
-                                        ✏️
-                                    </button>
-
-                                    <button
-                                        class="danger"
-                                        onclick="deleteLicense('${l.id}')">
-                                        🗑️
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    `).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-    `;
-}
-
-
-/* =====================================================
-   LICENSE FORM
-===================================================== */
-
-function showLicenseAddForm() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    $("adminLicenseForm")
-        .classList.remove("hidden");
-
-    $("editLicenseId").value = "";
-
-    $("playerLicenseName").value = "";
-    $("playerLicensePrice").value = "";
-    $("licenseFrom").value = "";
-    $("licenseUntil").value = "";
-    $("licenseStatus").value = "active";
-    $("licenseNote").value = "";
+    await renderAdminDefinitions();
 
     fillDefinitionSelects();
 }
 
-function cancelLicenseForm() {
-
-    $("adminLicenseForm")
-        .classList.add("hidden");
-}
-
-function editLicense(l) {
-
-    $("adminLicenseForm")
-        .classList.remove("hidden");
-
-    $("editLicenseId").value =
-        l.id;
-
-    $("playerLicenseName").value =
-        l.name || "";
-
-    $("playerLicensePrice").value =
-        l.price || "";
-
-    $("licenseFrom").value =
-        l.valid_from || "";
-
-    $("licenseUntil").value =
-        l.valid_until || "";
-
-    $("licenseStatus").value =
-        l.status || "active";
-
-    $("licenseNote").value =
-        l.note || "";
-
-    fillDefinitionSelects();
-
-    $("licenseDefinitionSelect").value =
-        l.license_id || "";
-}
-
-async function saveAdminLicense() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    const id =
-        $("editLicenseId").value;
-
-    const payload = {
-
-        user_id:
-            selectedPlayer.id,
-
-        license_id:
-            $("licenseDefinitionSelect").value || null,
-
-        name:
-            $("playerLicenseName").value.trim(),
-
-        price:
-            Number($("playerLicensePrice").value || 0),
-
-        valid_from:
-            $("licenseFrom").value || null,
-
-        valid_until:
-            $("licenseUntil").value || null,
-
-        status:
-            $("licenseStatus").value,
-
-        note:
-            $("licenseNote").value.trim() || null
-
-    };
-
-    if (!payload.name) {
-
-        alert("Podaj nazwę licencji.");
-
-        return;
-    }
-
-    let result;
-
-    if (id) {
-
-        result =
-            await supabaseClient
-                .from("player_licenses")
-                .update(payload)
-                .eq("id", id);
-
-    } else {
-
-        result =
-            await supabaseClient
-                .from("player_licenses")
-                .insert(payload);
-    }
-
-    if (result.error) {
-
-        alert(result.error.message);
-
-        return;
-    }
-
-    cancelLicenseForm();
-
-    await loadAdminLicenses();
-
-    await loadAdminStats();
-}
-
-async function deleteLicense(id) {
-
-    if (!confirm("Usunąć tę licencję graczowi?")) {
-        return;
-    }
-
-    const { error } =
-        await supabaseClient
-            .from("player_licenses")
-            .delete()
-            .eq("id", id);
-
-    if (error) {
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadAdminLicenses();
-
-    await loadAdminStats();
-}
-
 
 /* =====================================================
-   COURT
+   CLEAR ADMIN TABLES
 ===================================================== */
-
-
-async function loadAdminFees() {
-
-    const box =
-        $("adminFeesContent");
-
-    if (!selectedPlayer) {
-
-        box.innerHTML =
-            `<p class="muted">Najpierw wybierz gracza.</p>`;
-
-        return;
-    }
-
-    const { data, error } =
-        await supabaseClient
-            .from("player_fees")
-            .select(`
-                *,
-                fees (
-                    name
-                )
-            `)
-            .eq("user_id", selectedPlayer.id)
-            .order("created_at", {
-                ascending: false
-            });
-
-    if (error) {
-
-        box.innerHTML =
-            `<p>${escapeHtml(error.message)}</p>`;
-
-        return;
-    }
-
-    if (!data.length) {
-
-        box.innerHTML =
-            `<p class="muted">Brak opłat tego gracza.</p>`;
-
-        return;
-    }
-
-    const total = data.reduce(
-        (sum, item) => sum + Number(item.amount || 0),
-        0
-    );
-
-    box.innerHTML = `
-
-        <p class="muted"><strong>Suma opłat:</strong> ${money(total)}</p>
-
-            <div class="table-wrap">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Opłata</th>
-                        <th>Kwota</th>
-                        <th>Termin</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${data.map(f => `
-
-                        <tr>
-
-                            <td>${escapeHtml(f.name)}</td>
-
-                            <td>${money(f.amount)}</td>
-
-                            <td>${datePL(f.due_date)}</td>
-
-                            <td>${statusBadge(f.status)}</td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button
-                                        onclick='editFee(${JSON.stringify(f)})'>
-                                        ✏️
-                                    </button>
-
-                                    <button
-                                        class="danger"
-                                        onclick="deleteFee('${f.id}')">
-                                        🗑️
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    `).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-    `;
-}
-
-
-/* =====================================================
-   FEE FORM
-===================================================== */
-
-function showFeeAddForm() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    $("adminFeeForm")
-        .classList.remove("hidden");
-
-    $("editFeeId").value = "";
-
-    $("playerFeeName").value = "";
-    $("playerFeeAmount").value = "";
-    $("feeDueDate").value = "";
-    $("feeStatus").value = "unpaid";
-    $("feeNote").value = "";
-
-    fillDefinitionSelects();
-}
-
-function cancelFeeForm() {
-
-    $("adminFeeForm")
-        .classList.add("hidden");
-}
-
-function editFee(f) {
-
-    $("adminFeeForm")
-        .classList.remove("hidden");
-
-    $("editFeeId").value =
-        f.id;
-
-    $("playerFeeName").value =
-        f.name || "";
-
-    $("playerFeeAmount").value =
-        f.amount || "";
-
-    $("feeDueDate").value =
-        f.due_date || "";
-
-    $("feeStatus").value =
-        f.status || "unpaid";
-
-    $("feeNote").value =
-        f.note || "";
-
-    fillDefinitionSelects();
-
-    $("feeDefinitionSelect").value =
-        f.fee_id || "";
-}
-
-async function saveAdminFee() {
-
-    if (!selectedPlayer) {
-
-        alert("Najpierw wybierz gracza.");
-
-        return;
-    }
-
-    const id =
-        $("editFeeId").value;
-
-    const payload = {
-
-        user_id:
-            selectedPlayer.id,
-
-        fee_id:
-            $("feeDefinitionSelect").value || null,
-
-        name:
-            $("playerFeeName").value.trim(),
-
-        amount:
-            Number($("playerFeeAmount").value || 0),
-
-        due_date:
-            $("feeDueDate").value || null,
-
-        status:
-            $("feeStatus").value,
-
-        note:
-            $("feeNote").value.trim() || null
-
-    };
-
-    if (!payload.name) {
-
-        alert("Podaj nazwę opłaty.");
-
-        return;
-    }
-
-    let result;
-
-    if (id) {
-
-        result =
-            await supabaseClient
-                .from("player_fees")
-                .update(payload)
-                .eq("id", id);
-
-    } else {
-
-        result =
-            await supabaseClient
-                .from("player_fees")
-                .insert(payload);
-    }
-
-    if (result.error) {
-
-        alert(result.error.message);
-
-        return;
-    }
-
-    cancelFeeForm();
-
-    await loadAdminFees();
-
-    await loadAdminStats();
-}
-
-async function deleteFee(id) {
-
-    if (!confirm("Usunąć tę opłatę graczowi?")) {
-        return;
-    }
-
-    const { error } =
-        await supabaseClient
-            .from("player_fees")
-            .delete()
-            .eq("id", id);
-
-    if (error) {
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadAdminFees();
-
-    await loadAdminStats();
-}
-
-
-/* =====================================================
-   SELECTS
-===================================================== */
-
 
 function clearAdminTables() {
 

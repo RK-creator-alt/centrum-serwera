@@ -1,41 +1,3 @@
-
-/* =====================================================
-   PROFILE
-===================================================== */
-
-async function loadProfile() {
-
-    if (!currentUser) return;
-
-    const { data, error } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("id", currentUser.id)
-            .single();
-
-    if (error) {
-
-        console.error(error);
-
-        currentProfile = {
-            id: currentUser.id,
-            username: currentUser.email,
-            display_name: currentUser.email,
-            role: "player"
-        };
-
-        return;
-    }
-
-    currentProfile = data;
-}
-
-
-/* =====================================================
-   SERVER SETTINGS + HOME PROFILE
-===================================================== */
-
 async function loadServerSettings() {
 
     const { data, error } =
@@ -67,17 +29,9 @@ async function loadServerSettings() {
 
     if ($("serverStatus")) {
         $("serverStatus").textContent = status;
-
-        $("serverStatus").classList.remove(
-            "status-online",
-            "status-offline"
-        );
-
-        if (status === "Online")
-            $("serverStatus").classList.add("status-online");
-
-        if (status === "Offline")
-            $("serverStatus").classList.add("status-offline");
+        $("serverStatus").classList.remove("status-online", "status-offline");
+        if (status === "Online") $("serverStatus").classList.add("status-online");
+        if (status === "Offline") $("serverStatus").classList.add("status-offline");
     }
 
     if ($("serverPlayers")) $("serverPlayers").textContent =
@@ -87,9 +41,7 @@ async function loadServerSettings() {
         serverSettings.announcement || "Brak ważnych komunikatów.";
 
     if ($("serverNewsLink")) {
-
         const url = (serverSettings.news_url || "").trim();
-
         if (url) {
             $("serverNewsLink").href = url;
             $("serverNewsLink").classList.remove("hidden");
@@ -99,30 +51,14 @@ async function loadServerSettings() {
     }
 
     if ($("adminServerAddress")) {
-
-        $("adminServerAddress").value =
-            serverSettings.server_address || "";
-
-        $("adminServerVersion").value =
-            serverSettings.server_version || "";
-
-        $("adminServerMayor").value =
-            serverSettings.mayor_name || "";
-
-        $("adminServerStatus").value =
-            serverSettings.server_status || "Online";
-
-        $("adminServerPlayers").value =
-            serverSettings.online_players ?? 0;
-
-        $("adminServerMaxPlayers").value =
-            serverSettings.max_players ?? 50;
-
-        $("adminServerAnnouncement").value =
-            serverSettings.announcement || "";
-
-        $("adminServerNewsUrl").value =
-            serverSettings.news_url || "";
+        $("adminServerAddress").value = serverSettings.server_address || "";
+        $("adminServerVersion").value = serverSettings.server_version || "";
+        $("adminServerMayor").value = serverSettings.mayor_name || "";
+        $("adminServerStatus").value = serverSettings.server_status || "Online";
+        $("adminServerPlayers").value = serverSettings.online_players ?? 0;
+        $("adminServerMaxPlayers").value = serverSettings.max_players ?? 50;
+        $("adminServerAnnouncement").value = serverSettings.announcement || "";
+        $("adminServerNewsUrl").value = serverSettings.news_url || "";
     }
 }
 
@@ -132,46 +68,25 @@ async function saveServerSettings() {
     if (!isAdmin()) return;
 
     const payload = {
-
-        server_address:
-            $("adminServerAddress").value.trim(),
-
-        server_version:
-            $("adminServerVersion").value.trim(),
-
-        mayor_name:
-            $("adminServerMayor").value.trim(),
-
-        server_status:
-            $("adminServerStatus").value,
-
-        online_players:
-            Number($("adminServerPlayers").value || 0),
-
-        max_players:
-            Number($("adminServerMaxPlayers").value || 50),
-
-        announcement:
-            $("adminServerAnnouncement").value.trim() || null,
-
-        news_url:
-            $("adminServerNewsUrl").value.trim() || null,
-
-        updated_at:
-            new Date().toISOString()
+        server_address: $("adminServerAddress").value.trim(),
+        server_version: $("adminServerVersion").value.trim(),
+        mayor_name: $("adminServerMayor").value.trim(),
+        server_status: $("adminServerStatus").value,
+        online_players: Number($("adminServerPlayers").value || 0),
+        max_players: Number($("adminServerMaxPlayers").value || 50),
+        announcement: $("adminServerAnnouncement").value.trim() || null,
+        news_url: $("adminServerNewsUrl").value.trim() || null,
+        updated_at: new Date().toISOString()
     };
 
     let result;
 
     if (serverSettings?.id) {
-
         result = await supabaseClient
             .from("server_settings")
             .update(payload)
             .eq("id", serverSettings.id);
-
     } else {
-
         result = await supabaseClient
             .from("server_settings")
             .insert(payload);
@@ -183,7 +98,6 @@ async function saveServerSettings() {
     }
 
     await loadServerSettings();
-
     alert("Informacje serwera zostały zapisane.");
 }
 
@@ -192,31 +106,20 @@ function renderHomeProfile() {
 
     if (!currentUser) return;
 
-    if ($("profileMinecraftNick"))
-        $("profileMinecraftNick").textContent =
-            currentProfile?.minecraft_nick ||
-            currentProfile?.username ||
-            "-";
+    if ($("profileMinecraftNick")) $("profileMinecraftNick").textContent =
+        currentProfile?.minecraft_nick || currentProfile?.username || "-";
 
-    if ($("profileEmail"))
-        $("profileEmail").textContent =
-            currentUser.email || "-";
+    if ($("profileEmail")) $("profileEmail").textContent =
+        currentUser.email || "-";
 
-    if ($("profileDisplayName"))
-        $("profileDisplayName").textContent =
-            currentProfile?.display_name ||
-            currentProfile?.username ||
-            "-";
+    if ($("profileDisplayName")) $("profileDisplayName").textContent =
+        currentProfile?.display_name || currentProfile?.username || "-";
 
-    if ($("profileRole"))
-        $("profileRole").textContent =
-            currentProfile?.role === "admin"
-                ? "Administrator"
-                : "Gracz";
+    if ($("profileRole")) $("profileRole").textContent =
+        currentProfile?.role === "admin" ? "Administrator" : "Gracz";
 
-    if ($("profileCreatedAt"))
-        $("profileCreatedAt").textContent =
-            datePL(currentUser.created_at);
+    if ($("profileCreatedAt")) $("profileCreatedAt").textContent =
+        datePL(currentUser.created_at);
 }
 
 
@@ -243,10 +146,13 @@ async function showApp() {
 
     await loadDefinitions();
     await loadServerSettings();
-
     renderHomeProfile();
 
     goHome();
 }
 
+
+/* =====================================================
+   ADMIN CHECK
+===================================================== */
 

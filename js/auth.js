@@ -1,46 +1,133 @@
+function showMessage(text, type = "ok") {
+
+    const box = $("authMessage");
+
+    box.textContent = text;
+    box.className = `message show ${type}`;
+}
+
+function hideMessage() {
+    $("authMessage").className = "message";
+}
+
 
 /* =====================================================
-   AUTH
+   AUTH SCREENS
+===================================================== */
+
+function showLogin() {
+
+    $("loginForm").classList.remove("hidden");
+    $("registerForm").classList.add("hidden");
+
+    $("loginTab").classList.add("primary");
+    $("registerTab").classList.remove("primary");
+
+    hideMessage();
+}
+
+function showRegister() {
+
+    $("loginForm").classList.add("hidden");
+    $("registerForm").classList.remove("hidden");
+
+    $("loginTab").classList.remove("primary");
+    $("registerTab").classList.add("primary");
+
+    hideMessage();
+}
+
+
+/* =====================================================
+   REGISTER
 ===================================================== */
 
 async function registerPlayer() {
 
-    const email = $("registerEmail").value.trim();
-    const password = $("registerPassword").value;
-    const password2 = $("registerPassword2").value;
-    const minecraftNick = $("registerNick").value.trim();
+    hideMessage();
 
-    if (!email || !password || !minecraftNick) {
-        alert("Uzupełnij wszystkie pola.");
+    const nick =
+        $("registerNick").value.trim();
+
+    const email =
+        $("registerEmail").value.trim();
+
+    const password =
+        $("registerPassword").value;
+
+    const password2 =
+        $("registerPassword2").value;
+
+    if (!nick || !email || !password) {
+
+        showMessage(
+            "Wypełnij wszystkie pola.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (password.length < 6) {
+
+        showMessage(
+            "Hasło musi mieć minimum 6 znaków.",
+            "error"
+        );
+
         return;
     }
 
     if (password !== password2) {
-        alert("Hasła nie są takie same.");
+
+        showMessage(
+            "Hasła nie są takie same.",
+            "error"
+        );
+
         return;
     }
 
-    const { error } =
+    const { data, error } =
         await supabaseClient.auth.signUp({
+
             email,
             password,
+
             options: {
                 data: {
-                    username: minecraftNick,
-                    display_name: minecraftNick,
-                    minecraft_nick: minecraftNick
+                    username: nick,
+                    display_name: nick,
+                    minecraft_nick: nick
                 }
             }
+
         });
 
     if (error) {
-        console.error(error);
-        alert(error.message);
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
         return;
     }
 
-    alert("Konto zostało utworzone. Możesz się teraz zalogować.");
-    showLogin();
+    if (data.session) {
+
+        showMessage(
+            "Konto utworzone. Logowanie...",
+            "ok"
+        );
+
+        return;
+    }
+
+    showMessage(
+        "Konto utworzone. Jeżeli Supabase wymaga potwierdzenia e-maila, sprawdź skrzynkę.",
+        "ok"
+    );
 }
 
 
@@ -50,11 +137,21 @@ async function registerPlayer() {
 
 async function login() {
 
-    const email = $("loginEmail").value.trim();
-    const password = $("loginPassword").value;
+    hideMessage();
+
+    const email =
+        $("loginEmail").value.trim();
+
+    const password =
+        $("loginPassword").value;
 
     if (!email || !password) {
-        alert("Podaj email i hasło.");
+
+        showMessage(
+            "Wpisz e-mail i hasło.",
+            "error"
+        );
+
         return;
     }
 
@@ -65,14 +162,19 @@ async function login() {
         });
 
     if (error) {
-        console.error("Błąd logowania:", error);
-        alert(error.message);
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
         return;
     }
 
     currentUser = data.user;
 
     await loadProfile();
+
     await showApp();
 }
 
@@ -83,56 +185,15 @@ async function login() {
 
 async function logout() {
 
-    const { error } =
-        await supabaseClient.auth.signOut();
-
-    if (error) {
-        console.error(error);
-        alert(error.message);
-        return;
-    }
+    await supabaseClient.auth.signOut();
 
     currentUser = null;
     currentProfile = null;
 
-    $("authScreen").classList.remove("hidden");
     $("app").classList.add("hidden");
+    $("authScreen").classList.remove("hidden");
 
     showLogin();
-}
-
-
-/* =====================================================
-   LOGIN / REGISTER SCREEN
-===================================================== */
-
-function showLogin() {
-
-    $("loginForm").classList.remove("hidden");
-    $("registerForm").classList.add("hidden");
-
-    if ($("loginTab")) {
-        $("loginTab").classList.add("active");
-    }
-
-    if ($("registerTab")) {
-        $("registerTab").classList.remove("active");
-    }
-}
-
-
-function showRegister() {
-
-    $("loginForm").classList.add("hidden");
-    $("registerForm").classList.remove("hidden");
-
-    if ($("loginTab")) {
-        $("loginTab").classList.remove("active");
-    }
-
-    if ($("registerTab")) {
-        $("registerTab").classList.add("active");
-    }
 }
 
 
@@ -142,137 +203,34 @@ function showRegister() {
 
 async function loadProfile() {
 
-    if (!currentUser) {
-        return;
-    }
+    if (!currentUser) return;
 
     const { data, error } =
         await supabaseClient
             .from("profiles")
             .select("*")
             .eq("id", currentUser.id)
-            .maybeSingle();
+            .single();
 
     if (error) {
-        console.error("Błąd pobierania profilu:", error);
+
+        console.error(error);
+
+        currentProfile = {
+            id: currentUser.id,
+            username: currentUser.email,
+            display_name: currentUser.email,
+            role: "player"
+        };
+
         return;
     }
 
     currentProfile = data;
-
-    renderProfile();
-}
-
-
-function renderProfile() {
-
-    if (!currentProfile) {
-        return;
-    }
-
-    const username =
-        currentProfile.minecraft_nick ||
-        currentProfile.username ||
-        currentProfile.display_name ||
-        currentUser?.email ||
-        "Gracz";
-
-    const role =
-        currentProfile.role === "admin"
-            ? "Administrator"
-            : "Gracz";
-
-
-    if ($("profileName")) {
-        $("profileName").textContent = username;
-    }
-
-    if ($("profileRole")) {
-        $("profileRole").textContent = role;
-    }
-
-    if ($("profileAvatar")) {
-        $("profileAvatar").textContent =
-            username.charAt(0).toUpperCase();
-    }
-
-    if ($("adminButton")) {
-        $("adminButton").classList.toggle(
-            "hidden",
-            !isAdmin()
-        );
-    }
-
-    if ($("topUser")) {
-        $("topUser").textContent = username;
-    }
-
-    if ($("profileMinecraftNick")) {
-        $("profileMinecraftNick").textContent =
-            currentProfile.minecraft_nick || "-";
-    }
-
-    if ($("profileEmail")) {
-        $("profileEmail").textContent =
-            currentUser?.email || "-";
-    }
-
-    if ($("profileDisplayName")) {
-        $("profileDisplayName").textContent =
-            currentProfile.display_name ||
-            currentProfile.username ||
-            "-";
-    }
-
-    if ($("profileCreatedAt")) {
-        $("profileCreatedAt").textContent =
-            currentProfile.created_at
-                ? datePL(currentProfile.created_at)
-                : "-";
-    }
-
-    if ($("adminNotice")) {
-        $("adminNotice").classList.toggle(
-            "hidden",
-            !isAdmin()
-        );
-    }
 }
 
 
 /* =====================================================
-   SHOW APP
+   SERVER SETTINGS + HOME PROFILE
 ===================================================== */
-
-async function showApp() {
-
-    $("authScreen").classList.add("hidden");
-    $("app").classList.remove("hidden");
-
-    goHome();
-
-    if (typeof loadServerSettings === "function") {
-        await loadServerSettings();
-    }
-
-    if (typeof loadMyTaxes === "function") {
-        await loadMyTaxes();
-    }
-
-    if (typeof loadMyLicenses === "function") {
-        await loadMyLicenses();
-    }
-
-    if (typeof loadMyFees === "function") {
-        await loadMyFees();
-    }
-
-    if (typeof loadMySalaries === "function") {
-        await loadMySalaries();
-    }
-
-    if (typeof loadMyProperties === "function") {
-        await loadMyProperties();
-    }
-}
 

@@ -1,7 +1,3 @@
-/* =====================================================
-   MY SALARIES
-===================================================== */
-
 async function loadMySalaries() {
 
     const box = $("mySalariesContent");
@@ -92,8 +88,9 @@ async function loadMySalaries() {
 
 
 /* =====================================================
-   ADMIN SALARIES
+   MY TAXES
 ===================================================== */
+
 
 async function loadAdminSalaries() {
 
@@ -301,3 +298,9 @@ async function deleteSalary(id) {
     await loadAdminStats();
 
 }
+
+
+/* =====================================================
+   ADMIN FEES
+===================================================== */
+

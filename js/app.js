@@ -1,209 +1,189 @@
+function isAdmin() {
 
-/* =====================================================
-   APP INITIALIZATION
-===================================================== */
-
-/*
-   WAŻNE:
-
-   Ten plik NIE zawiera już:
-   - const pages
-   - isAdmin()
-   - hideAllPages()
-   - goHome()
-   - openMyTaxes()
-   - openMyLicenses()
-   - itd.
-
-   Wszystkie funkcje nawigacji znajdują się w core.js.
-
-   Dzięki temu nie ma konfliktu:
-   Identifier 'pages' has already been declared
-*/
-
-
-let appInitialized = false;
-let authListenerRegistered = false;
-
-
-/* =====================================================
-   AUTH SESSION
-===================================================== */
-
-async function handleAuthSession(session) {
-
-    if (session) {
-
-        currentUser = session.user;
-
-        /*
-           Korzystamy z loadProfile(), jeśli istnieje w auth.js.
-           Dzięki temu nie duplikujemy logiki profilu tutaj.
-        */
-
-        if (typeof loadProfile === "function") {
-            await loadProfile();
-        } else {
-
-            /*
-               Awaryjnie pobierz profil, jeżeli auth.js
-               nie posiada funkcji loadProfile().
-            */
-
-            const {
-                data: profile,
-                error
-            } = await supabaseClient
-                .from("profiles")
-                .select("*")
-                .eq("id", currentUser.id)
-                .maybeSingle();
-
-            if (error) {
-                console.error(
-                    "Błąd pobierania profilu:",
-                    error
-                );
-
-                currentProfile = null;
-            } else {
-                currentProfile = profile;
-            }
-        }
-
-
-        if (typeof showApp === "function") {
-            await showApp();
-        }
-
-        return;
-    }
-
-
-    /* =================================================
-       USER LOGGED OUT
-    ================================================= */
-
-    currentUser = null;
-    currentProfile = null;
-
-    if (typeof showLogin === "function") {
-        showLogin();
-    }
+    return currentProfile &&
+        currentProfile.role === "admin";
 }
 
 
 /* =====================================================
-   INIT
+   PAGE NAVIGATION
 ===================================================== */
+
+const pages = [
+    "homePage",
+    "myTaxesPage",
+    "myLicensesPage",
+    "myFeesPage",
+    "mySalariesPage",
+    "myPropertiesPage",
+    "securityPage",
+    "courtPage",
+    "taxRulesPage",
+    "adminPage"
+];
+
+function hideAllPages() {
+
+    pages.forEach(id => {
+        $(id).classList.add("hidden");
+    });
+}
+
+function goHome() {
+
+    hideAllPages();
+
+    $("homePage").classList.remove("hidden");
+
+    renderHomeProfile();
+    loadServerSettings();
+}
+
+async function openMyTaxes() {
+
+    hideAllPages();
+
+    $("myTaxesPage").classList.remove("hidden");
+
+    await loadMyTaxes();
+}
+
+async function openMyLicenses() {
+
+    hideAllPages();
+
+    $("myLicensesPage").classList.remove("hidden");
+
+    await loadMyLicenses();
+}
+
+async function openMyFees() {
+
+    hideAllPages();
+
+    $("myFeesPage").classList.remove("hidden");
+
+    await loadMyFees();
+}
+
+async function openMyProperties() {
+
+    hideAllPages();
+
+    $("myPropertiesPage").classList.remove("hidden");
+
+    await loadMyProperties();
+}
+
+async function openMySalaries() {
+
+    hideAllPages();
+
+    $("mySalariesPage").classList.remove("hidden");
+
+    await loadMySalaries();
+
+}
+
+
+async function openSecurity() {
+    hideAllPages();
+    $("securityPage").classList.remove("hidden");
+    await loadSecurity();
+}
+
+async function openCourt() {
+    hideAllPages();
+    $("courtPage").classList.remove("hidden");
+    await loadCourtPublic();
+}
+
+
+async function openTaxRules() {
+
+    hideAllPages();
+
+    $("taxRulesPage").classList.remove("hidden");
+
+    await renderTaxRules();
+}
+
+async function openAdmin() {
+
+    if (!isAdmin()) return;
+
+    hideAllPages();
+
+    $("adminPage").classList.remove("hidden");
+
+    await loadAdminData();
+}
+
+
+/* =====================================================
+   MY SALARIES
+===================================================== */
+
 
 async function init() {
 
-    /*
-       Zabezpieczenie przed wielokrotnym uruchomieniem init().
-    */
+    const {
+        data
+    } =
+        await supabaseClient.auth.getSession();
 
-    if (appInitialized) {
-        return;
+    if (data.session) {
+
+        currentUser =
+            data.session.user;
+
+        await loadProfile();
+
+        await showApp();
+
+    } else {
+
+        $("authScreen")
+            .classList.remove("hidden");
+
+        $("app")
+            .classList.add("hidden");
     }
 
-    appInitialized = true;
 
+    supabaseClient.auth.onAuthStateChange(
+        async (event, session) => {
 
-    /* =================================================
-       CHECK EXISTING SESSION
-    ================================================= */
+            if (event === "SIGNED_IN" && session) {
 
-    try {
+                currentUser =
+                    session.user;
 
-        const {
-            data: { session },
-            error
-        } = await supabaseClient.auth.getSession();
+                await loadProfile();
 
-
-        if (error) {
-
-            console.error(
-                "Błąd pobierania sesji Supabase:",
-                error
-            );
-
-            if (typeof showLogin === "function") {
-                showLogin();
+                await showApp();
             }
 
-        } else {
+            if (event === "SIGNED_OUT") {
 
-            await handleAuthSession(session);
+                currentUser = null;
+                currentProfile = null;
 
-        }
+                $("authScreen")
+                    .classList.remove("hidden");
 
-    } catch (error) {
-
-        console.error(
-            "Błąd podczas uruchamiania aplikacji:",
-            error
-        );
-
-        if (typeof showLogin === "function") {
-            showLogin();
-        }
-    }
-
-
-    /* =================================================
-       AUTH STATE LISTENER
-    ================================================= */
-
-    if (!authListenerRegistered) {
-
-        authListenerRegistered = true;
-
-        supabaseClient.auth.onAuthStateChange(
-            async (_event, session) => {
-
-                /*
-                   Pozwalamy zakończyć bieżący callback Supabase,
-                   zanim wykonamy kolejną operację asynchroniczną.
-                */
-
-                await Promise.resolve();
-
-                try {
-
-                    await handleAuthSession(session);
-
-                } catch (error) {
-
-                    console.error(
-                        "Błąd zmiany stanu autoryzacji:",
-                        error
-                    );
-
-                }
-
+                $("app")
+                    .classList.add("hidden");
             }
-        );
-    }
+
+        }
+    );
 }
 
 
 /* =====================================================
-   START APPLICATION
+   START
 ===================================================== */
 
-if (document.readyState === "loading") {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        init,
-        { once: true }
-    );
-
-} else {
-
-    init();
-
-}
+init();
 
