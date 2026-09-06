@@ -128,6 +128,10 @@ async function loadAdminData() {
 
     await renderAdminDefinitions();
     await loadCourtAdmin();
+
+    if (typeof loadAdminSecurity === "function") {
+        await loadAdminSecurity();
+    }
 }
 
 
