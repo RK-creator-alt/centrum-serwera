@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -704,11 +703,11 @@ td {
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openSecurity()">
                     <div class="module-icon">🛡️</div>
                     <div class="module-title">Bezpieczeństwo</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Status bezpieczeństwa, instrukcje, służby i historia zdarzeń.
                     </div>
                 </div>
 
@@ -928,6 +927,53 @@ td {
             <div id="taxRulesContent"></div>
 
         </div>
+
+
+        <!-- =====================================
+             SECURITY
+        ====================================== -->
+
+        <div id="securityPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h1>🛡️ Bezpieczeństwo</h1>
+                <p class="muted">Informacje dotyczące bezpieczeństwa serwera i jego mieszkańców.</p>
+            </div>
+
+            <div class="card">
+                <h2>🛡️ Status bezpieczeństwa</h2>
+                <div id="securityStatusBox">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>📖 Podstawowe instrukcje</h2>
+                <div id="securityInstructions">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>👮 Uprawnienia służb</h2>
+                <div id="securityServices">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>📜 Historia zdarzeń</h2>
+                <div id="securityEvents">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>🔐 Bezpieczeństwo mojego konta</h2>
+                <p class="muted">Dbaj o swoje konto. Nie udostępniaj nikomu hasła.</p>
+                <div class="form-actions">
+                    <button class="primary" onclick="changePassword()">🔑 Zmień hasło</button>
+                    <button class="danger" onclick="logoutAllSessions()">🚪 Wyloguj wszystkie sesje</button>
+                </div>
+            </div>
+
+        </div>
+
+
 
 
         <!-- =====================================
@@ -1623,6 +1669,74 @@ td {
 
                 </div>
 
+                            <!-- SECURITY ADMIN -->
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>🛡️ Zarządzanie bezpieczeństwem</h2>
+                        <p class="muted">Status, instrukcje, uprawnienia służb i historia zdarzeń.</p>
+                    </div>
+                </div>
+
+                <h3>Status bezpieczeństwa</h3>
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Status</label>
+                        <select id="adminSecurityStatus">
+                            <option value="Bezpieczny">Bezpieczny</option>
+                            <option value="Ostrzeżenie">Ostrzeżenie</option>
+                            <option value="Zagrożenie">Zagrożenie</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Komunikat</label>
+                        <input id="adminSecurityMessage" placeholder="Komunikat bezpieczeństwa">
+                    </div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityStatus()">💾 Zapisz status</button>
+
+                <hr>
+                <h3>Instrukcje bezpieczeństwa</h3>
+                <input type="hidden" id="editSecurityInstructionId">
+                <div class="form-grid">
+                    <div class="field"><label>Tytuł</label><input id="securityInstructionTitle"></div>
+                    <div class="field"><label>Treść</label><textarea id="securityInstructionContent"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityInstruction()">💾 Zapisz instrukcję</button>
+                <button onclick="cancelSecurityInstructionForm()">Anuluj</button>
+                <div id="adminSecurityInstructions" style="margin-top:16px;"></div>
+
+                <hr>
+                <h3>Uprawnienia służb</h3>
+                <input type="hidden" id="editSecurityServiceId">
+                <div class="form-grid">
+                    <div class="field"><label>Nazwa służby</label><input id="securityServiceName"></div>
+                    <div class="field"><label>Uprawnienia</label><textarea id="securityServicePermissions"></textarea></div>
+                    <div class="field"><label>Ograniczenia</label><textarea id="securityServiceRestrictions"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityService()">💾 Zapisz służbę</button>
+                <button onclick="cancelSecurityServiceForm()">Anuluj</button>
+                <div id="adminSecurityServices" style="margin-top:16px;"></div>
+
+                <hr>
+                <h3>Historia zdarzeń</h3>
+                <input type="hidden" id="editSecurityEventId">
+                <div class="form-grid">
+                    <div class="field"><label>Rodzaj</label><input id="securityEventType" placeholder="np. Incydent"></div>
+                    <div class="field"><label>Data i czas</label><input id="securityEventDate" type="datetime-local"></div>
+                    <div class="field"><label>Służba</label><input id="securityEventService" placeholder="np. Policja"></div>
+                    <div class="field"><label>Opis</label><textarea id="securityEventDescription"></textarea></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityEvent()">💾 Zapisz zdarzenie</button>
+                <button onclick="cancelSecurityEventForm()">Anuluj</button>
+                <div id="adminSecurityEvents" style="margin-top:16px;"></div>
+            </div>
+
                 <div id="adminDefinitionsContent"></div>
 
             </div>
@@ -2142,6 +2256,7 @@ const pages = [
     "mySalariesPage",
     "myPropertiesPage",
     "myInsurancesPage",
+    "securityPage",
     "courtPage",
     "taxRulesPage",
     "adminPage"
@@ -4885,6 +5000,7 @@ async function init() {
 init();
 
 </script>
+<script src="js/security.js"></script>
 <script src="js/ubezpieczenia.js"></script>
 
 </body>
