@@ -16,6 +16,7 @@ const pages = [
     "myFeesPage",
     "mySalariesPage",
     "myPropertiesPage",
+    "myInsurancesPage",
     "securityPage",
     "courtPage",
     "taxRulesPage",
@@ -87,9 +88,22 @@ async function openMySalaries() {
 
 
 async function openSecurity() {
+    const page = $("securityPage");
+    if (!page) {
+        console.error("Brak elementu #securityPage w index.html");
+        return;
+    }
+
     hideAllPages();
-    $("securityPage").classList.remove("hidden");
-    await loadSecurity();
+    page.classList.remove("hidden");
+
+    if (typeof loadSecurity === "function") {
+        await loadSecurity();
+    } else {
+        console.error("Nie załadowano js/security.js");
+        const status = $("securityStatusBox");
+        if (status) status.innerHTML = '<p class="muted">Nie udało się załadować modułu bezpieczeństwa.</p>';
+    }
 }
 
 async function openCourt() {
@@ -186,4 +200,3 @@ async function init() {
 ===================================================== */
 
 init();
-
