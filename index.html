@@ -6,437 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Centrum Serwera</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <link rel="stylesheet" href="css/style.css">
 
-<style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #07111f;
-    color: #eef5ff;
-}
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
-}
-
-button {
-    cursor: pointer;
-}
-
-.topbar {
-    background: #0b1728;
-    border-bottom: 1px solid #20334c;
-    padding: 16px 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.logo {
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.user-info {
-    color: #9db0c9;
-    font-size: 14px;
-}
-
-.container {
-    width: min(1200px, 94%);
-    margin: 25px auto 50px;
-}
-
-.card {
-    background: #0c192b;
-    border: 1px solid #213650;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 18px;
-}
-
-h1,
-h2,
-h3 {
-    margin-top: 0;
-}
-
-h1 {
-    font-size: 30px;
-}
-
-h2 {
-    font-size: 23px;
-}
-
-h3 {
-    font-size: 18px;
-}
-
-.muted {
-    color: #91a4bd;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 15px;
-}
-
-.module {
-    background: #0b1728;
-    border: 1px solid #233953;
-    border-radius: 14px;
-    padding: 22px;
-    min-height: 145px;
-    transition: .15s;
-}
-
-.module:hover {
-    border-color: #42688f;
-    transform: translateY(-2px);
-}
-
-.module-icon {
-    font-size: 34px;
-    margin-bottom: 12px;
-}
-
-.module-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.module-desc {
-    color: #8fa3bc;
-    margin-top: 7px;
-    font-size: 14px;
-}
-
-button {
-    border: 1px solid #29415f;
-    background: #12243a;
-    color: #eef5ff;
-    border-radius: 9px;
-    padding: 10px 14px;
-}
-
-button:hover {
-    background: #18314e;
-}
-
-.primary {
-    background: #16446e;
-    border-color: #286a9f;
-}
-
-.danger {
-    background: #491c25;
-    border-color: #78303d;
-}
-
-.success {
-    background: #163c30;
-    border-color: #28634d;
-}
-
-.back {
-    margin-bottom: 18px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.field label {
-    color: #9eb0c7;
-    font-size: 13px;
-}
-
-input,
-select,
-textarea {
-    width: 100%;
-    background: #07111f;
-    color: #eef5ff;
-    border: 1px solid #29415f;
-    border-radius: 8px;
-    padding: 11px;
-    outline: none;
-}
-
-textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #4d83b5;
-}
-
-.form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-}
-
-.table-wrap {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    border-bottom: 1px solid #213650;
-    padding: 11px 9px;
-    text-align: left;
-    vertical-align: top;
-}
-
-th {
-    color: #9eb2ca;
-    font-size: 13px;
-}
-
-td {
-    font-size: 14px;
-}
-
-.badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 999px;
-    background: #162b43;
-    border: 1px solid #294763;
-    font-size: 12px;
-}
-
-.badge-paid {
-    background: #15392d;
-}
-
-.badge-unpaid {
-    background: #402b16;
-}
-
-.badge-cancelled {
-    background: #3d1d25;
-}
-
-.auth-box {
-    width: min(460px, 94%);
-    margin: 70px auto;
-}
-
-.auth-logo {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.auth-logo .big {
-    font-size: 48px;
-}
-
-.auth-logo h1 {
-    margin: 8px 0;
-}
-
-.auth-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-
-.auth-tabs button {
-    flex: 1;
-}
-
-.message {
-    padding: 12px;
-    border-radius: 9px;
-    margin-bottom: 15px;
-    display: none;
-}
-
-.message.show {
-    display: block;
-}
-
-.message.error {
-    background: #431d26;
-    border: 1px solid #74313f;
-}
-
-.message.ok {
-    background: #163b2f;
-    border: 1px solid #28644f;
-}
-
-.stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 18px;
-}
-
-.stat {
-    background: #091626;
-    border: 1px solid #213650;
-    border-radius: 12px;
-    padding: 17px;
-}
-
-.stat-number {
-    font-size: 25px;
-    font-weight: bold;
-    margin-top: 6px;
-}
-
-.small {
-    font-size: 12px;
-    color: #8195ad;
-}
-
-.actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.section-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.player-select {
-    min-width: 280px;
-}
-
-.login-footer {
-    text-align: center;
-    color: #71869f;
-    font-size: 12px;
-    margin-top: 20px;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
-    gap: 18px;
-    margin-bottom: 18px;
-}
-
-.info-list {
-    display: grid;
-    gap: 12px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 11px 0;
-    border-bottom: 1px solid #213650;
-}
-
-.info-row:last-child {
-    border-bottom: 0;
-}
-
-.info-label {
-    color: #91a4bd;
-}
-
-.info-value {
-    text-align: right;
-    font-weight: bold;
-}
-
-.profile-card {
-    height: 100%;
-}
-
-.profile-avatar {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    background: #12243a;
-    border: 1px solid #29415f;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    margin-bottom: 14px;
-}
-
-.profile-line {
-    margin: 10px 0;
-}
-
-.profile-line strong {
-    display: block;
-    margin-bottom: 3px;
-}
-
-.news-box {
-    margin-top: 16px;
-    padding: 14px;
-    border: 1px solid #29415f;
-    border-radius: 10px;
-    background: #091626;
-}
-
-.status-online {
-    color: #72d6a5;
-}
-
-.status-offline {
-    color: #ff8b8b;
-}
-
-@media (max-width: 800px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
+
+<!-- =========================================
+     AUTH
+========================================= -->
 
 <div id="authScreen">
 
@@ -457,6 +38,7 @@ td {
 
             <div id="authMessage" class="message"></div>
 
+            <!-- LOGIN -->
             <div id="loginForm">
 
                 <div class="field">
@@ -479,6 +61,7 @@ td {
 
             </div>
 
+            <!-- REGISTER -->
             <div id="registerForm" class="hidden">
 
                 <div class="field">
@@ -525,6 +108,11 @@ td {
 
 </div>
 
+
+<!-- =========================================
+     APP
+========================================= -->
+
 <div id="app" class="hidden">
 
     <div class="topbar">
@@ -543,6 +131,7 @@ td {
 
     <div class="container">
 
+        <!-- HOME -->
         <div id="homePage">
 
             <div class="dashboard-grid">
@@ -690,11 +279,11 @@ td {
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openSecurity()">
                     <div class="module-icon">🛡️</div>
                     <div class="module-title">Bezpieczeństwo</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Status bezpieczeństwa, instrukcje, służby i historia zdarzeń.
                     </div>
                 </div>
 
@@ -742,7 +331,13 @@ td {
 
         </div>
 
+
+        <!-- =====================================
+             MY TAXES
+        ====================================== -->
+
         <div id="myTaxesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -753,9 +348,16 @@ td {
             </div>
 
             <div id="myTaxesContent"></div>
+
         </div>
 
+
+        <!-- =====================================
+             MY LICENSES
+        ====================================== -->
+
         <div id="myLicensesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -766,9 +368,16 @@ td {
             </div>
 
             <div id="myLicensesContent"></div>
+
         </div>
 
+
+        <!-- =====================================
+             MY FEES
+        ====================================== -->
+
         <div id="myFeesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -779,9 +388,16 @@ td {
             </div>
 
             <div id="myFeesContent"></div>
+
         </div>
 
+
+        <!-- =====================================
+             MY SALARIES
+        ====================================== -->
+
         <div id="mySalariesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -790,9 +406,16 @@ td {
             </div>
 
             <div id="mySalariesContent"></div>
+
         </div>
 
+
+        <!-- =====================================
+             MY PROPERTIES
+        ====================================== -->
+
         <div id="myPropertiesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -803,9 +426,63 @@ td {
             </div>
 
             <div id="myPropertiesContent"></div>
+
         </div>
 
+
+
+
+        <!-- =====================================
+             SECURITY
+        ====================================== -->
+
+        <div id="securityPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h1>🛡️ Bezpieczeństwo</h1>
+                <p class="muted">Informacje dotyczące bezpieczeństwa serwera i jego mieszkańców.</p>
+            </div>
+
+            <div class="card">
+                <h2>🛡️ Status bezpieczeństwa</h2>
+                <div id="securityStatusBox">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>📖 Podstawowe instrukcje</h2>
+                <div id="securityInstructions">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>👮 Uprawnienia służb</h2>
+                <div id="securityServices">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>📜 Historia zdarzeń</h2>
+                <div id="securityEvents">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>🔐 Bezpieczeństwo mojego konta</h2>
+                <p class="muted">Dbaj o swoje konto. Nie udostępniaj nikomu hasła.</p>
+                <div class="form-actions">
+                    <button class="primary" onclick="changePassword()">🔑 Zmień hasło</button>
+                    <button class="danger" onclick="logoutAllSessions()">🚪 Wyloguj wszystkie sesje</button>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             COURT
+        ====================================== -->
+
         <div id="courtPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
@@ -827,12 +504,20 @@ td {
                 <h2>📅 Terminarz</h2>
                 <div id="courtScheduleContent"></div>
             </div>
+
         </div>
 
+
+        <!-- =====================================
+             TAX RULES
+        ====================================== -->
+
         <div id="taxRulesPage" class="hidden">
+
             <button class="back" onclick="goHome()">← Wróć</button>
 
             <div class="card">
+
                 <div class="section-title">
                     <div>
                         <h2>📊 Stawki podatkowe</h2>
@@ -841,10 +526,17 @@ td {
                         </p>
                     </div>
                 </div>
+
             </div>
 
             <div id="taxRulesContent"></div>
+
         </div>
+
+
+        <!-- =====================================
+             ADMIN
+        ====================================== -->
 
         <div id="adminPage" class="hidden">
 
@@ -880,14 +572,18 @@ td {
                         <div id="statFees" class="stat-number">0</div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-value" id="statSalaries">0</div>
-                        <div class="stat-label">Pensje</div>
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statSalaries">0</div>
+                    <div class="stat-label">Pensje</div>
+                </div>
+
 
                 </div>
 
             </div>
+
+
+            <!-- SERVER SETTINGS -->
 
             <div class="card">
 
@@ -959,6 +655,9 @@ td {
 
             </div>
 
+
+            <!-- PLAYER SELECT -->
+
             <div class="card">
 
                 <h2>👥 Wybierz gracza</h2>
@@ -974,6 +673,9 @@ td {
                 <div id="selectedPlayerInfo" class="muted" style="margin-top:12px;"></div>
 
             </div>
+
+
+            <!-- PLAYER TAXES -->
 
             <div class="card">
 
@@ -1057,6 +759,9 @@ td {
 
             </div>
 
+
+            <!-- PLAYER LICENSES -->
+
             <div class="card">
 
                 <div class="section-title">
@@ -1137,6 +842,9 @@ td {
 
             </div>
 
+
+            <!-- PLAYER FEES -->
+
             <div class="card">
 
                 <div class="section-title">
@@ -1212,6 +920,9 @@ td {
 
             </div>
 
+
+            <!-- PLAYER SALARIES -->
+
             <div class="card">
 
                 <div class="section-title">
@@ -1274,6 +985,9 @@ td {
 
             </div>
 
+
+            <!-- COURT ADMIN -->
+
             <div class="card">
 
                 <div class="section-title">
@@ -1306,50 +1020,32 @@ td {
                     <br>
                     <div class="form-actions"><button class="primary" onclick="saveCourtVerdict()">💾 Zapisz</button><button onclick="cancelCourtVerdictForm()">Anuluj</button></div>
                 </div>
-
                 <div id="adminCourtVerdictsContent"></div>
 
                 <hr style="border-color:#213650;margin:25px 0;">
-
                 <h3>📁 Akta</h3>
                 <button class="primary" onclick="showCourtActForm()">➕ Dodaj akta</button>
-
                 <div id="courtActForm" class="hidden">
                     <hr style="border-color:#213650;margin:18px 0;">
                     <input type="hidden" id="editCourtActId">
-
                     <div class="form-grid">
                         <div class="field"><label>Numer sprawy</label><input id="actCaseNumber"></div>
                         <div class="field"><label>Tytuł akt</label><input id="actTitle"></div>
                         <div class="field"><label>Dostęp</label><select id="actAccess"><option>Jawne</option><option>Tajne</option></select></div>
                     </div>
-
                     <br>
-
-                    <div class="field">
-                        <label>Treść akt</label>
-                        <textarea id="actContent" rows="7"></textarea>
-                    </div>
-
+                    <div class="field"><label>Treść akt</label><textarea id="actContent" rows="7"></textarea></div>
                     <br>
-
-                    <div class="form-actions">
-                        <button class="primary" onclick="saveCourtAct()">💾 Zapisz</button>
-                        <button onclick="cancelCourtActForm()">Anuluj</button>
-                    </div>
+                    <div class="form-actions"><button class="primary" onclick="saveCourtAct()">💾 Zapisz</button><button onclick="cancelCourtActForm()">Anuluj</button></div>
                 </div>
-
                 <div id="adminCourtActsContent"></div>
 
                 <hr style="border-color:#213650;margin:25px 0;">
-
                 <h3>📅 Terminarz</h3>
                 <button class="primary" onclick="showCourtScheduleForm()">➕ Dodaj termin</button>
-
                 <div id="courtScheduleForm" class="hidden">
                     <hr style="border-color:#213650;margin:18px 0;">
                     <input type="hidden" id="editCourtScheduleId">
-
                     <div class="form-grid">
                         <div class="field"><label>Data</label><input id="scheduleDate" type="date"></div>
                         <div class="field"><label>Godzina</label><input id="scheduleTime" type="time"></div>
@@ -1357,25 +1053,88 @@ td {
                         <div class="field"><label>Tytuł</label><input id="scheduleTitle"></div>
                         <div class="field"><label>Numer sprawy</label><input id="scheduleCaseNumber"></div>
                     </div>
-
                     <br>
-
-                    <div class="field">
-                        <label>Opis</label>
-                        <textarea id="scheduleDescription" rows="4"></textarea>
-                    </div>
-
+                    <div class="field"><label>Opis</label><textarea id="scheduleDescription" rows="4"></textarea></div>
                     <br>
-
-                    <div class="form-actions">
-                        <button class="primary" onclick="saveCourtSchedule()">💾 Zapisz</button>
-                        <button onclick="cancelCourtScheduleForm()">Anuluj</button>
-                    </div>
+                    <div class="form-actions"><button class="primary" onclick="saveCourtSchedule()">💾 Zapisz</button><button onclick="cancelCourtScheduleForm()">Anuluj</button></div>
                 </div>
-
                 <div id="adminCourtScheduleContent"></div>
 
             </div>
+
+
+
+
+            <!-- SECURITY ADMIN -->
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>🛡️ Bezpieczeństwo</h2>
+                        <p class="muted">Zarządzanie statusem, instrukcjami, służbami i historią zdarzeń.</p>
+                    </div>
+                </div>
+
+                <h3>🛡️ Status bezpieczeństwa</h3>
+                <div class="form-grid">
+                    <div class="field"><label>Status</label><select id="adminSecurityStatus"><option>Bezpieczny</option><option>Ostrzeżenie</option><option>Zagrożenie</option></select></div>
+                    <div class="field"><label>Komunikat</label><input id="adminSecurityMessage" placeholder="Aktualny komunikat bezpieczeństwa"></div>
+                </div>
+                <br>
+                <button class="primary" onclick="saveSecurityStatus()">💾 Zapisz status</button>
+
+                <hr style="border-color:#213650;margin:25px 0;">
+                <h3>📖 Instrukcje</h3>
+                <button class="primary" onclick="showSecurityInstructionForm()">➕ Dodaj instrukcję</button>
+                <div id="securityInstructionForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="editSecurityInstructionId">
+                    <div class="field"><label>Tytuł</label><input id="securityInstructionTitle"></div>
+                    <br>
+                    <div class="field"><label>Treść</label><textarea id="securityInstructionContent" rows="5"></textarea></div>
+                    <br>
+                    <div class="form-actions"><button class="primary" onclick="saveSecurityInstruction()">💾 Zapisz</button><button onclick="cancelSecurityInstructionForm()">Anuluj</button></div>
+                </div>
+                <div id="adminSecurityInstructions"></div>
+
+                <hr style="border-color:#213650;margin:25px 0;">
+                <h3>👮 Uprawnienia służb</h3>
+                <button class="primary" onclick="showSecurityServiceForm()">➕ Dodaj służbę</button>
+                <div id="securityServiceForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="editSecurityServiceId">
+                    <div class="form-grid">
+                        <div class="field"><label>Nazwa służby</label><input id="securityServiceName"></div>
+                        <div class="field"><label>Uprawnienia</label><textarea id="securityServicePermissions" rows="3"></textarea></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Ograniczenia</label><textarea id="securityServiceRestrictions" rows="3"></textarea></div>
+                    <br>
+                    <div class="form-actions"><button class="primary" onclick="saveSecurityService()">💾 Zapisz</button><button onclick="cancelSecurityServiceForm()">Anuluj</button></div>
+                </div>
+                <div id="adminSecurityServices"></div>
+
+                <hr style="border-color:#213650;margin:25px 0;">
+                <h3>📜 Historia zdarzeń</h3>
+                <button class="primary" onclick="showSecurityEventForm()">➕ Dodaj zdarzenie</button>
+                <div id="securityEventForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="editSecurityEventId">
+                    <div class="form-grid">
+                        <div class="field"><label>Typ zdarzenia</label><input id="securityEventType"></div>
+                        <div class="field"><label>Służba</label><input id="securityEventService"></div>
+                        <div class="field"><label>Data i godzina</label><input id="securityEventDate" type="datetime-local"></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Opis</label><textarea id="securityEventDescription" rows="4"></textarea></div>
+                    <br>
+                    <div class="form-actions"><button class="primary" onclick="saveSecurityEvent()">💾 Zapisz</button><button onclick="cancelSecurityEventForm()">Anuluj</button></div>
+                </div>
+                <div id="adminSecurityEvents"></div>
+            </div>
+
+
+            <!-- PROPERTIES -->
 
             <div class="card">
 
@@ -1419,6 +1178,7 @@ td {
                     <br>
 
                     <div class="form-actions">
+
                         <button class="primary" onclick="saveAdminProperty()">
                             💾 Zapisz
                         </button>
@@ -1426,6 +1186,7 @@ td {
                         <button onclick="cancelPropertyForm()">
                             Anuluj
                         </button>
+
                     </div>
 
                 </div>
@@ -1433,6 +1194,9 @@ td {
                 <div id="adminPropertiesContent"></div>
 
             </div>
+
+
+            <!-- TAX DEFINITIONS -->
 
             <div class="card">
 
@@ -1507,13 +1271,16 @@ td {
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
 <script src="js/core.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/home.js"></script>
 <script src="js/urzad.js"></script>
 <script src="js/pensje.js"></script>
 <script src="js/sad.js"></script>
+<script src="js/security.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/app.js"></script>
 
