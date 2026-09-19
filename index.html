@@ -9,8 +9,6 @@
 
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <!-- =========================================
      AUTH
 ========================================= -->
@@ -275,11 +273,11 @@
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openSecurity()">
                     <div class="module-icon">🛡️</div>
                     <div class="module-title">Bezpieczeństwo</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Status bezpieczeństwa, instrukcje, służby i historia zdarzeń.
                     </div>
                 </div>
 
@@ -299,11 +297,11 @@
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openParish()">
                     <div class="module-icon">⛪</div>
                     <div class="module-title">Parafia</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Msze święte, intencje, ogłoszenia i informacje parafialne.
                     </div>
                 </div>
 
@@ -4389,12 +4387,9 @@ init();
 </script>
 
 
-<script src="js/home.js"></script>
-<script src="js/urzad.js"></script>
-<script src="js/pensje.js"></script>
-<script src="js/sad.js"></script>
-<script src="js/admin.js"></script>
-<script src="js/bank.js"></script>
+<script src="js/bank.js?v=3"></script>
+<script src="js/security.js?v=3"></script>
+<script src="js/parafia.js?v=3"></script>
 
 </body>
 </html>
