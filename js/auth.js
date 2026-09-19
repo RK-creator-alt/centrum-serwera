@@ -89,7 +89,7 @@ async function registerPlayer() {
     }
 
     const { data, error } =
-        await supabaseClient.auth.signUp({
+        await window.supabaseClient.auth.signUp({
 
             email,
             password,
@@ -156,7 +156,7 @@ async function login() {
     }
 
     const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
+        await window.supabaseClient.auth.signInWithPassword({
             email,
             password
         });
@@ -185,7 +185,7 @@ async function login() {
 
 async function logout() {
 
-    await supabaseClient.auth.signOut();
+    await window.supabaseClient.auth.signOut();
 
     currentUser = null;
     currentProfile = null;
@@ -206,7 +206,7 @@ async function loadProfile() {
     if (!currentUser) return;
 
     const { data, error } =
-        await supabaseClient
+        await window.supabaseClient
             .from("profiles")
             .select("*")
             .eq("id", currentUser.id)
