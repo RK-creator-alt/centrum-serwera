@@ -1,36 +1,28 @@
-const SUPABASE_URL =
-    "https://qbhmbawqdgzplwtboqal.supabase.co";
-
-/*
-   Wklej tutaj swój AKTUALNY PUBLISHABLE KEY.
-   Nie używaj secret/service_role.
-*/
-const SUPABASE_KEY =
-    "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9";
+/* =====================================================
+   SUPABASE
+===================================================== */
 
 window.supabaseClient =
     window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
+        "https://qbhmbawqdgzplwtboqal.supabase.co",
+        "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9"
     );
-
 
 /* =====================================================
    GLOBAL STATE
+   Stored on window so this file cannot collide with an older
+   inline script that may still exist in index.html.
 ===================================================== */
 
-let currentUser = null;
-let currentProfile = null;
-
-let players = [];
-let selectedPlayer = null;
-let selectedPlayerProperties = [];
-
-let taxDefinitions = [];
-let licenseDefinitions = [];
-let feeDefinitions = [];
-let serverSettings = null;
-
+window.currentUser = window.currentUser ?? null;
+window.currentProfile = window.currentProfile ?? null;
+window.players = window.players ?? [];
+window.selectedPlayer = window.selectedPlayer ?? null;
+window.selectedPlayerProperties = window.selectedPlayerProperties ?? [];
+window.taxDefinitions = window.taxDefinitions ?? [];
+window.licenseDefinitions = window.licenseDefinitions ?? [];
+window.feeDefinitions = window.feeDefinitions ?? [];
+window.serverSettings = window.serverSettings ?? null;
 
 /* =====================================================
    HELPERS
