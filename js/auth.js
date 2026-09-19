@@ -191,7 +191,7 @@ async function login() {
         return;
     }
 
-    currentUser = data.user;
+    window.currentUser = data.user;
 
     await loadProfile();
 
@@ -209,8 +209,8 @@ async function logout() {
 
     await client.auth.signOut();
 
-    currentUser = null;
-    currentProfile = null;
+    window.currentUser = null;
+    window.currentProfile = null;
 
     $("app").classList.add("hidden");
     $("authScreen").classList.remove("hidden");
@@ -227,30 +227,30 @@ async function loadProfile() {
 
     const client = ensureSupabaseClient();
 
-    if (!currentUser) return;
+    if (!window.currentUser) return;
 
     const { data, error } =
         await client
             .from("profiles")
             .select("*")
-            .eq("id", currentUser.id)
+            .eq("id", window.currentUser.id)
             .single();
 
     if (error) {
 
         console.error(error);
 
-        currentProfile = {
-            id: currentUser.id,
-            username: currentUser.email,
-            display_name: currentUser.email,
+        window.currentProfile = {
+            id: window.currentUser.id,
+            username: window.currentUser.email,
+            display_name: window.currentUser.email,
             role: "player"
         };
 
         return;
     }
 
-    currentProfile = data;
+    window.currentProfile = data;
 }
 
 
