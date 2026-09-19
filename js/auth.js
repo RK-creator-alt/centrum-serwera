@@ -1,3 +1,19 @@
+/* Ensure Supabase exists even if core.js was cached or the scripts were loaded in a different order. */
+function ensureSupabaseClient() {
+    if (window.supabaseClient) return window.supabaseClient;
+
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        throw new Error("Supabase SDK nie został załadowany. Odśwież stronę Ctrl+F5.");
+    }
+
+    window.supabaseClient = window.supabase.createClient(
+        "https://qbhmbawqdgzplwtboqal.supabase.co",
+        "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9"
+    );
+
+    return window.supabaseClient;
+}
+
 function showMessage(text, type = "ok") {
 
     const box = $("authMessage");
@@ -44,6 +60,8 @@ function showRegister() {
 
 async function registerPlayer() {
 
+    const client = ensureSupabaseClient();
+
     hideMessage();
 
     const nick =
@@ -89,7 +107,7 @@ async function registerPlayer() {
     }
 
     const { data, error } =
-        await window.supabaseClient.auth.signUp({
+        await client.auth.signUp({
 
             email,
             password,
@@ -137,6 +155,8 @@ async function registerPlayer() {
 
 async function login() {
 
+    const client = ensureSupabaseClient();
+
     hideMessage();
 
     const email =
@@ -156,7 +176,7 @@ async function login() {
     }
 
     const { data, error } =
-        await window.supabaseClient.auth.signInWithPassword({
+        await client.auth.signInWithPassword({
             email,
             password
         });
@@ -185,7 +205,9 @@ async function login() {
 
 async function logout() {
 
-    await window.supabaseClient.auth.signOut();
+    const client = ensureSupabaseClient();
+
+    await client.auth.signOut();
 
     currentUser = null;
     currentProfile = null;
@@ -203,10 +225,12 @@ async function logout() {
 
 async function loadProfile() {
 
+    const client = ensureSupabaseClient();
+
     if (!currentUser) return;
 
     const { data, error } =
-        await window.supabaseClient
+        await client
             .from("profiles")
             .select("*")
             .eq("id", currentUser.id)

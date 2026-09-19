@@ -2,11 +2,17 @@
    SUPABASE
 ===================================================== */
 
-window.supabaseClient =
-    window.supabase.createClient(
-        "https://qbhmbawqdgzplwtboqal.supabase.co",
-        "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9"
-    );
+/* Supabase client — use an existing client if the page already created one. */
+if (!window.supabaseClient) {
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        console.error("Supabase SDK nie został załadowany przed core.js.");
+    } else {
+        window.supabaseClient = window.supabase.createClient(
+            "https://qbhmbawqdgzplwtboqal.supabase.co",
+            "sb_publishable_Ixd8sxNPq3e8ImNjmHr9RQ_tOGNGPO9"
+        );
+    }
+}
 
 /* =====================================================
    GLOBAL STATE
