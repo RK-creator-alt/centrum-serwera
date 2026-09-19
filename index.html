@@ -309,11 +309,11 @@
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openParish()">
                     <div class="module-icon">⛪</div>
                     <div class="module-title">Parafia</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Msze święte, intencje, ogłoszenia i informacje parafialne.
                     </div>
                 </div>
 
@@ -493,6 +493,42 @@
             <div id="myInsurancesContent"></div>
 
         </div>
+
+        <!-- =====================================
+             PARISH
+        ====================================== -->
+
+        <div id="parishPage" class="hidden">
+
+            <button class="back" onclick="goHome()">← Wróć</button>
+
+            <div class="card">
+                <h1>⛪ Parafia</h1>
+                <div id="parishWelcomeContent">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>⛪ Kościoły i adresy</h2>
+                <div id="parishChurchesContent">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>🕊️ Terminarz Mszy Świętych</h2>
+                <div id="parishMassScheduleContent">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>🕯️ Intencje Mszalne</h2>
+                <div id="parishIntentionsContent">Ładowanie...</div>
+            </div>
+
+            <div class="card">
+                <h2>📢 Ogłoszenia duszpasterskie</h2>
+                <div id="parishAnnouncementsContent">Ładowanie...</div>
+            </div>
+
+        </div>
+
 
         <!-- =====================================
              COURT
@@ -1187,6 +1223,167 @@
             </div>
 
 
+            <div class="admin-section-heading"><span>⛪</span><div><strong>Parafia</strong><small>Informacje, Msze Święte, intencje i ogłoszenia</small></div></div>
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>⛪ Informacje parafialne</h2>
+                        <p class="muted">Dane wyświetlane graczom w zakładce Parafia.</p>
+                    </div>
+                    <button class="primary" onclick="saveParishInfo()">💾 Zapisz informacje</button>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Tytuł powitania</label>
+                        <input id="parishWelcomeTitle" placeholder="Witamy w naszej parafii!">
+                    </div>
+                    <div class="field">
+                        <label>Proboszcz</label>
+                        <input id="parishPastorName" placeholder="Imię i nazwisko">
+                    </div>
+                    <div class="field">
+                        <label>Adres kancelarii</label>
+                        <input id="parishOfficeAddress">
+                    </div>
+                    <div class="field">
+                        <label>Telefon</label>
+                        <input id="parishOfficePhone">
+                    </div>
+                    <div class="field">
+                        <label>E-mail</label>
+                        <input id="parishOfficeEmail" type="email">
+                    </div>
+                    <div class="field">
+                        <label>Godziny kancelarii</label>
+                        <input id="parishOfficeHours">
+                    </div>
+                </div>
+
+                <br>
+                <div class="field">
+                    <label>Tekst powitalny / informacje ogólne</label>
+                    <textarea id="parishWelcomeText" placeholder="Kilka zdań o parafii..."></textarea>
+                </div>
+
+                <br>
+                <div class="field">
+                    <label>Dodatkowe informacje</label>
+                    <textarea id="parishAdditionalInfo" placeholder="Inne ważne informacje dla wiernych."></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>📍 Kościoły i adresy</h2>
+                        <p class="muted">Możesz prowadzić kilka kościołów / kaplic.</p>
+                    </div>
+                    <button class="primary" onclick="showParishChurchForm()">➕ Dodaj kościół</button>
+                </div>
+
+                <div id="parishChurchForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="parishChurchId">
+                    <div class="form-grid">
+                        <div class="field"><label>Nazwa</label><input id="parishChurchName"></div>
+                        <div class="field"><label>Adres</label><input id="parishChurchAddress"></div>
+                        <div class="field"><label>Kolejność</label><input id="parishChurchOrder" type="number" value="0"></div>
+                        <div class="field"><label>Aktywny</label><select id="parishChurchActive"><option value="true">Tak</option><option value="false">Nie</option></select></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Opis</label><textarea id="parishChurchDescription" placeholder="Np. wejście od strony rynku."></textarea></div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveParishChurch()">💾 Zapisz</button>
+                        <button onclick="cancelParishChurchForm()">Anuluj</button>
+                    </div>
+                </div>
+                <div id="adminParishChurches" style="margin-top:16px;"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>🕊️ Terminarz Mszy Świętych</h2>
+                        <p class="muted">Wpisz np. „Poniedziałek–Piątek” + 18:00 + „wystawienie”.</p>
+                    </div>
+                    <button class="primary" onclick="showParishMassForm()">➕ Dodaj Mszę</button>
+                </div>
+
+                <div id="parishMassForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="parishMassId">
+                    <div class="form-grid">
+                        <div class="field"><label>Dni</label><input id="parishMassDays" placeholder="Poniedziałek–Piątek"></div>
+                        <div class="field"><label>Godzina</label><input id="parishMassTime" type="time"></div>
+                        <div class="field"><label>Kościół</label><input id="parishMassChurch" placeholder="Nazwa kościoła"></div>
+                        <div class="field"><label>Kolejność</label><input id="parishMassOrder" type="number" value="0"></div>
+                        <div class="field"><label>Aktywna</label><select id="parishMassActive"><option value="true">Tak</option><option value="false">Nie</option></select></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Opis / szczegóły</label><textarea id="parishMassDetails" placeholder="Np. z wystawieniem Najświętszego Sakramentu"></textarea></div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveParishMass()">💾 Zapisz</button>
+                        <button onclick="cancelParishMassForm()">Anuluj</button>
+                    </div>
+                </div>
+                <div id="adminParishMasses" style="margin-top:16px;"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>🕯️ Intencje Mszalne</h2>
+                        <p class="muted">Przypisz intencję do istniejącego terminu Mszy i podaj konkretną datę.</p>
+                    </div>
+                    <button class="primary" onclick="showParishIntentionForm()">➕ Dodaj intencję</button>
+                </div>
+
+                <div id="parishIntentionForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="parishIntentionId">
+                    <div class="form-grid">
+                        <div class="field"><label>Zaplanowana Msza</label><select id="parishIntentionSchedule"></select></div>
+                        <div class="field"><label>Data</label><input id="parishIntentionDate" type="date"></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Intencja</label><textarea id="parishIntentionText" placeholder="Np. O zdrowie dla..."></textarea></div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveParishIntention()">💾 Zapisz</button>
+                        <button onclick="cancelParishIntentionForm()">Anuluj</button>
+                    </div>
+                </div>
+                <div id="adminParishIntentions" style="margin-top:16px;"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>📢 Ogłoszenia duszpasterskie</h2>
+                        <p class="muted">Gracze zobaczą tytuł, a treść będzie rozwijana po kliknięciu.</p>
+                    </div>
+                    <button class="primary" onclick="showParishAnnouncementForm()">➕ Dodaj ogłoszenie</button>
+                </div>
+
+                <div id="parishAnnouncementForm" class="hidden">
+                    <hr style="border-color:#213650;margin:18px 0;">
+                    <input type="hidden" id="parishAnnouncementId">
+                    <div class="form-grid">
+                        <div class="field"><label>Tytuł</label><input id="parishAnnouncementTitle" placeholder="Tytuł ogłoszenia"></div>
+                        <div class="field"><label>Opublikowane</label><select id="parishAnnouncementPublished"><option value="true">Tak</option><option value="false">Nie</option></select></div>
+                    </div>
+                    <br>
+                    <div class="field"><label>Treść</label><textarea id="parishAnnouncementContent" placeholder="Treść ogłoszenia..."></textarea></div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveParishAnnouncement()">💾 Zapisz</button>
+                        <button onclick="cancelParishAnnouncementForm()">Anuluj</button>
+                    </div>
+                </div>
+                <div id="adminParishAnnouncements" style="margin-top:16px;"></div>
+            </div>
+
+
             <div class="admin-section-heading"><span>📊</span><div><strong>Definicje i bezpieczeństwo</strong><small>Reguły systemu oraz informacje bezpieczeństwa</small></div></div>
 
             <!-- TAX DEFINITIONS -->
@@ -1348,6 +1545,7 @@
 <script src="js/admin.js"></script>
 <script src="js/app.js"></script>
 <script src="js/ubezpieczenia.js"></script>
+<script src="js/parafia.js"></script>
 
 </body>
 </html>
