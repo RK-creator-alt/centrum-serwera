@@ -252,7 +252,7 @@
     }
 
     async function submitBankApplication() {
-        if (!currentUser) return;
+        if (!currentUser) { alert("Musisz być zalogowany, aby złożyć wniosek."); return; }
         const amount = Number($("bankApplicationAmount").value || 0);
         const installments = Number($("bankApplicationInstallments").value || 0);
         if (amount <= 0 || installments <= 0) return alert("Podaj poprawną kwotę i liczbę rat.");
@@ -466,6 +466,34 @@
         await loadBankAdminApplications();
     }
 
+
+async function deleteBankLoan(id) {
+    if (!isAdmin()) return;
+    if (!confirm("Usunąć to zobowiązanie razem z harmonogramem rat? Tej operacji nie można cofnąć.")) return;
+
+    const payments = await supabaseClient
+        .from("bank_installment_payments")
+        .delete()
+        .eq("loan_id", id);
+    if (payments.error) {
+        alert(payments.error.message);
+        return;
+    }
+
+    const loan = await supabaseClient
+        .from("bank_loans")
+        .delete()
+        .eq("id", id);
+    if (loan.error) {
+        alert(loan.error.message);
+        return;
+    }
+
+    await loadBankAdminLoans();
+    await loadBankAdminApplications();
+    alert("Zobowiązanie zostało usunięte.");
+}
+
     async function loadBankAdminLoans() {
         const box = $("bankAdminLoansContent");
         if (!box) return;
@@ -476,7 +504,7 @@
         const { data, error } = await supabaseClient.from("bank_loans").select("*").eq("user_id", selectedPlayer.id).order("created_at", { ascending: false });
         if (error) return box.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`;
         if (!data?.length) return box.innerHTML = `<p class="muted">Ten gracz nie ma zobowiązań.</p>`;
-        box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Rodzaj</th><th>Kwota</th><th>Oprocentowanie</th><th>Do spłaty</th><th>Raty</th><th>Rata</th><th>Spłacono</th><th>Status</th></tr></thead><tbody>${data.map(l => `<tr><td>${bankTypeLabel(l.loan_type)}</td><td>${bankMoney(l.principal_amount)}</td><td>${Number(l.interest_percent).toFixed(2)}%</td><td>${bankMoney(l.total_amount)}</td><td>${l.installments_count}</td><td>${bankMoney(l.installment_amount)}</td><td>${bankMoney(l.paid_amount)}</td><td>${bankStatusLabel(l.status)}</td></tr>`).join("")}</tbody></table></div>`;
+        box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Rodzaj</th><th>Kwota</th><th>Oprocentowanie</th><th>Do spłaty</th><th>Raty</th><th>Rata</th><th>Spłacono</th><th>Status</th><th>Akcje</th></tr></thead><tbody>${data.map(l => `<tr><td>${bankTypeLabel(l.loan_type)}</td><td>${bankMoney(l.principal_amount)}</td><td>${Number(l.interest_percent).toFixed(2)}%</td><td>${bankMoney(l.total_amount)}</td><td>${l.installments_count}</td><td>${bankMoney(l.installment_amount)}</td><td>${bankMoney(l.paid_amount)}</td><td>${bankStatusLabel(l.status)}</td><td><button class="danger" onclick="deleteBankLoan('${l.id}')">🗑️ Usuń</button></td></tr>`).join("")}</tbody></table></div>`;
     }
 
     function openBank() {
@@ -503,6 +531,7 @@
     window.recalculateBankApproval = recalculateBankApproval;
     window.approveBankApplication = approveBankApplication;
     window.rejectBankApplication = rejectBankApplication;
+    window.deleteBankLoan = deleteBankLoan;
 
     const originalBankOpenAdmin = window.openAdmin;
     if (typeof originalBankOpenAdmin === "function") {

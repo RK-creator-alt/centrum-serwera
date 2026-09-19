@@ -7,6 +7,44 @@ let parishAdminMasses = [];
 let parishAdminIntentions = [];
 let parishAdminAnnouncements = [];
 
+/* Integrated page/admin UI */
+function ensureParishPage() {
+    if ($("parishPage")) return;
+    const page = document.createElement("div");
+    page.id = "parishPage";
+    page.className = "hidden";
+    page.innerHTML = `
+        <button class="back" onclick="goHome()">← Wróć</button>
+        <div class="card"><h1>⛪ Parafia</h1><div id="parishWelcomeContent">Ładowanie...</div></div>
+        <div class="card"><h2>⛪ Kościoły i adresy</h2><div id="parishChurchesContent">Ładowanie...</div></div>
+        <div class="card"><h2>🕊️ Terminarz Mszy Świętych</h2><div id="parishMassScheduleContent">Ładowanie...</div></div>
+        <div class="card"><h2>🕯️ Intencje Mszalne</h2><div id="parishIntentionsContent">Ładowanie...</div></div>
+        <div class="card"><h2>📢 Ogłoszenia duszpasterskie</h2><div id="parishAnnouncementsContent">Ładowanie...</div></div>`;
+    $("app").querySelector(".container").appendChild(page);
+    if (typeof pages !== "undefined" && !pages.includes("parishPage")) pages.push("parishPage");
+}
+
+function ensureParishAdminCard() {
+    if (!isAdmin() || $("parishAdminCard")) return;
+    const card = document.createElement("div");
+    card.id = "parishAdminCard";
+    card.className = "card";
+    card.innerHTML = `
+        <div class="admin-section-heading"><span>⛪</span><div><strong>Parafia</strong><small>Informacje, Msze Święte, intencje i ogłoszenia</small></div></div>
+        <div class="section-title"><div><h2>⛪ Informacje parafialne</h2><p class="muted">Dane wyświetlane graczom w zakładce Parafia.</p></div><button class="primary" onclick="saveParishInfo()">💾 Zapisz informacje</button></div>
+        <div class="form-grid"><div class="field"><label>Tytuł powitania</label><input id="parishWelcomeTitle"></div><div class="field"><label>Proboszcz</label><input id="parishPastorName"></div><div class="field"><label>Adres kancelarii</label><input id="parishOfficeAddress"></div><div class="field"><label>Telefon</label><input id="parishOfficePhone"></div><div class="field"><label>E-mail</label><input id="parishOfficeEmail" type="email"></div><div class="field"><label>Godziny kancelarii</label><input id="parishOfficeHours"></div></div><br>
+        <div class="field"><label>Tekst powitalny / informacje ogólne</label><textarea id="parishWelcomeText"></textarea></div><br><div class="field"><label>Dodatkowe informacje</label><textarea id="parishAdditionalInfo"></textarea></div>
+        <hr><div class="section-title"><h2>📍 Kościoły i adresy</h2><button class="primary" onclick="showParishChurchForm()">➕ Dodaj kościół</button></div>
+        <div id="parishChurchForm" class="hidden"><input type="hidden" id="parishChurchId"><div class="form-grid"><div class="field"><label>Nazwa</label><input id="parishChurchName"></div><div class="field"><label>Adres</label><input id="parishChurchAddress"></div><div class="field"><label>Kolejność</label><input id="parishChurchOrder" type="number" value="0"></div><div class="field"><label>Aktywny</label><select id="parishChurchActive"><option value="true">Tak</option><option value="false">Nie</option></select></div></div><br><div class="field"><label>Opis</label><textarea id="parishChurchDescription"></textarea></div><button class="primary" onclick="saveParishChurch()">💾 Zapisz</button> <button onclick="cancelParishChurchForm()">Anuluj</button></div><div id="adminParishChurches"></div>
+        <hr><div class="section-title"><h2>🕊️ Terminarz Mszy Świętych</h2><button class="primary" onclick="showParishMassForm()">➕ Dodaj Mszę</button></div>
+        <div id="parishMassForm" class="hidden"><input type="hidden" id="parishMassId"><div class="form-grid"><div class="field"><label>Dni</label><input id="parishMassDays" placeholder="Poniedziałek–Piątek"></div><div class="field"><label>Godzina</label><input id="parishMassTime" type="time"></div><div class="field"><label>Kościół</label><input id="parishMassChurch"></div><div class="field"><label>Kolejność</label><input id="parishMassOrder" type="number" value="0"></div><div class="field"><label>Aktywna</label><select id="parishMassActive"><option value="true">Tak</option><option value="false">Nie</option></select></div></div><br><div class="field"><label>Opis / szczegóły</label><textarea id="parishMassDetails"></textarea></div><button class="primary" onclick="saveParishMass()">💾 Zapisz</button> <button onclick="cancelParishMassForm()">Anuluj</button></div><div id="adminParishMasses"></div>
+        <hr><div class="section-title"><h2>🕯️ Intencje Mszalne</h2><button class="primary" onclick="showParishIntentionForm()">➕ Dodaj intencję</button></div>
+        <div id="parishIntentionForm" class="hidden"><input type="hidden" id="parishIntentionId"><div class="form-grid"><div class="field"><label>Zaplanowana Msza</label><select id="parishIntentionSchedule"></select></div><div class="field"><label>Data</label><input id="parishIntentionDate" type="date"></div></div><br><div class="field"><label>Intencja</label><textarea id="parishIntentionText"></textarea></div><button class="primary" onclick="saveParishIntention()">💾 Zapisz</button> <button onclick="cancelParishIntentionForm()">Anuluj</button></div><div id="adminParishIntentions"></div>
+        <hr><div class="section-title"><h2>📢 Ogłoszenia duszpasterskie</h2><button class="primary" onclick="showParishAnnouncementForm()">➕ Dodaj ogłoszenie</button></div>
+        <div id="parishAnnouncementForm" class="hidden"><input type="hidden" id="parishAnnouncementId"><div class="form-grid"><div class="field"><label>Tytuł</label><input id="parishAnnouncementTitle"></div><div class="field"><label>Opublikowane</label><select id="parishAnnouncementPublished"><option value="true">Tak</option><option value="false">Nie</option></select></div></div><br><div class="field"><label>Treść</label><textarea id="parishAnnouncementContent"></textarea></div><button class="primary" onclick="saveParishAnnouncement()">💾 Zapisz</button> <button onclick="cancelParishAnnouncementForm()">Anuluj</button></div><div id="adminParishAnnouncements"></div>`;
+    $("adminPage").appendChild(card);
+}
+
 function parishFormatTime(value) {
     if (!value) return "-";
     const text = String(value);
@@ -37,6 +75,8 @@ function parishStatus(status) {
 }
 
 async function openParish() {
+    ensureParishPage();
+    ensureParishAdminCard();
     const page = $("parishPage");
 
     if (!page) {
@@ -51,9 +91,6 @@ async function openParish() {
 }
 
 /* Add the new page to the existing navigation without changing app.js. */
-if (typeof pages !== "undefined" && !pages.includes("parishPage")) {
-    pages.push("parishPage");
-}
 
 async function loadParish() {
     const welcomeBox = $("parishWelcomeContent");
@@ -765,7 +802,11 @@ if (typeof loadAdminData === "function" && !window.__parishAdminHookInstalled) {
     const parishOriginalLoadAdminData = loadAdminData;
 
     loadAdminData = async function() {
+        ensureParishAdminCard();
         await parishOriginalLoadAdminData();
         await loadAdminParish();
     };
 }
+
+ensureParishPage();
+if (typeof isAdmin === "function" && isAdmin()) ensureParishAdminCard();

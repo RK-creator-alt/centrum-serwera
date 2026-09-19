@@ -1,13 +1,55 @@
+/* SECURITY MODULE - integrated */
+
+function ensureSecurityPage() {
+    if ($("securityPage")) return;
+
+    const page = document.createElement("div");
+    page.id = "securityPage";
+    page.className = "hidden";
+    page.innerHTML = `
+        <button class="back" onclick="goHome()">← Wróć</button>
+        <div class="card"><h1>🛡️ Bezpieczeństwo</h1><p class="muted">Informacje dotyczące bezpieczeństwa serwera i jego mieszkańców.</p></div>
+        <div class="card"><h2>🛡️ Status bezpieczeństwa</h2><div id="securityStatusBox">Ładowanie...</div></div>
+        <div class="card"><h2>📖 Podstawowe instrukcje</h2><div id="securityInstructions">Ładowanie...</div></div>
+        <div class="card"><h2>👮 Uprawnienia służb</h2><div id="securityServices">Ładowanie...</div></div>
+        <div class="card"><h2>📜 Historia zdarzeń</h2><div id="securityEvents">Ładowanie...</div></div>
+        <div class="card"><h2>🔐 Bezpieczeństwo mojego konta</h2><p class="muted">Dbaj o swoje konto. Nie udostępniaj nikomu hasła.</p>
+            <div class="form-actions"><button class="primary" onclick="changePassword()">🔑 Zmień hasło</button><button class="danger" onclick="logoutAllSessions()">🚪 Wyloguj wszystkie sesje</button></div>
+        </div>`;
+    document.querySelector(".container").appendChild(page);
+    if (typeof pages !== "undefined" && !pages.includes("securityPage")) pages.push("securityPage");
+}
+
+function ensureSecurityAdminCard() {
+    if (!isAdmin() || $("securityAdminCard")) return;
+    const card = document.createElement("div");
+    card.id = "securityAdminCard";
+    card.className = "card";
+    card.innerHTML = `
+        <div class="admin-section-heading"><span>🛡️</span><div><strong>Bezpieczeństwo</strong><small>Status, instrukcje, służby i historia zdarzeń</small></div></div>
+        <h3>Status bezpieczeństwa</h3>
+        <div class="form-grid"><div class="field"><label>Status</label><select id="adminSecurityStatus"><option value="Bezpieczny">Bezpieczny</option><option value="Ostrzeżenie">Ostrzeżenie</option><option value="Zagrożenie">Zagrożenie</option></select></div><div class="field"><label>Komunikat</label><input id="adminSecurityMessage" placeholder="Komunikat bezpieczeństwa"></div></div><br>
+        <button class="primary" onclick="saveSecurityStatus()">💾 Zapisz status</button>
+        <hr><h3>Instrukcje bezpieczeństwa</h3><input type="hidden" id="editSecurityInstructionId"><div class="form-grid"><div class="field"><label>Tytuł</label><input id="securityInstructionTitle"></div><div class="field"><label>Treść</label><textarea id="securityInstructionContent"></textarea></div></div><br>
+        <button class="primary" onclick="saveSecurityInstruction()">💾 Zapisz instrukcję</button> <button onclick="cancelSecurityInstructionForm()">Anuluj</button><div id="adminSecurityInstructions" style="margin-top:16px;"></div>
+        <hr><h3>Uprawnienia służb</h3><input type="hidden" id="editSecurityServiceId"><div class="form-grid"><div class="field"><label>Nazwa służby</label><input id="securityServiceName"></div><div class="field"><label>Uprawnienia</label><textarea id="securityServicePermissions"></textarea></div><div class="field"><label>Ograniczenia</label><textarea id="securityServiceRestrictions"></textarea></div></div><br>
+        <button class="primary" onclick="saveSecurityService()">💾 Zapisz służbę</button> <button onclick="cancelSecurityServiceForm()">Anuluj</button><div id="adminSecurityServices" style="margin-top:16px;"></div>
+        <hr><h3>Historia zdarzeń</h3><input type="hidden" id="editSecurityEventId"><div class="form-grid"><div class="field"><label>Rodzaj</label><input id="securityEventType" placeholder="np. Incydent"></div><div class="field"><label>Data i czas</label><input id="securityEventDate" type="datetime-local"></div><div class="field"><label>Służba</label><input id="securityEventService" placeholder="np. Policja"></div><div class="field"><label>Opis</label><textarea id="securityEventDescription"></textarea></div></div><br>
+        <button class="primary" onclick="saveSecurityEvent()">💾 Zapisz zdarzenie</button> <button onclick="cancelSecurityEventForm()">Anuluj</button><div id="adminSecurityEvents" style="margin-top:16px;"></div>`;
+    $("adminPage").appendChild(card);
+}
+
+async function openSecurity() {
+    ensureSecurityPage();
+    hideAllPages();
+    $("securityPage").classList.remove("hidden");
+    await loadSecurity();
+}
+
 /* SECURITY */
 
 async function loadSecurity() {
     if (!currentUser) return;
-
-    const page = $("securityPage");
-    if (!page) {
-        console.error("Brak #securityPage w index.html");
-        return;
-    }
 
     await Promise.all([
         loadSecurityStatus(),
@@ -270,4 +312,16 @@ async function logoutAllSessions() {
     const { error } = await supabaseClient.auth.signOut({ scope: "global" });
     if (error) { alert(error.message); return; }
     showLogin();
+}
+
+
+/* Admin integration: create the card before the existing admin loader uses its fields. */
+if (typeof loadAdminData === "function" && !window.__securityAdminHookInstalled) {
+    window.__securityAdminHookInstalled = true;
+    const securityOriginalLoadAdminData = loadAdminData;
+    loadAdminData = async function () {
+        ensureSecurityAdminCard();
+        await securityOriginalLoadAdminData();
+        await loadAdminSecurity();
+    };
 }
