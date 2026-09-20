@@ -116,54 +116,89 @@
         return tvwCategories.find(c => String(c.id) === String(id))?.name || "Bez kategorii";
     }
 
+    function tvwMediaImage(url, alt, className = "tvw-thumbnail") {
+        if (!url) return "";
+        return `<img class="${className}" src="${escapeHtml(url)}" alt="${escapeHtml(alt || "")}" loading="lazy">`;
+    }
+
+    function renderCollapsedItems(items, renderer, label) {
+        if (!items.length) return "";
+        return `
+            <details class="tvw-collapsed-list">
+                <summary>📚 Pokaż pozostałe ${escapeHtml(label)} (${items.length})</summary>
+                <div style="margin-top:12px;">${items.map(renderer).join("")}</div>
+            </details>
+        `;
+    }
+
     function renderPublicArticles(rows = tvwArticles.filter(a => a.status === "published")) {
         if (!rows.length) {
             return `<p class="muted">Brak opublikowanych artykułów.</p>`;
         }
 
-        return rows.map(a => `
-            <article style="padding:18px 0;border-bottom:1px solid rgba(148,163,184,.15);">
+        const [latest, ...older] = rows;
+        const renderArticle = a => `
+            <article class="tvw-item">
                 <div class="muted" style="font-size:13px;">${escapeHtml(categoryName(a.category_id))} · ${datePL(a.published_at || a.created_at)}</div>
                 <h3>${escapeHtml(a.title)}</h3>
-                ${a.cover_url ? `<img src="${escapeHtml(a.cover_url)}" alt="" style="max-width:100%;border-radius:14px;margin:8px 0 14px;">` : ""}
+                ${tvwMediaImage(a.cover_url, a.title)}
                 <div class="muted" style="margin-bottom:10px;">Autor: ${escapeHtml(a.author_name || "Redakcja")}</div>
                 <div style="white-space:pre-wrap;line-height:1.7;">${escapeHtml(a.content)}</div>
             </article>
-        `).join("");
+        `;
+
+        return `
+            ${renderArticle(latest)}
+            ${renderCollapsedItems(older, renderArticle, "starszych artykułów")}
+        `;
     }
 
     function renderPublicVideos() {
         const rows = tvwVideos.filter(v => v.status === "published");
         if (!rows.length) return `<p class="muted">Brak opublikowanych materiałów TVW.</p>`;
-        return rows.map(v => `
-            <article style="padding:16px 0;border-bottom:1px solid rgba(148,163,184,.15);">
+
+        const [latest, ...older] = rows;
+        const renderVideo = v => `
+            <article class="tvw-item">
                 <h3>${escapeHtml(v.title)}</h3>
                 <div class="muted">${datePL(v.published_at || v.created_at)} · ${escapeHtml(v.author_name || "TVW")}</div>
-                ${v.thumbnail_url ? `<img src="${escapeHtml(v.thumbnail_url)}" alt="" style="max-width:100%;border-radius:14px;margin:12px 0;">` : ""}
+                ${tvwMediaImage(v.thumbnail_url, v.title, "tvw-thumbnail tvw-video-thumbnail")}
                 <p style="white-space:pre-wrap;">${escapeHtml(v.description || "")}</p>
                 ${v.video_url ? `<a class="primary" href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener">▶ Otwórz materiał</a>` : ""}
             </article>
-        `).join("");
+        `;
+
+        return `
+            ${renderVideo(latest)}
+            ${renderCollapsedItems(older, renderVideo, "starszych materiałów TVW")}
+        `;
     }
 
     function renderPublicInterviews() {
         const rows = tvwInterviews.filter(i => i.status === "published");
         if (!rows.length) return `<p class="muted">Brak opublikowanych wywiadów.</p>`;
-        return rows.map(i => `
-            <article style="padding:16px 0;border-bottom:1px solid rgba(148,163,184,.15);">
+
+        const [latest, ...older] = rows;
+        const renderInterview = i => `
+            <article class="tvw-item">
                 <div class="muted">Wywiad · ${datePL(i.published_at || i.created_at)}</div>
                 <h3>${escapeHtml(i.title)}</h3>
                 <p><strong>${escapeHtml(i.person || "Gość")}</strong>${i.person_role ? ` · ${escapeHtml(i.person_role)}` : ""}</p>
                 <div style="white-space:pre-wrap;line-height:1.7;">${escapeHtml(i.content || "")}</div>
             </article>
-        `).join("");
+        `;
+
+        return `
+            ${renderInterview(latest)}
+            ${renderCollapsedItems(older, renderInterview, "starszych wywiadów")}
+        `;
     }
 
     function renderPublicEvents() {
         const rows = tvwEvents.filter(e => e.status === "published");
         if (!rows.length) return `<p class="muted">Brak opublikowanych wydarzeń.</p>`;
         return rows.map(e => `
-            <article style="padding:16px 0;border-bottom:1px solid rgba(148,163,184,.15);">
+            <article class="tvw-item">
                 <h3>${escapeHtml(e.title)}</h3>
                 <div class="muted">${datePL(e.event_date)}${e.event_time ? ` · ${escapeHtml(e.event_time)}` : ""}${e.location ? ` · ${escapeHtml(e.location)}` : ""}</div>
                 <p style="white-space:pre-wrap;">${escapeHtml(e.description || "")}</p>

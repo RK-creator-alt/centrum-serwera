@@ -13,46 +13,11 @@ function insuranceStatusBadge(status) {
     return `<span class="status-badge ${cls}">${label}</span>`;
 }
 
-/*
-   WEJŚCIE GRACZA DO MODUŁU UBEZPIECZENIA
-   Ta funkcja jest tutaj celowo, ponieważ kafelek w index.html
-   wywołuje onclick="openMyInsurances()".
-*/
-async function openMyInsurances() {
-    const page = $("myInsurancesPage");
-
-    if (!page) {
-        console.error("Brak elementu #myInsurancesPage w index.html");
-        return;
-    }
-
-    if (typeof hideAllPages !== "function") {
-        console.error("Brak funkcji hideAllPages(). Sprawdź app.js.");
-        return;
-    }
-
-    hideAllPages();
-    page.classList.remove("hidden");
-
-    await loadMyInsurances();
-}
-
 
 async function loadMyInsurances() {
     const box = $("myInsurancesContent");
 
-    if (!box) {
-        console.error("Brak elementu #myInsurancesContent w index.html");
-        return;
-    }
-
-    if (!currentUser) {
-        box.innerHTML = `
-            <div class="card">
-                <p class="muted">Musisz być zalogowany, aby wyświetlić swoje ubezpieczenia.</p>
-            </div>`;
-        return;
-    }
+    if (!box || !currentUser) return;
 
     box.innerHTML = `<div class="card">Ładowanie...</div>`;
 
@@ -63,7 +28,6 @@ async function loadMyInsurances() {
         .order("valid_until", { ascending: true });
 
     if (error) {
-        console.error("Błąd ładowania ubezpieczeń gracza:", error);
         box.innerHTML = `<div class="card"><p>${escapeHtml(error.message)}</p></div>`;
         return;
     }
@@ -122,7 +86,6 @@ async function loadAdminInsurances() {
         .order("valid_until", { ascending: true });
 
     if (error) {
-        console.error("Błąd ładowania ubezpieczeń administratora:", error);
         box.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
         return;
     }
@@ -211,10 +174,7 @@ function editInsurance(i) {
 
 
 async function saveAdminInsurance() {
-    if (!selectedPlayer) {
-        alert("Najpierw wybierz gracza.");
-        return;
-    }
+    if (!selectedPlayer) return;
 
     const name = $("insuranceName").value.trim();
     const protection = $("insuranceProtection").value.trim();
