@@ -306,11 +306,11 @@
                     </div>
                 </div>
 
-                <div class="module">
+                <div class="module" onclick="openTVW()">
                     <div class="module-icon">📺</div>
                     <div class="module-title">TVW / Redakcja</div>
                     <div class="module-desc">
-                        Moduł przygotowany pod dalszą rozbudowę.
+                        Aktualności, materiały TVW, wywiady, wydarzenia i zgłoszenia.
                     </div>
                 </div>
 
@@ -454,6 +454,13 @@
             </div>
 
         </div>
+
+
+        <!-- =====================================
+             TVW / REDAKCJA
+        ====================================== -->
+
+        <div id="tvwPage" class="hidden"></div>
 
 
         <!-- =====================================
@@ -619,6 +626,23 @@
                 </select>
 
                 <div id="selectedPlayerInfo" class="muted" style="margin-top:12px;"></div>
+
+                <div id="adminRoleCard" class="card" style="margin-top:14px;">
+                    <h3>🖊️ Ranga redaktora</h3>
+                    <p id="adminRoleStatus" class="muted">Najpierw wybierz gracza.</p>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Ranga</label>
+                            <select id="adminPlayerRole">
+                                <option value="player">Gracz</option>
+                                <option value="redaktor">Redaktor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="saveTVWPlayerRole()">💾 Zapisz rangę</button>
+                    </div>
+                </div>
 
             </div>
 
@@ -1598,7 +1622,9 @@ function renderHomeProfile() {
         currentProfile?.display_name || currentProfile?.username || "-";
 
     if ($("profileRole")) $("profileRole").textContent =
-        currentProfile?.role === "admin" ? "Administrator" : "Gracz";
+        currentProfile?.role === "admin"
+            ? "Administrator"
+            : (currentProfile?.role === "redaktor" ? "Redaktor" : "Gracz");
 
     if ($("profileCreatedAt")) $("profileCreatedAt").textContent =
         datePL(currentUser.created_at);
@@ -4391,6 +4417,7 @@ init();
 <script src="js/bank.js?v=3"></script>
 <script src="js/security.js?v=3"></script>
 <script src="js/parafia.js?v=3"></script>
+<script src="js/tvw.js?v=1"></script>
 
 </body>
 </html>
